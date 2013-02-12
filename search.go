@@ -102,10 +102,19 @@ func (w Warning) Error() string { return fmt.Sprintf("entrez: warning: %s: %q", 
 
 type Op string
 
-func (o Op) Consume(s []Node) []Node {
+func (o Op) Consume(s []Node) Node {
+	// TODO Flesh out Op to be a struct:
+	//
+	//  type Op struct {
+	//  	Operation string
+	//  	Operands  []Node
+	//  }
+	//
+	// Then we can build an AST for the search. To do this we need to understand what
+	// RANGE and GROUP actually do - this is not specified.
 	switch o {
 	case "AND", "OR", "NOT", "RANGE", "GROUP":
-		return s
+		return o
 	}
 	return nil
 }
@@ -117,7 +126,7 @@ type Term struct {
 	Explode bool
 }
 
-func (tm Term) Consume(s []Node) []Node { return s }
+func (tm Term) Consume(_ []Node) Node { return tm }
 
 func (tm *Term) unmarshal(dec *xml.Decoder, st stack) error {
 	for {
@@ -218,7 +227,7 @@ func (tr *Translation) unmarshal(dec *xml.Decoder, st stack) error {
 }
 
 type Node interface {
-	Consume([]Node) []Node
+	Consume([]Node) Node
 }
 
 // A Search holds the deserialised results of an ESearch request.
@@ -320,11 +329,10 @@ func (s *Search) Unmarshal(r io.Reader) error {
 				s.IdList = append(s.IdList, id)
 			case "OP":
 				o := Op(string(t))
-				tmp := o.Consume(s.TranslationStack)
-				if tmp == nil {
+				if o.Consume(s.TranslationStack) == nil {
 					return fmt.Errorf("entrez: illegal operator: %q", o)
 				}
-				s.TranslationStack = append(tmp, o)
+				s.TranslationStack = append(s.TranslationStack, o)
 			case "QueryTranslation":
 				st := string(t)
 				s.QueryTranslation = &st
