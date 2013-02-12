@@ -39,6 +39,9 @@ import (
 	"time"
 )
 
+// The E-utilities default to 'pubmed'. Some functions mark which db was used.
+const defaultDb = "pubmed"
+
 // Limit is a package level limit on requests that can be sent to the Entrez server. This
 // limit is mandated by chapter 2 of the E-utilities manual. Limit is exported to allow reuse
 // of http.Requests provided by NewRequest without overrunning the Entrez request limit.
@@ -286,7 +289,7 @@ func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (
 	if db != "" {
 		v["db"] = []string{db}
 	} else {
-		db = "pubmed"
+		db = defaultDb
 	}
 	if query != "" {
 		v["term"] = []string{query}
@@ -380,7 +383,7 @@ func DoSummary(db string, p *Parameters, tool, email string, h *History, id ...i
 	if db != "" {
 		v["db"] = []string{db}
 	} else {
-		db = "pubmed"
+		db = defaultDb
 	}
 	fillParams(p, v)
 	if h != nil && h.WebEnv != "" && h.QueryKey != 0 {
