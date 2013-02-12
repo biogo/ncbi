@@ -226,6 +226,7 @@ func (tr *Translation) unmarshal(dec *xml.Decoder, st stack) error {
 	panic("cannot reach")
 }
 
+// A Node is an element of the ESearch translation stack.
 type Node interface {
 	Consume([]Node) Node
 }
