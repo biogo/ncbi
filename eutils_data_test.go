@@ -520,8 +520,10 @@ func (s *S) TestParsePost(c *check.C) {
 </ePostResult>
 `,
 			Post{
-				QueryKey: intPtr(1),
-				WebEnv:   stringPtr("NCID_1_298287560_130.14.18.48_5555_1360293704_91337037"),
+				History: &History{
+					QueryKey: 1,
+					WebEnv:   "NCID_1_298287560_130.14.18.48_5555_1360293704_91337037",
+				},
 			},
 		},
 		{
@@ -534,9 +536,11 @@ func (s *S) TestParsePost(c *check.C) {
 </ePostResult>
 `,
 			Post{
-				QueryKey: intPtr(1),
-				WebEnv:   stringPtr("NCID_1_299062774_130.14.18.97_5555_1360293760_1713152879"),
-				Err:      Error("IDs contain invalid characters which was treated as delimiters."),
+				History: &History{
+					QueryKey: 1,
+					WebEnv:   "NCID_1_299062774_130.14.18.97_5555_1360293760_1713152879",
+				},
+				Err: Error("IDs contain invalid characters which was treated as delimiters."),
 			},
 		},
 		{

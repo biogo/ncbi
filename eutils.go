@@ -120,6 +120,8 @@ type Parameters struct {
 	MaxDate    string `param:"maxdate"`
 }
 
+// History stores an Entrez Web Environment and query key. The zero values of QueryKey and WebEnv
+// indicate unset values.
 type History struct {
 	QueryKey int
 	WebEnv   string

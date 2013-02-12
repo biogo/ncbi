@@ -29,8 +29,7 @@ import (
 // A Post holds the deserialised results of an EPost request.
 type Post struct {
 	InvalidIds []int
-	QueryKey   *int
-	WebEnv     *string
+	History    *History
 	Err        error
 }
 
@@ -69,14 +68,20 @@ func (p *Post) Unmarshal(r io.Reader) error {
 				}
 				p.InvalidIds = append(p.InvalidIds, id)
 			case "QueryKey":
+				if p.History == nil {
+					p.History = &History{}
+				}
 				k, err := strconv.Atoi(string(t))
 				if err != nil {
 					return err
 				}
-				p.QueryKey = &k
+				p.History.QueryKey = k
 			case "WebEnv":
+				if p.History == nil {
+					p.History = &History{}
+				}
 				s := string(t)
-				p.WebEnv = &s
+				p.History.WebEnv = s
 			case "ERROR":
 				p.Err = Error(string(t))
 			case "ePostResult", "InvalidIdList":
