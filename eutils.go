@@ -137,37 +137,37 @@ const (
 	// Base is the base URL for the NCBI Entrez Programming Utilities (E-utilities) API.
 	Base = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 
-	//  * Provides a list of the names of all valid Entrez databases
+	//  * Provides a list of the names of all valid Entrez databases.
 	//  * Provides statistics for a single database, including lists of indexing fields and available
-	//    link names
+	//    link names.
 	InfoUri Util = Util(Base + "einfo.fcgi")
 
-	//  * Provides a list of UIDs matching a text query
-	//  * Posts the results of a search on the History server
-	//  * Downloads all UIDs from a dataset stored on the History server
-	//  * Combines or limits UID datasets stored on the History server
-	//  * Sorts sets of UIDs
+	//  * Provides a list of UIDs matching a text query.
+	//  * Posts the results of a search on the History server.
+	//  * Downloads all UIDs from a dataset stored on the History server.
+	//  * Combines or limits UID datasets stored on the History server.
+	//  * Sorts sets of UIDs.
 	SearchUri Util = Util(Base + "esearch.fcgi")
 
-	//  * Uploads a list of UIDs to the Entrez History server
-	//  * Appends a list of UIDs to an existing set of UID lists attached to a Web Environment
+	//  * Uploads a list of UIDs to the Entrez History server.
+	//  * Appends a list of UIDs to an existing set of UID lists attached to a Web Environment.
 	PostUri Util = Util(Base + "epost.fcgi")
 
-	//  * Returns document summaries (DocSums) for a list of input UIDs
-	//  * Returns DocSums for a set of UIDs stored on the Entrez History server
+	//  * Returns document summaries (DocSums) for a list of input UIDs.
+	//  * Returns DocSums for a set of UIDs stored on the Entrez History server.
 	SummaryUri Util = Util(Base + "esummary.fcgi")
 
-	//  * Returns formatted data records for a list of input UIDs
-	//  * Returns formatted data records for a set of UIDs stored on the Entrez History server
+	//  * Returns formatted data records for a list of input UIDs.
+	//  * Returns formatted data records for a set of UIDs stored on the Entrez History server.
 	FetchUri Util = Util(Base + "efetch.fcgi")
 
-	//  * Returns UIDs linked to an input set of UIDs in either the same or a different Entrez database
-	//  * Returns UIDs linked to other UIDs in the same Entrez database that match an Entrez query
-	//  * Checks for the existence of Entrez links for a set of UIDs within the same database
-	//  * Lists the available links for a UID
-	//  * Lists LinkOut URLs and attributes for a set of UIDs
-	//  * Lists hyperlinks to primary LinkOut providers for a set of UIDs
-	//  * Creates hyperlinks to the primary LinkOut provider for a single UID
+	//  * Returns UIDs linked to an input set of UIDs in either the same or a different Entrez database.
+	//  * Returns UIDs linked to other UIDs in the same Entrez database that match an Entrez query.
+	//  * Checks for the existence of Entrez links for a set of UIDs within the same database.
+	//  * Lists the available links for a UID.
+	//  * Lists LinkOut URLs and attributes for a set of UIDs.
+	//  * Lists hyperlinks to primary LinkOut providers for a set of UIDs.
+	//  * Creates hyperlinks to the primary LinkOut provider for a single UID.
 	LinkUri Util = Util(Base + "elink.fcgi")
 
 	//  * Provides the number of records retrieved in all Entrez databases by a single text query.
