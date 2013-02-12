@@ -151,52 +151,55 @@ func (s *S) TestDoSummary(c *check.C) {
 			Doc{
 				Id: 15718680,
 				Items: []Item{
-					Item{Value: "NP_005537", Name: "Caption", Type: "String"},
-					Item{Value: "tyrosine-protein kinase ITK/TSK [Homo sapiens]", Name: "Title", Type: "String"},
-					Item{Value: "gi|15718680|ref|NP_005537.3|[15718680]", Name: "Extra", Type: "String"},
-					Item{Value: "15718680", Name: "Gi", Type: "Integer"},
-					Item{Value: "1999/06/09", Name: "CreateDate", Type: "String"},
-					Item{Value: "2013/01/05", Name: "UpdateDate", Type: "String"},
-					Item{Value: "512", Name: "Flags", Type: "Integer"},
-					Item{Value: "9606", Name: "TaxId", Type: "Integer"},
-					Item{Value: "620", Name: "Length", Type: "Integer"},
-					Item{Value: "live", Name: "Status", Type: "String"},
-					Item{Value: "", Name: "ReplacedBy", Type: "String"},
-					Item{Value: "  ", Name: "Comment", Type: "String"},
+					{Value: "NP_005537", Name: "Caption", Type: "String"},
+					{Value: "tyrosine-protein kinase ITK/TSK [Homo sapiens]", Name: "Title", Type: "String"},
+					{Value: "gi|15718680|ref|NP_005537.3|[15718680]", Name: "Extra", Type: "String"},
+					{Value: "15718680", Name: "Gi", Type: "Integer"},
+					{Value: "1999/06/09", Name: "CreateDate", Type: "String"},
+					{Value: "2013/01/05", Name: "UpdateDate", Type: "String"},
+					{Value: "512", Name: "Flags", Type: "Integer"},
+					{Value: "9606", Name: "TaxId", Type: "Integer"},
+					{Value: "620", Name: "Length", Type: "Integer"},
+					{Value: "live", Name: "Status", Type: "String"},
+					{Value: "", Name: "ReplacedBy", Type: "String"},
+					{Value: "  ", Name: "Comment", Type: "String"},
 				},
 			},
 			Doc{
 				Id: 157427902,
 				Items: []Item{
-					Item{Value: "NP_001098858", Name: "Caption", Type: "String"},
-					Item{Value: "tyrosine-protein kinase ITK/TSK [Bos taurus]", Name: "Title", Type: "String"},
-					Item{Value: "gi|157427902|ref|NP_001098858.1|[157427902]", Name: "Extra", Type: "String"},
-					Item{Value: "157427902", Name: "Gi", Type: "Integer"},
-					Item{Value: "2007/09/24", Name: "CreateDate", Type: "String"},
-					Item{Value: "2012/08/27", Name: "UpdateDate", Type: "String"},
-					Item{Value: "512", Name: "Flags", Type: "Integer"},
-					Item{Value: "9913", Name: "TaxId", Type: "Integer"},
-					Item{Value: "620", Name: "Length", Type: "Integer"},
-					Item{Value: "live", Name: "Status", Type: "String"},
-					Item{Value: "", Name: "ReplacedBy", Type: "String"},
-					Item{Value: "  ", Name: "Comment", Type: "String"},
+					{Value: "NP_001098858", Name: "Caption", Type: "String"},
+					{Value: "tyrosine-protein kinase ITK/TSK [Bos taurus]", Name: "Title", Type: "String"},
+					{Value: "gi|157427902|ref|NP_001098858.1|[157427902]", Name: "Extra", Type: "String"},
+					{Value: "157427902", Name: "Gi", Type: "Integer"},
+					{Value: "2007/09/24", Name: "CreateDate", Type: "String"},
+					{Value: "2012/08/27", Name: "UpdateDate", Type: "String"},
+					{Value: "512", Name: "Flags", Type: "Integer"},
+					{Value: "9913", Name: "TaxId", Type: "Integer"},
+					{Value: "620", Name: "Length", Type: "Integer"},
+					{Value: "live", Name: "Status", Type: "String"},
+					{Value: "", Name: "ReplacedBy", Type: "String"},
+					{Value: "  ", Name: "Comment", Type: "String"},
 				},
 			},
 			Doc{
 				Id: 119703751,
 				Items: []Item{
-					Item{Value: "NP_034713", Name: "Caption", Type: "String"},
-					Item{Value: "tyrosine-protein kinase ITK/TSK [Mus musculus]", Name: "Title", Type: "String"},
-					Item{Value: "gi|119703751|ref|NP_034713.2|[119703751]", Name: "Extra", Type: "String"},
-					Item{Value: "119703751", Name: "Gi", Type: "Integer"},
-					Item{Value: "2000/01/25", Name: "CreateDate", Type: "String"},
-					Item{Value: "2013/01/20", Name: "UpdateDate", Type: "String"},
-					Item{Value: "512", Name: "Flags", Type: "Integer"},
-					Item{Value: "10090", Name: "TaxId", Type: "Integer"},
-					Item{Value: "619", Name: "Length", Type: "Integer"},
-					Item{Value: "live", Name: "Status", Type: "String"},
-					Item{Value: "", Name: "ReplacedBy", Type: "String"},
-					Item{Value: "  ", Name: "Comment", Type: "String"}}}},
+					{Value: "NP_034713", Name: "Caption", Type: "String"},
+					{Value: "tyrosine-protein kinase ITK/TSK [Mus musculus]", Name: "Title", Type: "String"},
+					{Value: "gi|119703751|ref|NP_034713.2|[119703751]", Name: "Extra", Type: "String"},
+					{Value: "119703751", Name: "Gi", Type: "Integer"},
+					{Value: "2000/01/25", Name: "CreateDate", Type: "String"},
+					{Value: "2013/01/20", Name: "UpdateDate", Type: "String"},
+					{Value: "512", Name: "Flags", Type: "Integer"},
+					{Value: "10090", Name: "TaxId", Type: "Integer"},
+					{Value: "619", Name: "Length", Type: "Integer"},
+					{Value: "live", Name: "Status", Type: "String"},
+					{Value: "", Name: "ReplacedBy", Type: "String"},
+					{Value: "  ", Name: "Comment", Type: "String"},
+				},
+			},
+		},
 		Err: nil,
 	})
 }
@@ -246,15 +249,15 @@ func (s *S) TestDoLink(c *check.C) {
 			"protein", "gene", "", "", nil, "biogo.entrez-testsuite", "", nil, [][]int{{15718680}, {157427902}},
 			&Link{
 				LinkSets: []LinkSet{
-					LinkSet{
+					{
 						DbFrom: "protein",
 						IdList: []int{15718680},
 						LinkSetDbs: []LinkSetDb{
-							LinkSetDb{
+							{
 								DbTo:     "gene",
 								LinkName: "protein_gene",
 								Link: []LinkId{
-									LinkId{Id: 3702, HasLinkOut: false, HasNeighbor: false, Score: 0},
+									{Id: 3702, HasLinkOut: false, HasNeighbor: false, Score: 0},
 								},
 							},
 						},
@@ -262,16 +265,15 @@ func (s *S) TestDoLink(c *check.C) {
 						IdChecks: nil,
 						Err:      nil,
 					},
-					LinkSet{
+					{
 						DbFrom: "protein",
 						IdList: []int{157427902},
 						LinkSetDbs: []LinkSetDb{
-							LinkSetDb{
+							{
 								DbTo:     "gene",
 								LinkName: "protein_gene",
 								Link: []LinkId{
-									LinkId{
-										Id: 522311, HasLinkOut: false, HasNeighbor: false, Score: 0},
+									{Id: 522311, HasLinkOut: false, HasNeighbor: false, Score: 0},
 								},
 							},
 						},
