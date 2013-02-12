@@ -281,7 +281,10 @@ func DoInfo(db, tool, email string) (*Info, error) {
 }
 
 // DoSearch returns a Search filled with data obtained from an ESearch query of the
-// specified db.
+// specified db. If History is not nil and WebEnv is not empty, the value of WebEnv
+// will be passed as the E-utilies webenv parameter allowing the results to be posted
+// to a Web Environment. If the QueryKey field is not zero, its value will be passed
+// as the query_key parameter.
 func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (*Search, error) {
 	v := url.Values{}
 	if db != "" {
@@ -334,7 +337,7 @@ func DoPost(db, tool, email string, h *History, id ...int) (*Post, error) {
 }
 
 // Fetch returns an io.ReadCloser that reads from the stream returned by an EFetch of the
-// the given id list.
+// the given id list or history.
 func Fetch(db string, p *Parameters, tool, email string, h *History, id ...int) (io.ReadCloser, error) {
 	if len(id) == 0 && h == nil {
 		return nil, ErrNoIdProvided
@@ -367,8 +370,8 @@ func Fetch(db string, p *Parameters, tool, email string, h *History, id ...int) 
 }
 
 // DoSummary returns a Summary filled with the response from an ESummary query on the specified
-// id list. If h is not nil, its field values are passed to ESummary. DoSummary returns an error
-// if both h is nil and id has length zero.
+// id list. If h is not nil and its fields are non-zero, its field values are passed to ESummary.
+// DoSummary returns an error if both h is nil and id has length zero.
 func DoSummary(db string, p *Parameters, tool, email string, h *History, id ...int) (*Summary, error) {
 	if len(id) == 0 && h == nil {
 		return nil, ErrNoIdProvided
@@ -399,8 +402,8 @@ func DoSummary(db string, p *Parameters, tool, email string, h *History, id ...i
 }
 
 // DoLink returns a Link filled with the response from an ELink action on the specified
-// ids list. If h is not nil, its field values are passed to ESummary. DoSummary returns an error
-// if both h is nil and ids has length zero.
+// ids list. If h is not nil and its fields are non-zero, its field values are passed to
+// ESummary. DoSummary returns an error if both h is nil and ids has length zero.
 func DoLink(fromDb, toDb, cmd, query string, p *Parameters, tool, email string, h *History, ids ...[]int) (*Link, error) {
 	if len(ids) == 0 && h == nil {
 		return nil, ErrNoIdProvided
