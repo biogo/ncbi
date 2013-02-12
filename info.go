@@ -14,7 +14,7 @@ import (
 
 // <!--
 //                 This is the Current DTD for Entrez eInfo
-// $Id: eInfo_020511.dtd 94706 2006-12-04 21:51:33Z olegh $
+// $Id: eInfo_020511.dtd 361872 2012-05-04 17:46:41Z fialkov $
 // -->
 // <!-- ================================================================= -->
 //
@@ -36,19 +36,23 @@ import (
 // <!ELEMENT	SingleToken	(#PCDATA)>	<!-- (Y|N) -->
 // <!ELEMENT	Hierarchy	(#PCDATA)>	<!-- (Y|N) -->
 // <!ELEMENT	IsHidden	(#PCDATA)>	<!-- (Y|N) -->
+// <!ELEMENT    IsRangable      (#PCDATA)>      <!-- (Y|N) -->
+// <!ELEMENT    IsTruncatable   (#PCDATA)>      <!-- (Y|N) -->
 //
 //
 // <!ELEMENT	DbList		(DbName+)>
 //
 // <!ELEMENT	Field		(Name,
-//                 FullName,
+//              FullName,
 // 				Description,
 // 				TermCount,
 // 				IsDate,
 // 				IsNumerical,
 // 				SingleToken,
 // 				Hierarchy,
-//                 IsHidden)>
+//              IsHidden,
+//              IsRangable,
+//              IsTruncatable)>
 //
 // <!ELEMENT	Link		(Name,Menu,Description,DbTo)>
 //
@@ -68,15 +72,17 @@ import (
 // <!ELEMENT	eInfoResult	(DbList|DbInfo|ERROR)>
 
 type Field struct {
-	Name        string
-	FullName    string
-	Description string
-	TermCount   int
-	IsDate      bool
-	IsNumerical bool
-	SingleToken bool
-	Hierarchy   bool
-	IsHidden    bool
+	Name          string
+	FullName      string
+	Description   string
+	TermCount     int
+	IsDate        bool
+	IsNumerical   bool
+	SingleToken   bool
+	Hierarchy     bool
+	IsHidden      bool
+	IsRangeable   bool
+	IsTruncatable bool
 }
 
 func (f *Field) unmarshal(dec *xml.Decoder, st stack) error {
@@ -139,6 +145,20 @@ func (f *Field) unmarshal(dec *xml.Decoder, st stack) error {
 				switch b := string(t); b {
 				case "Y", "N":
 					f.IsHidden = b == "Y"
+				default:
+					return fmt.Errorf("eutil: bad boolean: %q", b)
+				}
+			case "IsRangable":
+				switch b := string(t); b {
+				case "Y", "N":
+					f.IsRangeable = b == "Y"
+				default:
+					return fmt.Errorf("eutil: bad boolean: %q", b)
+				}
+			case "IsTruncatable":
+				switch b := string(t); b {
+				case "Y", "N":
+					f.IsTruncatable = b == "Y"
 				default:
 					return fmt.Errorf("eutil: bad boolean: %q", b)
 				}

@@ -14,39 +14,54 @@ import (
 
 // <!--
 //                 This is the Current DTD for Entrez eLink
-// $Id: eLink_020511.dtd 56256 2005-02-18 17:13:40Z olegh $
+// $Id: eLink_101123.dtd 349314 2012-01-09 23:26:00Z fialkov $
 // -->
 // <!-- ================================================================= -->
 //
-// <!ELEMENT       ERROR           (#PCDATA)>	<!-- .+ -->
-// <!ELEMENT       Info            (#PCDATA)>	<!-- .+ -->
+// <!ELEMENT	ERROR			(#PCDATA)>	<!-- .+ -->
+// <!ELEMENT	Info			(#PCDATA)>	<!-- .+ -->
 //
-// <!ELEMENT	Id		(#PCDATA)>	<!-- \d+ -->
+// <!ELEMENT	Id				(#PCDATA)>	<!-- \d+ -->
 // <!ATTLIST	Id
 // 			HasLinkOut  (Y|N)	#IMPLIED
 // 			HasNeighbor (Y|N)	#IMPLIED
 // 			>
 //
-// <!ELEMENT	Score		(#PCDATA)>	<!-- \d+ -->
-// <!ELEMENT	DbFrom		(#PCDATA)>	<!-- \S+ -->
-// <!ELEMENT	DbTo		(#PCDATA)>	<!-- \S+ -->
-// <!ELEMENT	LinkName	(#PCDATA)>	<!-- \S+ -->
+// <!ELEMENT	Score			(#PCDATA)>	<!-- \d+ -->
+// <!ELEMENT	DbFrom			(#PCDATA)>	<!-- \S+ -->
+// <!ELEMENT	DbTo			(#PCDATA)>	<!-- \S+ -->
+// <!ELEMENT	LinkName		(#PCDATA)>	<!-- \S+ -->
+// <!ELEMENT	WebEnv			(#PCDATA)>	<!-- \S+ -->
+// <!ELEMENT	MenuTag			(#PCDATA)>	<!-- \S+ -->
+// <!ELEMENT	HtmlTag			(#PCDATA)>	<!-- \S+ -->
+// <!ELEMENT	Priority		(#PCDATA)>	<!-- \S+ -->
 //
 // <!ELEMENT	IdList		(Id*)>
 //
 // <!-- cmd=neighbor -->
 // <!ELEMENT	Link		(Id, Score?)>
+// <!ELEMENT	QueryKey		(#PCDATA)>
 //
 // <!ELEMENT	LinkSetDb	(DbTo, LinkName, (Link*|Info), ERROR?)>
+// <!ELEMENT	LinkSetDbHistory	(DbTo, LinkName, (QueryKey|Info), ERROR?)>
 //
-// <!-- cmd=links -->
+// <!-- cmd=llinks -->
 //
-// <!ELEMENT	Url			(#PCDATA)>	<!-- \S+ -->
-// <!ELEMENT	IconUrl		(#PCDATA)>	<!-- \S+ -->
-// <!ELEMENT    SubjectType	(#PCDATA)>	<!-- .+ -->
-// <!ELEMENT    Attribute	(#PCDATA)>	<!-- .+ -->
-// <!ELEMENT    Name		(#PCDATA)>	<!-- .+ -->
-// <!ELEMENT    NameAbbr	(#PCDATA)>	<!-- \S+ -->
+// <!ELEMENT	Url			    (#PCDATA)>	<!-- \S+ -->
+// <!ATTLIST	Url			LNG     (DA|DE|EN|EL|ES|FR|IT|IW|JA|NL|NO|RU|SV|ZH)     "EN">
+//
+// <!ELEMENT	IconUrl			(#PCDATA)>	<!-- \S+ -->
+// <!ATTLIST	IconUrl		LNG     (DA|DE|EN|EL|ES|FR|IT|IW|JA|NL|NO|RU|SV|ZH)     "EN">
+//
+// <!ELEMENT	SubjectType		(#PCDATA)>	<!-- .+ -->
+// <!ELEMENT	Category		(#PCDATA)>	<!-- .+ -->
+// <!ELEMENT	Attribute		(#PCDATA)>	<!-- .+ -->
+// <!--ELEMENT	LinkName		(#PCDATA)-->	<!--defined in neighbor section--><!-- \S+ -->
+// <!ELEMENT	Name			(#PCDATA)>	<!-- .+ -->
+// <!ELEMENT	NameAbbr		(#PCDATA)>	<!-- \S+ -->
+// <!ELEMENT	SubProvider		(#PCDATA)>
+//
+// <!ELEMENT   FirstChar		(#PCDATA)>
 //
 // <!ELEMENT	Provider (
 // 				Name,
@@ -56,78 +71,36 @@ import (
 // 				IconUrl?
 // 			)>
 //
-//
 // <!ELEMENT	ObjUrl	(
 // 				Url,
 // 				IconUrl?,
 // 				LinkName?,
-//              SubjectType*,
-//              Attribute*,
-//              Provider
+//                 SubjectType*,
+// 				Category*,
+//                 Attribute*,
+//                 Provider,
+//                 SubProvider?
 // 			)>
 //
 // <!ELEMENT	IdUrlSet	(Id,(ObjUrl+|Info))>
 //
-// <!ELEMENT	IdUrlList	(IdUrlSet*,ERROR?)>
+// <!ELEMENT   FirstChars  (FirstChar*)>
 //
+// <!ELEMENT	LinkInfo	(DbTo, LinkName, MenuTag?, HtmlTag?, Url?, Priority)>
+// <!ELEMENT	IdLinkSet	(Id, LinkInfo*)>
+// <!ELEMENT	IdUrlList	(IdUrlSet* | FirstChars*)>
 //
-// <!-- cmd=ncheck & lcheck -->
-// <!ELEMENT	IdCheckList	(Id*,ERROR?)>
-//
+// <!-- cmd=ncheck & lcheck & acheck -->
+// <!ELEMENT	IdCheckList	((Id|IdLinkSet)*,ERROR?)>
 //
 // <!-- Common -->
 // <!ELEMENT	LinkSet		(DbFrom,
-// 				((IdList?, LinkSetDb*) | IdUrlList | IdCheckList | ERROR)
+// 				((IdList?, ((ERROR?, LinkSetDb)*  |  (LinkSetDbHistory*, WebEnv))) | IdUrlList | IdCheckList | ERROR), ERROR?
 // 				)>
 //
 // <!ELEMENT	eLinkResult	(LinkSet*, ERROR?)>
 
-// The following structure observable by: http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=protein&db=pubmed&id=15718680,157427902&cmd=acheck
-// is not described by the above dtd:
-// <?xml version="1.0"?>
-// <!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 23 November 2010//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_101123.dtd">
-// <eLinkResult>
-// 	<LinkSet>
-// 		<DbFrom>protein</DbFrom>
-// 		<IdCheckList>
-// 			<IdLinkSet>
-// 				<Id>15718680</Id>
-// 				<LinkInfo>
-// 					<DbTo>pubmed</DbTo>
-// 					<LinkName>protein_pubmed</LinkName>
-// 					<MenuTag>PubMed Links</MenuTag>
-// 					<HtmlTag>PubMed</HtmlTag>
-// 					<Priority>128</Priority>
-// 				</LinkInfo>
-// 				<LinkInfo>
-// 					<DbTo>pubmed</DbTo>
-// 					<LinkName>protein_pubmed_refseq</LinkName>
-// [snip]
-// 					<HtmlTag>LinkOut</HtmlTag>
-// 					<Priority>255</Priority>
-// 				</LinkInfo>
-// 			</IdLinkSet>
-// 			<IdLinkSet>
-// 				<Id>157427902</Id>
-// 				<LinkInfo>
-// 					<DbTo>pubmed</DbTo>
-// 					<LinkName>protein_pubmed</LinkName>
-// [snip]
-// 					<Priority>128</Priority>
-// 				</LinkInfo>
-// 				<LinkInfo>
-// 					<DbTo>LinkOut</DbTo>
-// 					<LinkName>ExternalLink</LinkName>
-// 					<MenuTag>LinkOut</MenuTag>
-// 					<HtmlTag>LinkOut</HtmlTag>
-// 					<Priority>255</Priority>
-// 				</LinkInfo>
-// 			</IdLinkSet>
-// 		</IdCheckList>
-// [snip]
-
-// The Category field in ObjUrl is not mentioned, but certainly exists in the wild.
-// And what does 'IMPLIED' mean on a boolean‽
+// What does 'IMPLIED' mean on a boolean?
 
 type LinkId struct {
 	Id          int
