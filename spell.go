@@ -29,16 +29,19 @@ import (
 
 // All terms listed for eSpell are NOT {\d+}. Interestingly, no blame.
 
+// A Replacement is text fragment that indicates a change specified by ESpell.
 type Replacement interface {
 	String() string
 	Type() string
 }
 
+// An Old string contains the original text of a replacement sequence.
 type Old string
 
 func (o Old) String() string { return string(o) }
 func (o Old) Type() string   { return "Original" }
 
+// A New string contains the replacement text of a replacement sequence.
 type New string
 
 func (r New) String() string { return string(r) }
