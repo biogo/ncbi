@@ -252,7 +252,7 @@ func (s *S) TestParseLink(c *check.C) {
 										Id: 19880848,
 										ObjUrls: []ObjUrl{
 											{
-												Url:         "http://www.labome.org//expert/switzerland/university/klingenberg/roland-klingenberg-1568163.html",
+												Url:         Url{Url: "http://www.labome.org//expert/switzerland/university/klingenberg/roland-klingenberg-1568163.html"},
 												LinkName:    stringPtr("Labome Researcher Resource"),
 												SubjectType: []string{"author profiles"},
 												Category:    []string{"Other Literature Sources"},
@@ -261,12 +261,12 @@ func (s *S) TestParseLink(c *check.C) {
 													Name:     "ExactAntigen/Labome",
 													NameAbbr: "EADB",
 													Id:       5753,
-													Url:      "http://www.labome.com",
+													Url:      Url{Url: "http://www.labome.com", Lang: "EN"},
 												},
 											},
 											{
-												Url:         "http://eurheartj.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=19880848",
-												IconUrl:     stringPtr("http://www.ncbi.nlm.nih.gov/corehtml/query/egifs/http:--highwire.stanford.edu-icons-externalservices-pubmed-custom-oxfordjournals_final_free.gif"),
+												Url:         Url{Url: "http://eurheartj.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=19880848"},
+												IconUrl:     &Url{Url: "http://www.ncbi.nlm.nih.gov/corehtml/query/egifs/http:--highwire.stanford.edu-icons-externalservices-pubmed-custom-oxfordjournals_final_free.gif", Lang: "EN"},
 												SubjectType: []string{"publishers/providers"},
 												Category:    []string{"Full Text Sources"},
 												Attribute:   []string{"free resource", "full-text online", "publisher of information in url"},
@@ -274,12 +274,12 @@ func (s *S) TestParseLink(c *check.C) {
 													Name:     "HighWire",
 													NameAbbr: "HighWire",
 													Id:       3051,
-													Url:      "http://highwire.stanford.edu",
+													Url:      Url{Url: "http://highwire.stanford.edu", Lang: "EN"},
 												},
 											},
 											{
-												Url:         "http://www.nlm.nih.gov/medlineplus/atherosclerosis.html",
-												IconUrl:     stringPtr("http://www.ncbi.nlm.nih.gov/corehtml/query/egifs/http:--www.nlm.nih.gov-medlineplus-images-linkout_sm.gif"),
+												Url:         Url{Url: "http://www.nlm.nih.gov/medlineplus/atherosclerosis.html"},
+												IconUrl:     &Url{Url: "http://www.ncbi.nlm.nih.gov/corehtml/query/egifs/http:--www.nlm.nih.gov-medlineplus-images-linkout_sm.gif", Lang: "EN"},
 												LinkName:    stringPtr("Atherosclerosis"),
 												SubjectType: []string{"consumer health"},
 												Category:    []string{"Medical"},
@@ -288,8 +288,8 @@ func (s *S) TestParseLink(c *check.C) {
 													Name:     "MedlinePlus Health Information",
 													NameAbbr: "MEDPLUS",
 													Id:       3162,
-													Url:      "http://medlineplus.gov/",
-													IconUrl:  stringPtr("http://www.nlm.nih.gov/medlineplus/images/linkout_sm.gif"),
+													Url:      Url{Url: "http://medlineplus.gov/", Lang: "EN"},
+													IconUrl:  &Url{Url: "http://www.nlm.nih.gov/medlineplus/images/linkout_sm.gif", Lang: "EN"},
 												},
 											},
 										},
@@ -337,6 +337,7 @@ func (s *S) TestParseLink(c *check.C) {
 				Err: nil,
 			},
 		},
+
 		// 		{
 		// 			`<?xml version="1.0"?>
 		// <!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 23 November 2010//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_101123.dtd">

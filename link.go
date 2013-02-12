@@ -237,12 +237,34 @@ func (ls *LinkSetDb) unmarshal(dec *xml.Decoder, st stack) error {
 	panic("cannot reach")
 }
 
+type Url struct {
+	Url  string
+	Lang string
+}
+
+func (u *Url) getLang(t xml.StartElement) error {
+	for _, attr := range t.Attr {
+		switch attr.Name.Local {
+		case "LNG":
+			switch attr.Value {
+			case "DA", "DE", "EN", "EL", "ES", "FR", "IT", "IW", "JA", "NL", "NO", "RU", "SV", "ZH":
+				u.Lang = attr.Value
+			default:
+				return fmt.Errorf("eutil: unknown language id: %q", attr.Value)
+			}
+		default:
+			return fmt.Errorf("entrez: unknown attribute: %q", attr.Name.Local)
+		}
+	}
+	return nil
+}
+
 type Provider struct {
 	Name     string
 	NameAbbr string
 	Id       int
-	Url      string
-	IconUrl  *string
+	Url      Url
+	IconUrl  *Url
 }
 
 func (p *Provider) unmarshal(dec *xml.Decoder, st stack) error {
@@ -259,6 +281,16 @@ func (p *Provider) unmarshal(dec *xml.Decoder, st stack) error {
 		case xml.Directive:
 		case xml.StartElement:
 			st = st.push(t.Name.Local)
+			switch t.Name.Local {
+			case "Url":
+				err = p.Url.getLang(t)
+			case "IconUrl":
+				p.IconUrl = &Url{}
+				err = p.IconUrl.getLang(t)
+			}
+			if err != nil {
+				return err
+			}
 		case xml.CharData:
 			if st.empty() {
 				continue
@@ -275,10 +307,9 @@ func (p *Provider) unmarshal(dec *xml.Decoder, st stack) error {
 				}
 				p.Id = id
 			case "Url":
-				p.Url = string(t)
+				p.Url.Url = string(t)
 			case "IconUrl":
-				s := string(t)
-				p.IconUrl = &s
+				p.IconUrl.Url = string(t)
 			case "Provider":
 			default:
 				return fmt.Errorf("entrez: unknown name: %q", name)
@@ -297,8 +328,8 @@ func (p *Provider) unmarshal(dec *xml.Decoder, st stack) error {
 }
 
 type ObjUrl struct {
-	Url         string
-	IconUrl     *string
+	Url         Url
+	IconUrl     *Url
 	LinkName    *string
 	SubjectType []string
 	Category    []string
@@ -320,13 +351,21 @@ func (ou *ObjUrl) unmarshal(dec *xml.Decoder, st stack) error {
 		case xml.Directive:
 		case xml.StartElement:
 			st = st.push(t.Name.Local)
-			if t.Name.Local == "Provider" {
+			switch t.Name.Local {
+			case "Provider":
 				err := ou.Provider.unmarshal(dec, st[len(st)-1:])
 				if err != nil {
 					return err
 				}
 				st = st.drop()
-				continue
+			case "Url":
+				err = ou.Url.getLang(t)
+			case "IconUrl":
+				ou.IconUrl = &Url{}
+				err = ou.IconUrl.getLang(t)
+			}
+			if err != nil {
+				return err
 			}
 		case xml.CharData:
 			if st.empty() {
@@ -334,10 +373,9 @@ func (ou *ObjUrl) unmarshal(dec *xml.Decoder, st stack) error {
 			}
 			switch name := st.peek(0); name {
 			case "Url":
-				ou.Url = string(t)
+				ou.Url.Url = string(t)
 			case "IconUrl":
-				s := string(t)
-				ou.IconUrl = &s
+				ou.IconUrl.Url = string(t)
 			case "LinkName":
 				s := string(t)
 				ou.LinkName = &s
