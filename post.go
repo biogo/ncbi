@@ -80,8 +80,7 @@ func (p *Post) Unmarshal(r io.Reader) error {
 				if p.History == nil {
 					p.History = &History{}
 				}
-				s := string(t)
-				p.History.WebEnv = s
+				p.History.WebEnv = string(t)
 			case "ERROR":
 				p.Err = Error(string(t))
 			case "ePostResult", "InvalidIdList":

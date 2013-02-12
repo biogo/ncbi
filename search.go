@@ -236,8 +236,7 @@ type Search struct {
 	Count            int
 	RetMax           int
 	RetStart         int
-	QueryKey         *int
-	WebEnv           *string
+	History          *History
 	IdList           []int
 	Translations     []Translation
 	TranslationStack []Node
@@ -313,14 +312,19 @@ func (s *Search) Unmarshal(r io.Reader) error {
 				}
 				s.RetStart = st
 			case "QueryKey":
+				if s.History == nil {
+					s.History = &History{}
+				}
 				k, err := strconv.Atoi(string(t))
 				if err != nil {
 					return err
 				}
-				s.QueryKey = &k
+				s.History.QueryKey = k
 			case "WebEnv":
-				st := string(t)
-				s.WebEnv = &st
+				if s.History == nil {
+					s.History = &History{}
+				}
+				s.History.WebEnv = string(t)
 			case "Id":
 				id, err := strconv.Atoi(string(t))
 				if err != nil {
