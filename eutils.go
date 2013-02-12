@@ -185,10 +185,6 @@ func (ut Util) NewRequest(method, db string, v url.Values, tool, email string) (
 	if db != "" {
 		v["db"] = []string{db}
 	}
-	return request(ut, method, v, tool, email)
-}
-
-func request(ut Util, method string, v url.Values, tool, email string) (*http.Request, error) {
 	u, err := prepare(ut, v, tool, email)
 	if err != nil {
 		return nil, err
