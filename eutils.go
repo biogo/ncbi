@@ -39,7 +39,8 @@ import (
 	"time"
 )
 
-// The E-utilities default to 'pubmed'. Some functions mark which db was used.
+// The E-utilities default to "pubmed". Some functions mark which db was used because E-utilities
+// don't, so this is needed.
 const defaultDb = "pubmed"
 
 // Limit is a package level limit on requests that can be sent to the Entrez server. This
@@ -82,6 +83,7 @@ type Error string
 
 func (e Error) Error() string { return string(e) }
 
+// stack is used for accounting XML tags during parsing.
 type stack []string
 
 func (st stack) drop() stack { return st[:len(st)-1] }
@@ -200,6 +202,7 @@ func (ut Util) NewRequest(method, db string, v url.Values, tool, email string) (
 	return req, nil
 }
 
+// prepare contructs a URL with the base provided by ut and the parameters provided by v, tool and email.
 func prepare(ut Util, v url.Values, tool, email string) (*url.URL, error) {
 	u, err := url.Parse(string(ut))
 	if err != nil {
@@ -219,6 +222,8 @@ type unmarshaler interface {
 	Unmarshal(io.Reader) error
 }
 
+// get performs a GET method call to the URI in ut, passing the parameters in v, tool
+// and email. The returned stream is unmarshaled into d.
 func get(ut Util, v url.Values, tool, email string, d unmarshaler) error {
 	u, err := prepare(ut, v, tool, email)
 	Limit.Wait()
@@ -230,6 +235,8 @@ func get(ut Util, v url.Values, tool, email string, d unmarshaler) error {
 	return d.Unmarshal(resp.Body)
 }
 
+// fillParams adds elements to v based on the "param" tag of p if the value is not the
+// zero value for that type.
 func fillParams(p *Parameters, v url.Values) {
 	if p == nil {
 		return
