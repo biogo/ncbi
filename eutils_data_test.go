@@ -94,9 +94,9 @@ func (s *S) TestParseInfo(c *check.C) {
 </eInfoResult>
 `,
 			Info{
-				DbList: []string(nil),
+				DbList: nil,
 				DbInfo: []DbInfo{
-					DbInfo{
+					{
 						DbName: "toolkit",
 
 						MenuName: "ToolKit",
@@ -132,7 +132,8 @@ func (s *S) TestParseInfo(c *check.C) {
 						LinkList: nil,
 					},
 				},
-				Err: nil},
+				Err: nil,
+			},
 		},
 		{
 			`<?xml version="1.0"?>
@@ -671,104 +672,113 @@ func (s *S) TestParseSummary(c *check.C) {
 
 </eSummaryResult>
 `,
-			Summary{Docs: []Doc{
-				Doc{
-					Id: 6678417,
-					Items: []Item{
-						{Name: "Caption", Type: "String", Value: "NP_033443"},
-						{Name: "Title", Type: "String", Value: "thyroid peroxidase precursor [Mus musculus]"},
-						{Name: "Extra", Type: "String", Value: "gi|6678417|ref|NP_033443.1|[6678417]"},
-						{Name: "Gi", Type: "Integer", Value: "6678417"},
-						{Name: "CreateDate", Type: "String", Value: "2000/01/04"},
-						{Name: "UpdateDate", Type: "String", Value: "2012/12/12"},
-						{Name: "Flags", Type: "Integer", Value: "512"},
-						{Name: "TaxId", Type: "Integer", Value: "10090"},
-						{Name: "Length", Type: "Integer", Value: "914"},
-						{Name: "Status", Type: "String", Value: "live"},
-						{Name: "ReplacedBy", Type: "String", Value: ""},
-						{Name: "Comment", Type: "String", Value: "  "},
+			Summary{
+				Docs: []Doc{
+					{
+						Id: 6678417,
+						Items: []Item{
+							{Name: "Caption", Type: "String", Value: "NP_033443"},
+							{Name: "Title", Type: "String", Value: "thyroid peroxidase precursor [Mus musculus]"},
+							{Name: "Extra", Type: "String", Value: "gi|6678417|ref|NP_033443.1|[6678417]"},
+							{Name: "Gi", Type: "Integer", Value: "6678417"},
+							{Name: "CreateDate", Type: "String", Value: "2000/01/04"},
+							{Name: "UpdateDate", Type: "String", Value: "2012/12/12"},
+							{Name: "Flags", Type: "Integer", Value: "512"},
+							{Name: "TaxId", Type: "Integer", Value: "10090"},
+							{Name: "Length", Type: "Integer", Value: "914"},
+							{Name: "Status", Type: "String", Value: "live"},
+							{Name: "ReplacedBy", Type: "String", Value: ""},
+							{Name: "Comment", Type: "String", Value: "  "},
+						},
+					},
+					{
+						Id: 9507199,
+						Items: []Item{
+							{Name: "Caption", Type: "String", Value: "NP_062226"},
+							{Name: "Title", Type: "String", Value: "thyroid peroxidase precursor [Rattus norvegicus]"},
+							{Name: "Extra", Type: "String", Value: "gi|9507199|ref|NP_062226.1|[9507199]"},
+							{Name: "Gi", Type: "Integer", Value: "9507199"},
+							{Name: "CreateDate", Type: "String", Value: "2000/07/22"},
+							{Name: "UpdateDate", Type: "String", Value: "2012/03/24"},
+							{Name: "Flags", Type: "Integer", Value: "512"},
+							{Name: "TaxId", Type: "Integer", Value: "10116"},
+							{Name: "Length", Type: "Integer", Value: "914"},
+							{Name: "Status", Type: "String", Value: "replaced"},
+							{Name: "ReplacedBy", Type: "String", Value: "NP_062226.2"},
+							{Name: "Comment", Type: "String", Value: " This record was replaced or removed. "},
+						},
+					},
+					{
+						Id: 28558982,
+						Items: []Item{
+							{Name: "Caption", Type: "String", Value: "NP_000538"},
+							{Name: "Title", Type: "String", Value: "thyroid peroxidase isoform a precursor [Homo sapiens]"},
+							{Name: "Extra", Type: "String", Value: "gi|28558982|ref|NP_000538.3|[28558982]"},
+							{Name: "Gi", Type: "Integer", Value: "28558982"},
+							{Name: "CreateDate", Type: "String", Value: "1999/03/19"},
+							{Name: "UpdateDate", Type: "String", Value: "2013/01/07"},
+							{Name: "Flags", Type: "Integer", Value: "512"},
+							{Name: "TaxId", Type: "Integer", Value: "9606"},
+							{Name: "Length", Type: "Integer", Value: "933"},
+							{Name: "Status", Type: "String", Value: "live"},
+							{Name: "ReplacedBy", Type: "String", Value: ""},
+							{Name: "Comment", Type: "String", Value: "  "},
+						},
+					},
+					{
+						Id: 28558984,
+						Items: []Item{
+							{Name: "Caption", Type: "String", Value: "NP_783650"},
+							{Name: "Title", Type: "String", Value: "thyroid peroxidase isoform b precursor [Homo sapiens]"},
+							{Name: "Extra", Type: "String", Value: "gi|28558984|ref|NP_783650.1|[28558984]"},
+							{Name: "Gi", Type: "Integer", Value: "28558984"},
+							{Name: "CreateDate", Type: "String", Value: "2003/02/25"},
+							{Name: "UpdateDate", Type: "String", Value: "2013/01/07"},
+							{Name: "Flags", Type: "Integer", Value: "512"},
+							{Name: "TaxId", Type: "Integer", Value: "9606"},
+							{Name: "Length", Type: "Integer", Value: "876"},
+							{Name: "Status", Type: "String", Value: "live"},
+							{Name: "ReplacedBy", Type: "String", Value: ""},
+							{Name: "Comment", Type: "String", Value: "  "},
+						},
+					},
+					{
+						Id: 28558988,
+						Items: []Item{
+							{Name: "Caption", Type: "String", Value: "NP_783652"},
+							{Name: "Title", Type: "String", Value: "thyroid peroxidase isoform d precursor [Homo sapiens]"},
+							{Name: "Extra", Type: "String", Value: "gi|28558988|ref|NP_783652.1|[28558988]"},
+							{Name: "Gi", Type: "Integer", Value: "28558988"},
+							{Name: "CreateDate", Type: "String", Value: "2003/02/25"},
+							{Name: "UpdateDate", Type: "String", Value: "2013/01/07"},
+							{Name: "Flags", Type: "Integer", Value: "512"},
+							{Name: "TaxId", Type: "Integer", Value: "9606"},
+							{Name: "Length", Type: "Integer", Value: "889"},
+							{Name: "Status", Type: "String", Value: "live"},
+							{Name: "ReplacedBy", Type: "String", Value: ""},
+							{Name: "Comment", Type: "String", Value: "  "},
+						},
+					},
+					{
+						Id: 28558990,
+						Items: []Item{
+							{Name: "Caption", Type: "String", Value: "NP_783653"},
+							{Name: "Title", Type: "String", Value: "thyroid peroxidase isoform e precursor [Homo sapiens]"},
+							{Name: "Extra", Type: "String", Value: "gi|28558990|ref|NP_783653.1|[28558990]"},
+							{Name: "Gi", Type: "Integer", Value: "28558990"},
+							{Name: "CreateDate", Type: "String", Value: "2003/02/25"},
+							{Name: "UpdateDate", Type: "String", Value: "2013/01/07"},
+							{Name: "Flags", Type: "Integer", Value: "512"},
+							{Name: "TaxId", Type: "Integer", Value: "9606"},
+							{Name: "Length", Type: "Integer", Value: "760"},
+							{Name: "Status", Type: "String", Value: "live"},
+							{Name: "ReplacedBy", Type: "String", Value: ""},
+							{Name: "Comment", Type: "String", Value: "  "},
+						},
 					},
 				},
-				Doc{Id: 9507199,
-					Items: []Item{Item{Name: "Caption", Type: "String", Value: "NP_062226"},
-						{Name: "Title", Type: "String", Value: "thyroid peroxidase precursor [Rattus norvegicus]"},
-						{Name: "Extra", Type: "String", Value: "gi|9507199|ref|NP_062226.1|[9507199]"},
-						{Name: "Gi", Type: "Integer", Value: "9507199"},
-						{Name: "CreateDate", Type: "String", Value: "2000/07/22"},
-						{Name: "UpdateDate", Type: "String", Value: "2012/03/24"},
-						{Name: "Flags", Type: "Integer", Value: "512"},
-						{Name: "TaxId", Type: "Integer", Value: "10116"},
-						{Name: "Length", Type: "Integer", Value: "914"},
-						{Name: "Status", Type: "String", Value: "replaced"},
-						{Name: "ReplacedBy", Type: "String", Value: "NP_062226.2"},
-						{Name: "Comment", Type: "String", Value: " This record was replaced or removed. "},
-					},
-				},
-				Doc{Id: 28558982,
-					Items: []Item{
-						{Name: "Caption", Type: "String", Value: "NP_000538"},
-						{Name: "Title", Type: "String", Value: "thyroid peroxidase isoform a precursor [Homo sapiens]"},
-						{Name: "Extra", Type: "String", Value: "gi|28558982|ref|NP_000538.3|[28558982]"},
-						{Name: "Gi", Type: "Integer", Value: "28558982"},
-						{Name: "CreateDate", Type: "String", Value: "1999/03/19"},
-						{Name: "UpdateDate", Type: "String", Value: "2013/01/07"},
-						{Name: "Flags", Type: "Integer", Value: "512"},
-						{Name: "TaxId", Type: "Integer", Value: "9606"},
-						{Name: "Length", Type: "Integer", Value: "933"},
-						{Name: "Status", Type: "String", Value: "live"},
-						{Name: "ReplacedBy", Type: "String", Value: ""},
-						{Name: "Comment", Type: "String", Value: "  "},
-					},
-				},
-				Doc{Id: 28558984,
-					Items: []Item{
-						{Name: "Caption", Type: "String", Value: "NP_783650"},
-						{Name: "Title", Type: "String", Value: "thyroid peroxidase isoform b precursor [Homo sapiens]"},
-						{Name: "Extra", Type: "String", Value: "gi|28558984|ref|NP_783650.1|[28558984]"},
-						{Name: "Gi", Type: "Integer", Value: "28558984"},
-						{Name: "CreateDate", Type: "String", Value: "2003/02/25"},
-						{Name: "UpdateDate", Type: "String", Value: "2013/01/07"},
-						{Name: "Flags", Type: "Integer", Value: "512"},
-						{Name: "TaxId", Type: "Integer", Value: "9606"},
-						{Name: "Length", Type: "Integer", Value: "876"},
-						{Name: "Status", Type: "String", Value: "live"},
-						{Name: "ReplacedBy", Type: "String", Value: ""},
-						{Name: "Comment", Type: "String", Value: "  "},
-					},
-				},
-				Doc{Id: 28558988,
-					Items: []Item{
-						{Name: "Caption", Type: "String", Value: "NP_783652"},
-						{Name: "Title", Type: "String", Value: "thyroid peroxidase isoform d precursor [Homo sapiens]"},
-						{Name: "Extra", Type: "String", Value: "gi|28558988|ref|NP_783652.1|[28558988]"},
-						{Name: "Gi", Type: "Integer", Value: "28558988"},
-						{Name: "CreateDate", Type: "String", Value: "2003/02/25"},
-						{Name: "UpdateDate", Type: "String", Value: "2013/01/07"},
-						{Name: "Flags", Type: "Integer", Value: "512"},
-						{Name: "TaxId", Type: "Integer", Value: "9606"},
-						{Name: "Length", Type: "Integer", Value: "889"},
-						{Name: "Status", Type: "String", Value: "live"},
-						{Name: "ReplacedBy", Type: "String", Value: ""},
-						{Name: "Comment", Type: "String", Value: "  "},
-					},
-				},
-				Doc{Id: 28558990,
-					Items: []Item{
-						{Name: "Caption", Type: "String", Value: "NP_783653"},
-						{Name: "Title", Type: "String", Value: "thyroid peroxidase isoform e precursor [Homo sapiens]"},
-						{Name: "Extra", Type: "String", Value: "gi|28558990|ref|NP_783653.1|[28558990]"},
-						{Name: "Gi", Type: "Integer", Value: "28558990"},
-						{Name: "CreateDate", Type: "String", Value: "2003/02/25"},
-						{Name: "UpdateDate", Type: "String", Value: "2013/01/07"},
-						{Name: "Flags", Type: "Integer", Value: "512"},
-						{Name: "TaxId", Type: "Integer", Value: "9606"},
-						{Name: "Length", Type: "Integer", Value: "760"},
-						{Name: "Status", Type: "String", Value: "live"},
-						{Name: "ReplacedBy", Type: "String", Value: ""},
-						{Name: "Comment", Type: "String", Value: "  "},
-					},
-				},
-			}, Err: nil},
+				Err: nil,
+			},
 		},
 	} {
 		var s Summary
@@ -810,7 +820,7 @@ func (s *S) TestParseLink(c *check.C) {
 `,
 			Link{
 				LinkSets: []LinkSet{
-					LinkSet{
+					{
 						DbFrom: "protein",
 						IdList: []int{
 							15718680,
@@ -909,7 +919,7 @@ func (s *S) TestParseLink(c *check.C) {
 `,
 			Link{
 				LinkSets: []LinkSet{
-					LinkSet{
+					{
 						DbFrom: "pubmed",
 						IdList: []int{
 							20210808,
@@ -1012,7 +1022,7 @@ func (s *S) TestParseLink(c *check.C) {
 `,
 			Link{
 				LinkSets: []LinkSet{
-					LinkSet{
+					{
 						DbFrom: "pubmed",
 						IdUrls: []IdUrlList{
 							{
