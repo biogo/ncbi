@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+// Helpers
+func intPtr(i int) *int          { return &i }
+func stringPtr(s string) *string { return &s }
+
 // Tests
 func Test(t *testing.T) { check.TestingT(t) }
 
