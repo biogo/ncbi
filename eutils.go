@@ -280,10 +280,10 @@ func DoInfo(db, tool, email string) (*Info, error) {
 }
 
 // DoSearch returns a Search filled with data obtained from an ESearch query of the
-// specified db. If History is not nil and WebEnv is not empty, the value of WebEnv
-// will be passed as the E-utilies webenv parameter allowing the results to be posted
-// to a Web Environment. If the QueryKey field is not zero, its value will be passed
-// as the query_key parameter.
+// specified db. If h is not nil the search will use the Entrez history server, filling h
+// with the returned web environment and query key. If h.WebEnv is not empty, it will be
+// passed to ESearch as the web environment and if h.QueryKey is not zero, it will be
+// passed as the query key.
 func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (*Search, error) {
 	v := url.Values{}
 	if db != "" {
@@ -295,14 +295,17 @@ func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (
 		v["term"] = []string{query}
 	}
 	fillParams(p, v)
-	if h != nil && h.WebEnv != "" {
+	s := Search{Database: db}
+	if h != nil {
+		s.History = h
 		v["usehistory"] = []string{"y"}
-		v["webenv"] = []string{h.WebEnv}
-		if h.QueryKey != 0 {
-			v["query_key"] = []string{fmt.Sprint(h.QueryKey)}
+		if h.WebEnv != "" {
+			v["webenv"] = []string{h.WebEnv}
+			if h.QueryKey != 0 {
+				v["query_key"] = []string{fmt.Sprint(h.QueryKey)}
+			}
 		}
 	}
-	s := Search{Database: db}
 	err := get(SearchUri, v, tool, email, &s)
 	if err != nil {
 		return nil, err
@@ -312,6 +315,7 @@ func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (
 
 // DoPost returns a Post filled with the response from an EPost action on the specified
 // id list. If h is not nil, its WebEnv field is passed as the E-utilies webenv parameter.
+// h will hold the returned web environment and query key at the end of the call.
 func DoPost(db, tool, email string, h *History, id ...int) (*Post, error) {
 	if len(id) == 0 {
 		return nil, ErrNoIdProvided
@@ -327,7 +331,7 @@ func DoPost(db, tool, email string, h *History, id ...int) (*Post, error) {
 	if h != nil && h.WebEnv != "" {
 		v["webenv"] = []string{h.WebEnv}
 	}
-	p := Post{}
+	p := Post{History: h}
 	err := get(PostUri, v, tool, email, &p)
 	if err != nil {
 		return nil, err
