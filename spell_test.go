@@ -37,7 +37,6 @@ func (s *S) TestParseSpell(c *check.C) {
 				Query:     "asthmaa OR alergies",
 				Corrected: "asthma or allergies",
 				Replace: []Replacement{
-					Old(""),
 					New("asthma"),
 					Old(" OR "),
 					New("allergies"),

@@ -44,10 +44,7 @@ type Spell struct {
 // Unmarshal fills the fields of a Spell from an XML stream read from r.
 func (s *Spell) Unmarshal(r io.Reader) error {
 	dec := xml.NewDecoder(r)
-	var (
-		st  stack.Stack
-		set bool
-	)
+	var st stack.Stack
 	for {
 		t, err := dec.Token()
 		if err != nil {
@@ -64,7 +61,6 @@ func (s *Spell) Unmarshal(r io.Reader) error {
 		case xml.Directive:
 		case xml.StartElement:
 			st = st.Push(t.Name.Local)
-			set = false
 		case xml.CharData:
 			if st.Empty() {
 				continue
@@ -92,19 +88,10 @@ func (s *Spell) Unmarshal(r io.Reader) error {
 				s.Err = fmt.Errorf("unknown name: %q", name)
 				return fmt.Errorf("entrez: unknown name: %q", name)
 			}
-			set = true
 		case xml.EndElement:
 			st, err = st.Pair(t.Name.Local)
 			if err != nil {
 				return err
-			}
-			if !set {
-				switch t.Name.Local {
-				case "Original":
-					s.Replace = append(s.Replace, spell.Old(""))
-				case "Replaced":
-					s.Replace = append(s.Replace, spell.New(""))
-				}
 			}
 		}
 	}

@@ -29,14 +29,14 @@ type Replacement interface {
 	Type() string
 }
 
-// An Old string contains the original text of a replacement sequence.
+// An Old string contains an original segment text of a query.
 type Old string
 
 func (o Old) String() string { return string(o) }
 func (o Old) Type() string   { return "Original" }
 
-// A New string contains the replacement text of a replacement sequence.
+// A New string contains a segment of replaced text of a query.
 type New string
 
 func (r New) String() string { return string(r) }
-func (r New) Type() string   { return "Replacement" }
+func (r New) Type() string   { return "Replaced" }
