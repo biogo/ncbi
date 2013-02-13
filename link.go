@@ -102,8 +102,6 @@ import (
 //
 // <!ELEMENT	eLinkResult	(LinkSet*, ERROR?)>
 
-// What does 'IMPLIED' mean on a boolean?
-
 // A Link holds the deserialised results of an ELink request.
 type Link struct {
 	LinkSets []link.LinkSet

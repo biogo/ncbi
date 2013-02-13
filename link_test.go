@@ -53,8 +53,8 @@ func (s *S) TestParseLink(c *check.C) {
 								DbTo:     "gene",
 								LinkName: "protein_gene",
 								Link: []LinkId{
-									{Id: 522311, HasLinkOut: false, HasNeighbor: false, Score: 0},
-									{Id: 3702, HasLinkOut: false, HasNeighbor: false, Score: 0},
+									{Id: Id{Id: 522311}, Score: 0},
+									{Id: Id{Id: 3702}, Score: 0},
 								},
 							},
 						},
@@ -152,25 +152,25 @@ func (s *S) TestParseLink(c *check.C) {
 								DbTo:     "pubmed",
 								LinkName: "pubmed_pubmed",
 								Link: []LinkId{
-									{Id: 15876306, HasLinkOut: false, HasNeighbor: false, Score: 75133399},
-									{Id: 20816181, HasLinkOut: false, HasNeighbor: false, Score: 25095241},
-									{Id: 21053465, HasLinkOut: false, HasNeighbor: false, Score: 24834712},
-									{Id: 22032786, HasLinkOut: false, HasNeighbor: false, Score: 24243731},
-									{Id: 22374193, HasLinkOut: false, HasNeighbor: false, Score: 23718577},
-									{Id: 19387030, HasLinkOut: false, HasNeighbor: false, Score: 23425951},
-									{Id: 21978852, HasLinkOut: false, HasNeighbor: false, Score: 22647663},
-									{Id: 22857403, HasLinkOut: false, HasNeighbor: false, Score: 19564745},
+									{Id: Id{Id: 15876306}, Score: 75133399},
+									{Id: Id{Id: 20816181}, Score: 25095241},
+									{Id: Id{Id: 21053465}, Score: 24834712},
+									{Id: Id{Id: 22032786}, Score: 24243731},
+									{Id: Id{Id: 22374193}, Score: 23718577},
+									{Id: Id{Id: 19387030}, Score: 23425951},
+									{Id: Id{Id: 21978852}, Score: 22647663},
+									{Id: Id{Id: 22857403}, Score: 19564745},
 								},
 							},
 							{
 								DbTo:     "pubmed",
 								LinkName: "pubmed_pubmed_reviews_five",
 								Link: []LinkId{
-									{Id: 12376064, HasLinkOut: false, HasNeighbor: false, Score: 56460889},
-									{Id: 15125698, HasLinkOut: false, HasNeighbor: false, Score: 50774274},
-									{Id: 10931782, HasLinkOut: false, HasNeighbor: false, Score: 50227044},
-									{Id: 10096822, HasLinkOut: false, HasNeighbor: false, Score: 48788287},
-									{Id: 12582308, HasLinkOut: false, HasNeighbor: false, Score: 48635669},
+									{Id: Id{Id: 12376064}, Score: 56460889},
+									{Id: Id{Id: 15125698}, Score: 50774274},
+									{Id: Id{Id: 10931782}, Score: 50227044},
+									{Id: Id{Id: 10096822}, Score: 48788287},
+									{Id: Id{Id: 12582308}, Score: 48635669},
 								},
 							},
 						},
@@ -250,7 +250,7 @@ func (s *S) TestParseLink(c *check.C) {
 							{
 								IdUrlSets: []IdUrlSet{
 									{
-										Id: 19880848,
+										Id: Id{Id: 19880848},
 										ObjUrls: []ObjUrl{
 											{
 												Url:         Url{Url: "http://www.labome.org//expert/switzerland/university/klingenberg/roland-klingenberg-1568163.html"},
@@ -261,7 +261,7 @@ func (s *S) TestParseLink(c *check.C) {
 												Provider: Provider{
 													Name:     "ExactAntigen/Labome",
 													NameAbbr: "EADB",
-													Id:       5753,
+													Id:       Id{Id: 5753},
 													Url:      Url{Url: "http://www.labome.com", Lang: "EN"},
 												},
 											},
@@ -274,7 +274,7 @@ func (s *S) TestParseLink(c *check.C) {
 												Provider: Provider{
 													Name:     "HighWire",
 													NameAbbr: "HighWire",
-													Id:       3051,
+													Id:       Id{Id: 3051},
 													Url:      Url{Url: "http://highwire.stanford.edu", Lang: "EN"},
 												},
 											},
@@ -288,7 +288,7 @@ func (s *S) TestParseLink(c *check.C) {
 												Provider: Provider{
 													Name:     "MedlinePlus Health Information",
 													NameAbbr: "MEDPLUS",
-													Id:       3162,
+													Id:       Id{Id: 3162},
 													Url:      Url{Url: "http://medlineplus.gov/", Lang: "EN"},
 													IconUrl:  &Url{Url: "http://www.nlm.nih.gov/medlineplus/images/linkout_sm.gif", Lang: "EN"},
 												},
@@ -327,8 +327,8 @@ func (s *S) TestParseLink(c *check.C) {
 						IdUrls:     nil,
 						IdChecks: &IdChecks{
 							Ids: []Id{
-								{Id: 21614549, HasLinkOut: false, HasNeighbor: true},
-								{Id: 219152114, HasLinkOut: false, HasNeighbor: false},
+								{Id: 21614549, HasNeighbor: boolPtr(true)},
+								{Id: 219152114, HasNeighbor: boolPtr(false)},
 							},
 							Err: nil,
 						},
@@ -338,7 +338,6 @@ func (s *S) TestParseLink(c *check.C) {
 				Err: nil,
 			},
 		},
-
 		{
 			`<?xml version="1.0"?>
 		<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 23 November 2010//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_101123.dtd">

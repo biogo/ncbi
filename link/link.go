@@ -102,13 +102,9 @@ import (
 //
 // <!ELEMENT	eLinkResult	(LinkSet*, ERROR?)>
 
-// What does 'IMPLIED' mean on a boolean?
-
 type LinkId struct {
-	Id          int
-	HasLinkOut  bool
-	HasNeighbor bool
-	Score       int
+	Id    Id
+	Score int
 }
 
 func (li *LinkId) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
@@ -131,14 +127,16 @@ func (li *LinkId) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
 					case "HasLinkOut":
 						switch b := attr.Value; b {
 						case "Y", "N":
-							li.HasLinkOut = b == "Y"
+							linkOut := b == "Y"
+							li.Id.HasLinkOut = &linkOut
 						default:
 							return fmt.Errorf("eutil: bad boolean: %q", b)
 						}
 					case "HasNeighbor":
 						switch b := attr.Value; b {
 						case "Y", "N":
-							li.HasNeighbor = b == "Y"
+							neighbor := b == "Y"
+							li.Id.HasNeighbor = &neighbor
 						default:
 							return fmt.Errorf("eutil: bad boolean: %q", b)
 						}
@@ -157,7 +155,7 @@ func (li *LinkId) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
 				if err != nil {
 					return err
 				}
-				li.Id = id
+				li.Id.Id = id
 			case "Score":
 				s, err := strconv.Atoi(string(t))
 				if err != nil {
@@ -264,7 +262,7 @@ func (u *Url) getLang(t xml.StartElement) error {
 type Provider struct {
 	Name     string
 	NameAbbr string
-	Id       int
+	Id       Id
 	Url      Url
 	IconUrl  *Url
 }
@@ -289,6 +287,29 @@ func (p *Provider) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
 			case "IconUrl":
 				p.IconUrl = &Url{}
 				err = p.IconUrl.getLang(t)
+			case "Id":
+				for _, attr := range t.Attr {
+					switch attr.Name.Local {
+					case "HasLinkOut":
+						switch b := attr.Value; b {
+						case "Y", "N":
+							linkOut := b == "Y"
+							p.Id.HasLinkOut = &linkOut
+						default:
+							return fmt.Errorf("eutil: bad boolean: %q", b)
+						}
+					case "HasNeighbor":
+						switch b := attr.Value; b {
+						case "Y", "N":
+							neighbor := b == "Y"
+							p.Id.HasNeighbor = &neighbor
+						default:
+							return fmt.Errorf("eutil: bad boolean: %q", b)
+						}
+					default:
+						return fmt.Errorf("entrez: unknown attribute: %q", attr.Name.Local)
+					}
+				}
 			}
 			if err != nil {
 				return err
@@ -307,7 +328,7 @@ func (p *Provider) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
 				if err != nil {
 					return err
 				}
-				p.Id = id
+				p.Id.Id = id
 			case "Url":
 				p.Url.Url = string(t)
 			case "IconUrl":
@@ -409,7 +430,7 @@ func (ou *ObjUrl) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
 }
 
 type IdUrlSet struct {
-	Id      int
+	Id      Id
 	ObjUrls []ObjUrl
 	Info    string
 }
@@ -428,7 +449,8 @@ func (us *IdUrlSet) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
 		case xml.Directive:
 		case xml.StartElement:
 			st = st.Push(t.Name.Local)
-			if t.Name.Local == "ObjUrl" {
+			switch t.Name.Local {
+			case "ObjUrl":
 				var ou ObjUrl
 				err := ou.Unmarshal(dec, st[len(st)-1:])
 				if !reflect.DeepEqual(ou, IdUrlSet{}) {
@@ -438,7 +460,29 @@ func (us *IdUrlSet) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
 					return err
 				}
 				st = st.Drop()
-				continue
+			case "Id":
+				for _, attr := range t.Attr {
+					switch attr.Name.Local {
+					case "HasLinkOut":
+						switch b := attr.Value; b {
+						case "Y", "N":
+							linkOut := b == "Y"
+							us.Id.HasLinkOut = &linkOut
+						default:
+							return fmt.Errorf("eutil: bad boolean: %q", b)
+						}
+					case "HasNeighbor":
+						switch b := attr.Value; b {
+						case "Y", "N":
+							neighbor := b == "Y"
+							us.Id.HasNeighbor = &neighbor
+						default:
+							return fmt.Errorf("eutil: bad boolean: %q", b)
+						}
+					default:
+						return fmt.Errorf("entrez: unknown attribute: %q", attr.Name.Local)
+					}
+				}
 			}
 		case xml.CharData:
 			if st.Empty() {
@@ -450,7 +494,7 @@ func (us *IdUrlSet) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
 				if err != nil {
 					return err
 				}
-				us.Id = id
+				us.Id.Id = id
 			case "Info":
 				us.Info = string(t)
 			case "IdUrlSet", "ObjUrl":
@@ -593,8 +637,8 @@ func (li *LinkInfo) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
 
 type Id struct {
 	Id          int
-	HasLinkOut  bool
-	HasNeighbor bool
+	HasLinkOut  *bool
+	HasNeighbor *bool
 }
 
 type IdLinkSet struct {
@@ -603,7 +647,7 @@ type IdLinkSet struct {
 }
 
 func (is *IdLinkSet) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	var hasLinkOut, hasNeighbor bool
+	var hasLinkOut, hasNeighbor *bool
 	for {
 		t, err := dec.Token()
 		if err != nil {
@@ -624,14 +668,16 @@ func (is *IdLinkSet) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
 					case "HasLinkOut":
 						switch b := attr.Value; b {
 						case "Y", "N":
-							hasLinkOut = b == "Y"
+							linkOut := b == "Y"
+							hasLinkOut = &linkOut
 						default:
 							return fmt.Errorf("eutil: bad boolean: %q", b)
 						}
 					case "HasNeighbor":
 						switch b := attr.Value; b {
 						case "Y", "N":
-							hasNeighbor = b == "Y"
+							neighbor := b == "Y"
+							hasNeighbor = &neighbor
 						default:
 							return fmt.Errorf("eutil: bad boolean: %q", b)
 						}
@@ -685,7 +731,7 @@ type IdChecks struct {
 }
 
 func (ic *IdChecks) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	var hasLinkOut, hasNeighbor bool
+	var hasLinkOut, hasNeighbor *bool
 	for {
 		t, err := dec.Token()
 		if err != nil {
@@ -706,14 +752,16 @@ func (ic *IdChecks) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
 					case "HasLinkOut":
 						switch b := attr.Value; b {
 						case "Y", "N":
-							hasLinkOut = b == "Y"
+							linkOut := b == "Y"
+							hasLinkOut = &linkOut
 						default:
 							return fmt.Errorf("eutil: bad boolean: %q", b)
 						}
 					case "HasNeighbor":
 						switch b := attr.Value; b {
 						case "Y", "N":
-							hasNeighbor = b == "Y"
+							neighbor := b == "Y"
+							hasNeighbor = &neighbor
 						default:
 							return fmt.Errorf("eutil: bad boolean: %q", b)
 						}

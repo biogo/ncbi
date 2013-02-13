@@ -18,6 +18,7 @@ import (
 
 // Helpers
 func intPtr(i int) *int          { return &i }
+func boolPtr(b bool) *bool       { return &b }
 func stringPtr(s string) *string { return &s }
 
 // Tests
@@ -232,7 +233,7 @@ func (s *S) TestDoLink(c *check.C) {
 			"protein", "gene", "", "", nil, "biogo.entrez-testsuite", "", nil, [][]int{{15718680, 157427902}},
 			&Link{
 				LinkSets: []LinkSet{
-					LinkSet{
+					{
 						DbFrom: "protein",
 						IdList: []int{15718680, 157427902},
 						LinkSetDbs: []LinkSetDb{
@@ -240,8 +241,8 @@ func (s *S) TestDoLink(c *check.C) {
 								DbTo:     "gene",
 								LinkName: "protein_gene",
 								Link: []LinkId{
-									LinkId{Id: 522311, HasLinkOut: false, HasNeighbor: false, Score: 0},
-									LinkId{Id: 3702, HasLinkOut: false, HasNeighbor: false, Score: 0},
+									LinkId{Id: Id{Id: 522311}, Score: 0},
+									LinkId{Id: Id{Id: 3702}, Score: 0},
 								},
 							},
 						},
@@ -265,7 +266,7 @@ func (s *S) TestDoLink(c *check.C) {
 								DbTo:     "gene",
 								LinkName: "protein_gene",
 								Link: []LinkId{
-									{Id: 3702, HasLinkOut: false, HasNeighbor: false, Score: 0},
+									{Id: Id{Id: 3702}, Score: 0},
 								},
 							},
 						},
@@ -281,7 +282,7 @@ func (s *S) TestDoLink(c *check.C) {
 								DbTo:     "gene",
 								LinkName: "protein_gene",
 								Link: []LinkId{
-									{Id: 522311, HasLinkOut: false, HasNeighbor: false, Score: 0},
+									{Id: Id{Id: 522311}, Score: 0},
 								},
 							},
 						},
