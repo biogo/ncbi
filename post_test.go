@@ -5,6 +5,7 @@
 package entrez
 
 import (
+	"errors"
 	check "launchpad.net/gocheck"
 	"strings"
 )
@@ -43,7 +44,7 @@ func (s *S) TestParsePost(c *check.C) {
 					QueryKey: 1,
 					WebEnv:   "NCID_1_299062774_130.14.18.97_5555_1360293760_1713152879",
 				},
-				Err: Error("IDs contain invalid characters which was treated as delimiters."),
+				Err: errors.New("IDs contain invalid characters which was treated as delimiters."),
 			},
 		},
 		{

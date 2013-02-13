@@ -5,6 +5,9 @@
 package entrez
 
 import (
+	. "code.google.com/p/biogo.entrez/search"
+
+	"errors"
 	check "launchpad.net/gocheck"
 	"strings"
 )
@@ -276,7 +279,7 @@ func (s *S) TestParseSearch(c *check.C) {
 	<ERROR>Empty term and query_key - nothing todo</ERROR>
 </eSearchResult>
 `,
-			Search{Err: Error("Empty term and query_key - nothing todo")},
+			Search{Err: errors.New("Empty term and query_key - nothing todo")},
 		},
 		{`<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE eSearchResult PUBLIC "-//NLM//DTD eSearchResult, 11 May 2002//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eSearch_020511.dtd">
@@ -284,7 +287,7 @@ func (s *S) TestParseSearch(c *check.C) {
 	<ERROR>Invalid db name specified: pub</ERROR>
 </eSearchResult>
 `,
-			Search{Err: Error("Invalid db name specified: pub")},
+			Search{Err: errors.New("Invalid db name specified: pub")},
 		},
 		{
 			`<?xml version="1.0" ?>
@@ -307,8 +310,8 @@ func (s *S) TestParseSearch(c *check.C) {
 				QueryTranslation: nil,
 				Err:              nil,
 				Errors: []error{
-					NotFoundError{Type: "field not found", Value: "jungle"},
-					NotFoundError{Type: "field not found", Value: "pat"},
+					NotFound{Type: "field not found", Value: "jungle"},
+					NotFound{Type: "field not found", Value: "pat"},
 				},
 				Warnings: nil,
 			},
@@ -344,8 +347,8 @@ func (s *S) TestParseSearch(c *check.C) {
 				QueryTranslation: stringPtr("(nonjournal[journal] AND nonyear[date])"),
 				Err:              nil,
 				Errors: []error{
-					NotFoundError{Type: "phrase not found", Value: "nonjournal[journal]"},
-					NotFoundError{Type: "phrase not found", Value: "nonyear[date]"},
+					NotFound{Type: "phrase not found", Value: "nonjournal[journal]"},
+					NotFound{Type: "phrase not found", Value: "nonyear[date]"},
 				},
 				Warnings: []error{
 					Warning{Type: "output message", Value: "No items found."},

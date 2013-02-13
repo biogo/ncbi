@@ -5,6 +5,8 @@
 package entrez
 
 import (
+	. "code.google.com/p/biogo.entrez/spell"
+
 	check "launchpad.net/gocheck"
 	"strings"
 )

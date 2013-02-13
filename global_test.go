@@ -5,6 +5,7 @@
 package entrez
 
 import (
+	"code.google.com/p/biogo.entrez/global"
 	check "launchpad.net/gocheck"
 	"strings"
 )
@@ -78,7 +79,7 @@ func (s *S) TestParseGlobal(c *check.C) {
 `,
 			Global{
 				Query: "health",
-				Results: []Result{
+				Results: []global.Result{
 					{Database: "pubmed", MenuName: "PubMed", Count: 2398129, Status: "Ok"},
 					{Database: "pmc", MenuName: "PubMed Central", Count: 1217453, Status: "Ok"},
 					{Database: "mesh", MenuName: "MeSH", Count: 239, Status: "Ok"},

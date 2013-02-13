@@ -5,6 +5,8 @@
 package entrez
 
 import (
+	"code.google.com/p/biogo.entrez/info"
+	"errors"
 	check "launchpad.net/gocheck"
 	"strings"
 )
@@ -91,14 +93,14 @@ func (s *S) TestParseInfo(c *check.C) {
 `,
 			Info{
 				DbList: nil,
-				DbInfo: []DbInfo{
+				DbInfo: []info.DbInfo{
 					{
 						DbName:      "toolkit",
 						MenuName:    "ToolKit",
 						Description: "ToolKit database",
 						Count:       265403,
 						LastUpdate:  "2013/02/07 14:34",
-						FieldList: []Field{
+						FieldList: []info.Field{
 							{
 								Name:        "ALL",
 								FullName:    "All Fields",
@@ -135,7 +137,7 @@ func (s *S) TestParseInfo(c *check.C) {
 		<ERROR>Can not retrieve DbInfo for db=blah</ERROR>
 	</eInfoResult>
 	`,
-			Info{Err: Error("Can not retrieve DbInfo for db=blah")}},
+			Info{Err: errors.New("Can not retrieve DbInfo for db=blah")}},
 	} {
 		var in Info
 		err := in.Unmarshal(strings.NewReader(t.retval))

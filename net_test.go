@@ -5,6 +5,10 @@
 package entrez
 
 import (
+	. "code.google.com/p/biogo.entrez/link"
+	. "code.google.com/p/biogo.entrez/spell"
+	. "code.google.com/p/biogo.entrez/summary"
+
 	"flag"
 	"io/ioutil"
 	check "launchpad.net/gocheck"

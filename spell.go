@@ -5,7 +5,10 @@
 package entrez
 
 import (
+	"code.google.com/p/biogo.entrez/spell"
+	"code.google.com/p/biogo.entrez/stack"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 )
@@ -29,30 +32,12 @@ import (
 
 // All terms listed for eSpell are NOT {\d+}. Interestingly, no blame.
 
-// A Replacement is text fragment that indicates a change specified by ESpell.
-type Replacement interface {
-	String() string
-	Type() string
-}
-
-// An Old string contains the original text of a replacement sequence.
-type Old string
-
-func (o Old) String() string { return string(o) }
-func (o Old) Type() string   { return "Original" }
-
-// A New string contains the replacement text of a replacement sequence.
-type New string
-
-func (r New) String() string { return string(r) }
-func (r New) Type() string   { return "Replacement" }
-
 // A Spell holds the deserialised results of an ESpell request.
 type Spell struct {
 	Database  string
 	Query     string
 	Corrected string
-	Replace   []Replacement
+	Replace   []spell.Replacement
 	Err       error
 }
 
@@ -60,7 +45,7 @@ type Spell struct {
 func (s *Spell) Unmarshal(r io.Reader) error {
 	dec := xml.NewDecoder(r)
 	var (
-		st  stack
+		st  stack.Stack
 		set bool
 	)
 	for {
@@ -69,7 +54,7 @@ func (s *Spell) Unmarshal(r io.Reader) error {
 			if err != io.EOF {
 				return err
 			}
-			if !st.empty() {
+			if !st.Empty() {
 				return io.ErrUnexpectedEOF
 			}
 			break
@@ -78,13 +63,13 @@ func (s *Spell) Unmarshal(r io.Reader) error {
 		case xml.ProcInst:
 		case xml.Directive:
 		case xml.StartElement:
-			st = st.push(t.Name.Local)
+			st = st.Push(t.Name.Local)
 			set = false
 		case xml.CharData:
-			if st.empty() {
+			if st.Empty() {
 				continue
 			}
-			switch name := st.peek(0); name {
+			switch name := st.Peek(0); name {
 			case "Database":
 				s.Database = string(t)
 			case "Query":
@@ -92,33 +77,33 @@ func (s *Spell) Unmarshal(r io.Reader) error {
 			case "CorrectedQuery":
 				s.Corrected = string(t)
 			case "Original", "Replaced":
-				if st.peek(1) != "SpelledQuery" {
+				if st.Peek(1) != "SpelledQuery" {
 					return fmt.Errorf("entrez: unexpected tag: %q", name)
 				}
 				if name == "Original" {
-					s.Replace = append(s.Replace, Old(string(t)))
+					s.Replace = append(s.Replace, spell.Old(string(t)))
 				} else {
-					s.Replace = append(s.Replace, New(string(t)))
+					s.Replace = append(s.Replace, spell.New(string(t)))
 				}
 			case "ERROR":
-				s.Err = Error(string(t))
+				s.Err = errors.New(string(t))
 			case "eSpellResult", "SpelledQuery":
 			default:
-				s.Err = Error(fmt.Sprintf("unknown name: %q", name))
+				s.Err = fmt.Errorf("unknown name: %q", name)
 				return fmt.Errorf("entrez: unknown name: %q", name)
 			}
 			set = true
 		case xml.EndElement:
-			st, err = st.pair(t.Name.Local)
+			st, err = st.Pair(t.Name.Local)
 			if err != nil {
 				return err
 			}
 			if !set {
 				switch t.Name.Local {
 				case "Original":
-					s.Replace = append(s.Replace, Old(""))
+					s.Replace = append(s.Replace, spell.Old(""))
 				case "Replaced":
-					s.Replace = append(s.Replace, New(""))
+					s.Replace = append(s.Replace, spell.New(""))
 				}
 			}
 		}

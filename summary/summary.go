@@ -2,16 +2,16 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package entrez
+package summary
 
 import (
 	"code.google.com/p/biogo.entrez/stack"
-	"code.google.com/p/biogo.entrez/summary"
 	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
 	"reflect"
+	"strconv"
 )
 
 // <!--
@@ -35,25 +35,46 @@ import (
 //
 // <!ELEMENT eSummaryResult    (DocSum|ERROR)+>
 
-// A Summary holds the deserialised results of an ESummary request.
-type Summary struct {
-	Database string
-	Docs     []summary.Doc
-	Err      error
+type Item struct {
+	Value string
+	Name  string
+	Type  string
 }
 
-// Unmarshal fills the fields of a Summary from an XML stream read from r.
-func (s *Summary) Unmarshal(r io.Reader) error {
-	dec := xml.NewDecoder(r)
-	var st stack.Stack
+func (i *Item) Unmarshal(dec *xml.Decoder) error {
 	for {
 		t, err := dec.Token()
 		if err != nil {
 			if err != io.EOF {
 				return err
 			}
-			if !st.Empty() {
-				return io.ErrUnexpectedEOF
+			break
+		}
+		switch t := t.(type) {
+		case xml.StartElement:
+			return errors.New("entrez: unexpected tag")
+		case xml.EndElement:
+			if t.Name.Local == "Item" {
+				return nil
+			}
+		case xml.CharData:
+			i.Value = string(t)
+		}
+	}
+	return nil
+}
+
+type Doc struct {
+	Id    int
+	Items []Item
+}
+
+func (d *Doc) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
+	for {
+		t, err := dec.Token()
+		if err != nil {
+			if err != io.EOF {
+				return err
 			}
 			break
 		}
@@ -61,26 +82,40 @@ func (s *Summary) Unmarshal(r io.Reader) error {
 		case xml.ProcInst:
 		case xml.Directive:
 		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			if t.Name.Local == "DocSum" {
-				var d summary.Doc
-				err := d.Unmarshal(dec, st[len(st)-1:])
-				if !(reflect.DeepEqual(d, summary.Doc{})) {
-					s.Docs = append(s.Docs, d)
+			if t.Name.Local == "Item" {
+				var i Item
+				for _, attr := range t.Attr {
+					switch attr.Name.Local {
+					case "Name":
+						i.Name = attr.Value
+					case "Type":
+						i.Type = attr.Value
+					default:
+						return fmt.Errorf("entrez: unknown attribute: %q", attr.Name.Local)
+					}
+				}
+				err := i.Unmarshal(dec)
+				if !(reflect.DeepEqual(i, Item{})) {
+					d.Items = append(d.Items, i)
 				}
 				if err != nil {
 					return err
 				}
-				st = st.Drop()
+				continue
 			}
+			st = st.Push(t.Name.Local)
 		case xml.CharData:
 			if st.Empty() {
 				continue
 			}
 			switch name := st.Peek(0); name {
-			case "ERROR":
-				s.Err = errors.New(string(t))
-			case "eSummaryResult":
+			case "Id":
+				c, err := strconv.Atoi(string(t))
+				if err != nil {
+					return err
+				}
+				d.Id = c
+			case "DocSum":
 			default:
 				return fmt.Errorf("entrez: unknown name: %q", name)
 			}
@@ -88,6 +123,9 @@ func (s *Summary) Unmarshal(r io.Reader) error {
 			st, err = st.Pair(t.Name.Local)
 			if err != nil {
 				return err
+			}
+			if st.Empty() {
+				return nil
 			}
 		}
 	}

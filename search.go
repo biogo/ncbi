@@ -5,7 +5,10 @@
 package entrez
 
 import (
+	"code.google.com/p/biogo.entrez/search"
+	"code.google.com/p/biogo.entrez/stack"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -80,12 +83,12 @@ const (
 	fieldNotFound  = "field not found"
 )
 
-type NotFoundError struct {
+type NotFound struct {
 	Type  string
 	Value string
 }
 
-func (e NotFoundError) Error() string { return fmt.Sprintf("entrez: %s: %q", e.Type, e.Value) }
+func (e NotFound) Error() string { return fmt.Sprintf("entrez: %s: %q", e.Type, e.Value) }
 
 const (
 	phraseIgnored        = "phrase ignored"
@@ -100,137 +103,6 @@ type Warning struct {
 
 func (w Warning) Error() string { return fmt.Sprintf("entrez: warning: %s: %q", w.Type, w.Value) }
 
-type Op string
-
-func (o Op) Consume(s []Node) Node {
-	// TODO Flesh out Op to be a struct:
-	//
-	//  type Op struct {
-	//  	Operation string
-	//  	Operands  []Node
-	//  }
-	//
-	// Then we can build an AST for the search. To do this we need to understand what
-	// RANGE and GROUP actually do - this is not specified.
-	switch o {
-	case "AND", "OR", "NOT", "RANGE", "GROUP":
-		return o
-	}
-	return nil
-}
-
-type Term struct {
-	Term    string
-	Field   string
-	Count   int
-	Explode bool
-}
-
-func (tm Term) Consume(_ []Node) Node { return tm }
-
-func (tm *Term) unmarshal(dec *xml.Decoder, st stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.push(t.Name.Local)
-		case xml.CharData:
-			if st.empty() {
-				continue
-			}
-			switch name := st.peek(0); name {
-			case "Term":
-				tm.Term = string(t)
-			case "Field":
-				tm.Field = string(t)
-			case "Count":
-				c, err := strconv.Atoi(string(t))
-				if err != nil {
-					return err
-				}
-				tm.Count = c
-			case "Explode":
-				switch b := string(t); b {
-				case "Y", "N":
-					tm.Explode = b == "Y"
-				default:
-					return fmt.Errorf("entrez: bad boolean: %q", b)
-				}
-			case "TermSet":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
-}
-
-type Translation struct {
-	From string
-	To   string
-}
-
-func (tr *Translation) unmarshal(dec *xml.Decoder, st stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.push(t.Name.Local)
-		case xml.CharData:
-			if st.empty() {
-				continue
-			}
-			switch name := st.peek(0); name {
-			case "From":
-				tr.From = string(t)
-			case "To":
-				tr.To = string(t)
-			case "TranslationSet", "Translation":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
-}
-
-// A Node is an element of the ESearch translation stack.
-type Node interface {
-	Consume([]Node) Node
-}
-
 // A Search holds the deserialised results of an ESearch request.
 type Search struct {
 	Database         string
@@ -239,8 +111,8 @@ type Search struct {
 	RetStart         int
 	History          *History
 	IdList           []int
-	Translations     []Translation
-	TranslationStack []Node
+	Translations     []search.Translation
+	TranslationStack []search.Node
 	QueryTranslation *string
 	Err              error
 	Errors           []error
@@ -250,14 +122,14 @@ type Search struct {
 // Unmarshal fills the fields of a Search from an XML stream read from r.
 func (s *Search) Unmarshal(r io.Reader) error {
 	dec := xml.NewDecoder(r)
-	var st stack
+	var st stack.Stack
 	for {
 		t, err := dec.Token()
 		if err != nil {
 			if err != io.EOF {
 				return err
 			}
-			if !st.empty() {
+			if !st.Empty() {
 				return io.ErrUnexpectedEOF
 			}
 			break
@@ -266,34 +138,34 @@ func (s *Search) Unmarshal(r io.Reader) error {
 		case xml.ProcInst:
 		case xml.Directive:
 		case xml.StartElement:
-			st = st.push(t.Name.Local)
+			st = st.Push(t.Name.Local)
 			switch t.Name.Local {
 			case "Translation":
-				var tr Translation
-				err := tr.unmarshal(dec, st[len(st)-1:])
-				if (tr != Translation{}) {
+				var tr search.Translation
+				err := tr.Unmarshal(dec, st[len(st)-1:])
+				if (tr != search.Translation{}) {
 					s.Translations = append(s.Translations, tr)
 				}
 				if err != nil {
 					return err
 				}
-				st = st.drop()
+				st = st.Drop()
 			case "TermSet":
-				var tm Term
-				err := tm.unmarshal(dec, st[len(st)-1:])
-				if (tm != Term{}) {
+				var tm search.Term
+				err := tm.Unmarshal(dec, st[len(st)-1:])
+				if (tm != search.Term{}) {
 					s.TranslationStack = append(s.TranslationStack, tm)
 				}
 				if err != nil {
 					return err
 				}
-				st = st.drop()
+				st = st.Drop()
 			}
 		case xml.CharData:
-			if st.empty() {
+			if st.Empty() {
 				continue
 			}
-			switch name := st.peek(0); name {
+			switch name := st.Peek(0); name {
 			case "Count":
 				c, err := strconv.Atoi(string(t))
 				if err != nil {
@@ -333,7 +205,7 @@ func (s *Search) Unmarshal(r io.Reader) error {
 				}
 				s.IdList = append(s.IdList, id)
 			case "OP":
-				o := Op(string(t))
+				o := search.Op(string(t))
 				if o.Consume(s.TranslationStack) == nil {
 					return fmt.Errorf("entrez: illegal operator: %q", o)
 				}
@@ -342,19 +214,19 @@ func (s *Search) Unmarshal(r io.Reader) error {
 				st := string(t)
 				s.QueryTranslation = &st
 			case "ERROR":
-				s.Err = Error(string(t))
+				s.Err = errors.New(string(t))
 			case "PhraseNotFound", "FieldNotFound":
-				if st.peek(1) != "ErrorList" {
+				if st.Peek(1) != "ErrorList" {
 					return fmt.Errorf("entrez: unexpected tag: %q", name)
 				}
 				switch name {
 				case "PhraseNotFound":
-					s.Errors = append(s.Errors, NotFoundError{Type: phraseNotFound, Value: string(t)})
+					s.Errors = append(s.Errors, NotFound{Type: phraseNotFound, Value: string(t)})
 				case "FieldNotFound":
-					s.Errors = append(s.Errors, NotFoundError{Type: fieldNotFound, Value: string(t)})
+					s.Errors = append(s.Errors, NotFound{Type: fieldNotFound, Value: string(t)})
 				}
 			case "PhraseIgnored", "QuotedPhraseNotFound", "OutputMessage":
-				if st.peek(1) != "WarningList" {
+				if st.Peek(1) != "WarningList" {
 					return fmt.Errorf("entrez: unexpected tag: %q", name)
 				}
 				switch name {
@@ -370,7 +242,7 @@ func (s *Search) Unmarshal(r io.Reader) error {
 				return fmt.Errorf("entrez: unknown name: %q", name)
 			}
 		case xml.EndElement:
-			st, err = st.pair(t.Name.Local)
+			st, err = st.Pair(t.Name.Local)
 			if err != nil {
 				return err
 			}

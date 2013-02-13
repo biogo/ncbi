@@ -5,7 +5,9 @@
 package entrez
 
 import (
+	"code.google.com/p/biogo.entrez/stack"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -36,14 +38,14 @@ type Post struct {
 // Unmarshal fills the fields of a Post from an XML stream read from r.
 func (p *Post) Unmarshal(r io.Reader) error {
 	dec := xml.NewDecoder(r)
-	var st stack
+	var st stack.Stack
 	for {
 		t, err := dec.Token()
 		if err != nil {
 			if err != io.EOF {
 				return err
 			}
-			if !st.empty() {
+			if !st.Empty() {
 				return io.ErrUnexpectedEOF
 			}
 			break
@@ -52,14 +54,14 @@ func (p *Post) Unmarshal(r io.Reader) error {
 		case xml.ProcInst:
 		case xml.Directive:
 		case xml.StartElement:
-			st = st.push(t.Name.Local)
+			st = st.Push(t.Name.Local)
 		case xml.CharData:
-			if st.empty() {
+			if st.Empty() {
 				continue
 			}
-			switch name := st.peek(0); name {
+			switch name := st.Peek(0); name {
 			case "Id":
-				if st.peek(1) != "InvalidIdList" {
+				if st.Peek(1) != "InvalidIdList" {
 					return fmt.Errorf("entrez: unexpected tag: %q", name)
 				}
 				id, err := strconv.Atoi(string(t))
@@ -82,14 +84,14 @@ func (p *Post) Unmarshal(r io.Reader) error {
 				}
 				p.History.WebEnv = string(t)
 			case "ERROR":
-				p.Err = Error(string(t))
+				p.Err = errors.New(string(t))
 			case "ePostResult", "InvalidIdList":
 			default:
-				p.Err = Error(fmt.Sprintf("unknown name: %q", name))
+				p.Err = fmt.Errorf("unknown name: %q", name)
 				return fmt.Errorf("entrez: unknown name: %q", name)
 			}
 		case xml.EndElement:
-			st, err = st.pair(t.Name.Local)
+			st, err = st.Pair(t.Name.Local)
 			if err != nil {
 				return err
 			}

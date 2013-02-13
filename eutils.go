@@ -79,33 +79,6 @@ var (
 	ErrNoQuery      = errors.New("entrez: no query")
 )
 
-type Error string
-
-func (e Error) Error() string { return string(e) }
-
-// stack is used for accounting XML tags during parsing.
-type stack []string
-
-func (st stack) drop() stack { return st[:len(st)-1] }
-func (st stack) empty() bool { return len(st) == 0 }
-func (st stack) pair(s string) (stack, error) {
-	t, st := st[len(st)-1], st[:len(st)-1]
-	if s != t {
-		return st, fmt.Errorf("entrez: tag name mismatch %q != %q", s, t)
-
-	}
-	return st, nil
-}
-func (st stack) peek(i int) string {
-	i++
-	if i > len(st) {
-		return ""
-	}
-	return st[len(st)-i]
-}
-func (st stack) pop() (string, stack) { return st[len(st)-1], st[:len(st)-1] }
-func (st stack) push(s string) stack  { return append(st, s) }
-
 // Parameters is used to pass optional parameters to E-utility programs. The relevant documentation
 // for each of these parameters is at http://www.ncbi.nlm.nih.gov/books/n/helpeutils/chapter4/.
 type Parameters struct {
