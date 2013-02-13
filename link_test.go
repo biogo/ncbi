@@ -338,81 +338,164 @@ func (s *S) TestParseLink(c *check.C) {
 			},
 		},
 
-		// 		{
-		// 			`<?xml version="1.0"?>
-		// <!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 23 November 2010//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_101123.dtd">
-		// <eLinkResult>
-		// 	<LinkSet>
-		// 		<DbFrom>protein</DbFrom>
-		// 		<IdCheckList>
-		// 			<IdLinkSet>
-		// 				<Id>15718680</Id>
-		// 				<LinkInfo>
-		// 					<DbTo>pubmed</DbTo>
-		// 					<LinkName>protein_pubmed</LinkName>
-		// 					<MenuTag>PubMed Links</MenuTag>
-		// 					<HtmlTag>PubMed</HtmlTag>
-		// 					<Priority>128</Priority>
-		// 				</LinkInfo>
-		// 				<LinkInfo>
-		// 					<DbTo>pubmed</DbTo>
-		// 					<LinkName>protein_pubmed_refseq</LinkName>
-		// 					<MenuTag>PubMed (RefSeq) Links</MenuTag>
-		// 					<HtmlTag>PubMed (RefSeq)</HtmlTag>
-		// 					<Priority>128</Priority>
-		// 				</LinkInfo>
-		// 				<LinkInfo>
-		// 					<DbTo>pubmed</DbTo>
-		// 					<LinkName>protein_pubmed_weighted</LinkName>
-		// 					<MenuTag>PubMed (Weighted) Links</MenuTag>
-		// 					<HtmlTag>PubMed (Weighted)</HtmlTag>
-		// 					<Priority>128</Priority>
-		// 				</LinkInfo>
-		// 				<LinkInfo>
-		// 					<DbTo>LinkOut</DbTo>
-		// 					<LinkName>ExternalLink</LinkName>
-		// 					<MenuTag>LinkOut</MenuTag>
-		// 					<HtmlTag>LinkOut</HtmlTag>
-		// 					<Priority>255</Priority>
-		// 				</LinkInfo>
-		// 			</IdLinkSet>
-		// 			<IdLinkSet>
-		// 				<Id>157427902</Id>
-		// 				<LinkInfo>
-		// 					<DbTo>pubmed</DbTo>
-		// 					<LinkName>protein_pubmed</LinkName>
-		// 					<MenuTag>PubMed Links</MenuTag>
-		// 					<HtmlTag>PubMed</HtmlTag>
-		// 					<Priority>128</Priority>
-		// 				</LinkInfo>
-		// 				<LinkInfo>
-		// 					<DbTo>pubmed</DbTo>
-		// 					<LinkName>protein_pubmed_refseq</LinkName>
-		// 					<MenuTag>PubMed (RefSeq) Links</MenuTag>
-		// 					<HtmlTag>PubMed (RefSeq)</HtmlTag>
-		// 					<Priority>128</Priority>
-		// 				</LinkInfo>
-		// 				<LinkInfo>
-		// 					<DbTo>pubmed</DbTo>
-		// 					<LinkName>protein_pubmed_weighted</LinkName>
-		// 					<MenuTag>PubMed (Weighted) Links</MenuTag>
-		// 					<HtmlTag>PubMed (Weighted)</HtmlTag>
-		// 					<Priority>128</Priority>
-		// 				</LinkInfo>
-		// 				<LinkInfo>
-		// 					<DbTo>LinkOut</DbTo>
-		// 					<LinkName>ExternalLink</LinkName>
-		// 					<MenuTag>LinkOut</MenuTag>
-		// 					<HtmlTag>LinkOut</HtmlTag>
-		// 					<Priority>255</Priority>
-		// 				</LinkInfo>
-		// 			</IdLinkSet>
-		// 		</IdCheckList>
-		// 	</LinkSet>
-		// </eLinkResult>
-		// `,
-		// 			Link{},
-		// 		},
+		{
+			`<?xml version="1.0"?>
+		<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 23 November 2010//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_101123.dtd">
+		<eLinkResult>
+			<LinkSet>
+				<DbFrom>protein</DbFrom>
+				<IdCheckList>
+					<IdLinkSet>
+						<Id>15718680</Id>
+						<LinkInfo>
+							<DbTo>pubmed</DbTo>
+							<LinkName>protein_pubmed</LinkName>
+							<MenuTag>PubMed Links</MenuTag>
+							<HtmlTag>PubMed</HtmlTag>
+							<Priority>128</Priority>
+						</LinkInfo>
+						<LinkInfo>
+							<DbTo>pubmed</DbTo>
+							<LinkName>protein_pubmed_refseq</LinkName>
+							<MenuTag>PubMed (RefSeq) Links</MenuTag>
+							<HtmlTag>PubMed (RefSeq)</HtmlTag>
+							<Priority>128</Priority>
+						</LinkInfo>
+						<LinkInfo>
+							<DbTo>pubmed</DbTo>
+							<LinkName>protein_pubmed_weighted</LinkName>
+							<MenuTag>PubMed (Weighted) Links</MenuTag>
+							<HtmlTag>PubMed (Weighted)</HtmlTag>
+							<Priority>128</Priority>
+						</LinkInfo>
+						<LinkInfo>
+							<DbTo>LinkOut</DbTo>
+							<LinkName>ExternalLink</LinkName>
+							<MenuTag>LinkOut</MenuTag>
+							<HtmlTag>LinkOut</HtmlTag>
+							<Priority>255</Priority>
+						</LinkInfo>
+					</IdLinkSet>
+					<IdLinkSet>
+						<Id>157427902</Id>
+						<LinkInfo>
+							<DbTo>pubmed</DbTo>
+							<LinkName>protein_pubmed</LinkName>
+							<MenuTag>PubMed Links</MenuTag>
+							<HtmlTag>PubMed</HtmlTag>
+							<Priority>128</Priority>
+						</LinkInfo>
+						<LinkInfo>
+							<DbTo>pubmed</DbTo>
+							<LinkName>protein_pubmed_refseq</LinkName>
+							<MenuTag>PubMed (RefSeq) Links</MenuTag>
+							<HtmlTag>PubMed (RefSeq)</HtmlTag>
+							<Priority>128</Priority>
+						</LinkInfo>
+						<LinkInfo>
+							<DbTo>pubmed</DbTo>
+							<LinkName>protein_pubmed_weighted</LinkName>
+							<MenuTag>PubMed (Weighted) Links</MenuTag>
+							<HtmlTag>PubMed (Weighted)</HtmlTag>
+							<Priority>128</Priority>
+						</LinkInfo>
+						<LinkInfo>
+							<DbTo>LinkOut</DbTo>
+							<LinkName>ExternalLink</LinkName>
+							<MenuTag>LinkOut</MenuTag>
+							<HtmlTag>LinkOut</HtmlTag>
+							<Priority>255</Priority>
+						</LinkInfo>
+					</IdLinkSet>
+				</IdCheckList>
+			</LinkSet>
+		</eLinkResult>
+		`,
+			Link{
+				LinkSets: []LinkSet{
+					{
+						DbFrom:     "protein",
+						IdList:     nil,
+						LinkSetDbs: nil,
+						IdUrls:     nil,
+						IdChecks: &IdChecks{
+							Ids: nil,
+							IdLinkSets: []IdLinkSet{
+								{
+									Id: Id{Id: 15718680},
+									LinkInfo: []LinkInfo{
+										{
+											DbTo:     "pubmed",
+											LinkName: "protein_pubmed",
+											MenuTag:  stringPtr("PubMed Links"),
+											HtmlTag:  stringPtr("PubMed"),
+											Priority: "128",
+										},
+										{
+											DbTo:     "pubmed",
+											LinkName: "protein_pubmed_refseq",
+											MenuTag:  stringPtr("PubMed (RefSeq) Links"),
+											HtmlTag:  stringPtr("PubMed (RefSeq)"),
+											Priority: "128",
+										},
+										{
+											DbTo:     "pubmed",
+											LinkName: "protein_pubmed_weighted",
+											MenuTag:  stringPtr("PubMed (Weighted) Links"),
+											HtmlTag:  stringPtr("PubMed (Weighted)"),
+											Priority: "128",
+										},
+										{
+											DbTo:     "LinkOut",
+											LinkName: "ExternalLink",
+											MenuTag:  stringPtr("LinkOut"),
+											HtmlTag:  stringPtr("LinkOut"),
+											Priority: "255",
+										},
+									},
+								},
+								{
+									Id: Id{Id: 157427902},
+									LinkInfo: []LinkInfo{
+										{
+											DbTo:     "pubmed",
+											LinkName: "protein_pubmed",
+											MenuTag:  stringPtr("PubMed Links"),
+											HtmlTag:  stringPtr("PubMed"),
+											Priority: "128",
+										},
+										{
+											DbTo:     "pubmed",
+											LinkName: "protein_pubmed_refseq",
+											MenuTag:  stringPtr("PubMed (RefSeq) Links"),
+											HtmlTag:  stringPtr("PubMed (RefSeq)"),
+											Priority: "128",
+										},
+										{
+											DbTo:     "pubmed",
+											LinkName: "protein_pubmed_weighted",
+											MenuTag:  stringPtr("PubMed (Weighted) Links"),
+											HtmlTag:  stringPtr("PubMed (Weighted)"),
+											Priority: "128",
+										},
+										{
+											DbTo:     "LinkOut",
+											LinkName: "ExternalLink",
+											MenuTag:  stringPtr("LinkOut"),
+											HtmlTag:  stringPtr("LinkOut"),
+											Priority: "255",
+										},
+									},
+								},
+							},
+							Err: nil,
+						},
+						Err: nil,
+					},
+				},
+				Err: nil,
+			},
+		},
 	} {
 		var l Link
 		err := l.Unmarshal(strings.NewReader(t.retval))
