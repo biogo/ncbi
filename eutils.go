@@ -195,12 +195,24 @@ type unmarshaler interface {
 	Unmarshal(io.Reader) error
 }
 
-// get performs a GET method call to the URI in ut, passing the parameters in v, tool
-// and email. The returned stream is unmarshaled into d.
+// GetMethodLimit is the maximum length of a constructed URL that will be retrieved by
+// the high level API functions using the GET method.
+var GetMethodLimit = 2048
+
+// get performs a GET or POST method call to the URI in ut, passing the parameters in v,
+// tool and email. The returned stream is unmarshaled into d. The decision on which
+// method to use is based on the length of the constructed URL the value of GetMethodLimit.
 func get(ut Util, v url.Values, tool, email string, d unmarshaler) error {
 	u, err := prepare(ut, v, tool, email)
+	var resp *http.Response
 	Limit.Wait()
-	resp, err := http.Get(u.String())
+	if len(ut)+len(u.RawQuery) < GetMethodLimit {
+		resp, err = http.Get(u.String())
+	} else {
+		buf := strings.NewReader(u.RawQuery)
+		u.RawQuery = ""
+		resp, err = http.Post(u.String(), "", buf)
+	}
 	if err != nil {
 		return err
 	}
