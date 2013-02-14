@@ -139,7 +139,7 @@ func (s *S) TestFetch(c *check.C) {
 				"\n",
 		},
 	} {
-		rc, err := Fetch(t.db, &Parameters{RetMode: t.rettype, RetType: t.rettype}, t.tool, t.email, nil, t.ids...)
+		rc, err := Fetch(t.db, &Parameters{RetMode: t.retmode, RetType: t.rettype}, t.tool, t.email, nil, t.ids...)
 		c.Assert(err, check.Equals, nil, check.Commentf("Test %d", i))
 		b, err := ioutil.ReadAll(rc)
 		rc.Close()
