@@ -5,6 +5,7 @@
 package xml
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -397,5 +398,220 @@ func TestUnmarshalAttr(t *testing.T) {
 		t.Fatalf("Unmarshal failed in to *string field")
 	} else if *p3.Int != "1" {
 		t.Fatalf("Unmarshal with %s failed:\nhave %#v,\n want %#v", x, p3.Int, 1)
+	}
+}
+
+type UnmarString string
+
+func (u *UnmarString) UnmarshalXML(b []byte) error {
+	*u = UnmarString(fmt.Sprintf("Unmarshaled:%s", b))
+	return nil
+}
+
+type strUnmar0 struct {
+	Item1 string `xml:"Item1"`
+	Item2 string
+	Item4 UnmarString
+	Item6 []string `xml:"Item6>Item7"`
+}
+
+type strUnmar1 struct {
+	Item1 string `xml:"Item1"`
+	Item2 string
+	Item4 []UnmarString
+	Item6 []string `xml:"Item6>Item7"`
+}
+
+type strUnmar2 struct {
+	Item1 string `xml:"Item1"`
+	Item2 string
+	Item4 []UnmarString `xml:">Item5"`
+	Item6 []string      `xml:"Item6>Item7"`
+}
+
+type UnmarStringSlice []string
+
+func (u *UnmarStringSlice) UnmarshalXML(b []byte) error {
+	(*u)[len(*u)-1] = fmt.Sprintf("Unmarshaled:%s", b)
+	return nil
+}
+
+type strSliceUnmar0 struct {
+	Item1 string `xml:"Item1"`
+	Item2 string
+	Item4 UnmarStringSlice
+	Item6 []string `xml:"Item6>Item7"`
+}
+
+type strSliceUnmar1 struct {
+	Item1 string `xml:"Item1"`
+	Item2 string
+	Item4 []UnmarStringSlice
+	Item6 []string `xml:"Item6>Item7"`
+}
+
+type strSliceUnmar2 struct {
+	Item1 string `xml:"Item1"`
+	Item2 string
+	Item4 []UnmarStringSlice `xml:">Item5"`
+	Item6 []string           `xml:"Item6>Item7"`
+}
+
+type UnmarByteSlice []byte
+
+func (u *UnmarByteSlice) UnmarshalXML(b []byte) error {
+	*u = append([]byte("Unmarshaled:"), b...)
+	return nil
+}
+
+type bytesUnmar0 struct {
+	Item1 string `xml:"Item1"`
+	Item2 string
+	Item4 UnmarByteSlice
+	Item6 []string `xml:"Item6>Item7"`
+}
+
+type bytesUnmar1 struct {
+	Item1 string `xml:"Item1"`
+	Item2 string
+	Item4 UnmarByteSlice `xml:">Item5"`
+	Item6 []string       `xml:"Item6>Item7"`
+}
+
+type UnmarByteStruct struct {
+	A []byte
+}
+
+func (u *UnmarByteStruct) UnmarshalXML(b []byte) error {
+	u.A = []byte("Unmarshaled:")
+	u.A = append(u.A, b...)
+	return nil
+}
+
+type structUnmar0 struct {
+	Item1 string `xml:"Item1"`
+	Item2 string
+	Item4 UnmarByteStruct
+	Item6 []string `xml:"Item6>Item7"`
+}
+
+const unmarshalerTestData = `
+<Result>
+	<Item1>A</Item1>
+	<Item2>B</Item2>
+	<Item3>C</Item3>
+	<Item4 att="val1">
+			<Item5>D</Item5>
+	</Item4>
+	<Item4 att='val2'>
+			<Item5>E</Item5>
+	</Item4>
+	<Item6>
+			<Item7>F</Item7>
+			<Item7>G</Item7>
+	</Item6>
+	<Item8>H</Item8>
+</Result>
+`
+
+var unmarshalerTests = []struct {
+	v, e interface{}
+}{
+	{
+		&strUnmar0{},
+		&strUnmar0{
+			Item1: "A", Item2: "B",
+			Item4: "Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>",
+			Item6: []string{"F", "G"},
+		},
+	},
+	{
+		&strUnmar1{},
+		&strUnmar1{
+			Item1: "A", Item2: "B",
+			Item4: []UnmarString{
+				"Unmarshaled:<Item4 att=\"val1\">\n\t\t\t<Item5>D</Item5>\n\t</Item4>",
+				"Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>",
+			},
+			Item6: []string{"F", "G"},
+		},
+	},
+	{
+		&strUnmar2{},
+		&strUnmar2{
+			Item1: "A", Item2: "B",
+			Item4: []UnmarString{
+				"Unmarshaled:<Item5>D</Item5>",
+				"Unmarshaled:<Item5>E</Item5>",
+			},
+			Item6: []string{"F", "G"},
+		},
+	},
+	{
+		&strSliceUnmar0{},
+		&strSliceUnmar0{
+			Item1: "A", Item2: "B",
+			Item4: UnmarStringSlice{
+				"Unmarshaled:<Item4 att=\"val1\">\n\t\t\t<Item5>D</Item5>\n\t</Item4>",
+				"Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>",
+			},
+			Item6: []string{"F", "G"},
+		},
+	},
+	{
+		&strSliceUnmar1{},
+		&strSliceUnmar1{
+			Item1: "A", Item2: "B",
+			Item4: []UnmarStringSlice{
+				UnmarStringSlice{"Unmarshaled:<Item4 att=\"val1\">\n\t\t\t<Item5>D</Item5>\n\t</Item4>"},
+				UnmarStringSlice{"Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>"},
+			},
+			Item6: []string{"F", "G"},
+		},
+	},
+	{
+		&strSliceUnmar2{},
+		&strSliceUnmar2{
+			Item1: "A", Item2: "B",
+			Item4: []UnmarStringSlice{
+				UnmarStringSlice{"Unmarshaled:<Item5>D</Item5>"},
+				UnmarStringSlice{"Unmarshaled:<Item5>E</Item5>"},
+			},
+			Item6: []string{"F", "G"},
+		},
+	},
+	{
+		&bytesUnmar0{},
+		&bytesUnmar0{
+			Item1: "A", Item2: "B",
+			Item4: UnmarByteSlice([]byte("Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>")),
+			Item6: []string{"F", "G"}},
+	},
+	{
+		&bytesUnmar1{},
+		&bytesUnmar1{
+			Item1: "A", Item2: "B",
+			Item4: UnmarByteSlice([]byte("Unmarshaled:<Item5>E</Item5>")),
+			Item6: []string{"F", "G"}},
+	},
+	{
+		&structUnmar0{},
+		&structUnmar0{
+			Item1: "A", Item2: "B",
+			Item4: UnmarByteStruct{
+				A: []byte("Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>"),
+			},
+			Item6: []string{"F", "G"}},
+	},
+}
+
+func TestUnmarshaler(t *testing.T) {
+	for _, tt := range unmarshalerTests {
+		if err := Unmarshal([]byte(unmarshalerTestData), tt.v); err != nil {
+			t.Fatalf("Unmarshal: %s", err)
+		}
+		if !reflect.DeepEqual(tt.v, tt.e) {
+			t.Fatalf("Unmarshal with %T failed:\nhave %#v,\nwant %#v", tt.v, tt.v, tt.e)
+		}
 	}
 }

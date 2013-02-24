@@ -181,6 +181,10 @@ type Decoder struct {
 	ns        map[string]string
 	err       error
 	line      int
+
+	unmarshaler Unmarshaler
+	startUnmXML int
+	endUnmXML   int
 }
 
 // NewDecoder creates a new XML parser reading from r.

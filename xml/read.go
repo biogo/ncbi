@@ -114,6 +114,14 @@ func Unmarshal(data []byte, v interface{}) error {
 	return NewDecoder(bytes.NewBuffer(data)).Decode(v)
 }
 
+// Unmarshaler is the interface implemented by objects that can unmarshal
+// an XML description of themselves. The input can be assumed to be valid
+// XML encoding. UnmarshalXML must copy the XML data if it wishes to retain
+// the data after returning.
+type Unmarshaler interface {
+	UnmarshalXML([]byte) error
+}
+
 // Decode works like xml.Unmarshal, except it reads the decoder
 // stream to find the start element.
 func (d *Decoder) Decode(v interface{}) error {
@@ -158,6 +166,13 @@ func (p *Decoder) unmarshal(val reflect.Value, start *StartElement) error {
 			pv.Set(reflect.New(pv.Type().Elem()))
 		}
 		val = pv.Elem()
+	}
+
+	if isUnmarshaler(val.Type()) {
+		var ok bool
+		if p.unmarshaler, ok = val.Interface().(Unmarshaler); !ok && val.CanAddr() {
+			p.unmarshaler, _ = val.Addr().Interface().(Unmarshaler)
+		}
 	}
 
 	var (
@@ -218,6 +233,15 @@ func (p *Decoder) unmarshal(val reflect.Value, start *StartElement) error {
 
 	case reflect.Struct:
 		typ := v.Type()
+		if isUnmarshaler(typ) {
+			var ok bool
+			if p.unmarshaler, ok = v.Interface().(Unmarshaler); !ok && v.CanAddr() {
+				p.unmarshaler, ok = v.Addr().Interface().(Unmarshaler)
+			}
+			if ok {
+				break
+			}
+		}
 		if typ == nameType {
 			v.Set(reflect.ValueOf(start.Name))
 			break
@@ -294,6 +318,10 @@ func (p *Decoder) unmarshal(val reflect.Value, start *StartElement) error {
 						saveXMLIndex = p.savedOffset()
 					}
 				}
+			case fUnmarshaler:
+				if p.saved == nil {
+					p.saved = new(bytes.Buffer)
+				}
 			}
 		}
 	}
@@ -302,9 +330,12 @@ func (p *Decoder) unmarshal(val reflect.Value, start *StartElement) error {
 	// Process sub-elements along the way.
 Loop:
 	for {
-		var savedOffset int
+		var savedOffset, startOffset int
 		if saveXML.IsValid() {
 			savedOffset = p.savedOffset()
+		}
+		if p.saved != nil {
+			startOffset = p.savedOffset()
 		}
 		tok, err := p.Token()
 		if err != nil {
@@ -315,6 +346,17 @@ Loop:
 			consumed := false
 			if sv.IsValid() {
 				consumed, err = p.unmarshalPath(tinfo, sv, nil, &t)
+				if p.unmarshaler != nil {
+					if startOffset < p.startUnmXML {
+						startOffset = p.startUnmXML
+					}
+					consumed = true
+					err = p.unmarshaler.UnmarshalXML(p.saved.Bytes()[startOffset:p.endUnmXML])
+					if err != nil {
+						return err
+					}
+					p.unmarshaler = nil
+				}
 				if err != nil {
 					return err
 				}
@@ -332,6 +374,9 @@ Loop:
 			}
 
 		case EndElement:
+			if p.saved != nil {
+				p.endUnmXML = p.savedOffset()
+			}
 			if saveXML.IsValid() {
 				saveXMLData = p.saved.Bytes()[saveXMLIndex:savedOffset]
 				if saveXMLIndex == 0 {
@@ -341,7 +386,7 @@ Loop:
 			break Loop
 
 		case CharData:
-			if saveData.IsValid() {
+			if p.unmarshaler == nil && saveData.IsValid() {
 				data = append(data, t...)
 			}
 
@@ -441,7 +486,7 @@ func (p *Decoder) unmarshalPath(tinfo *typeInfo, sv reflect.Value, parents []str
 Loop:
 	for i := range tinfo.fields {
 		finfo := &tinfo.fields[i]
-		if finfo.flags&fElement == 0 || len(finfo.parents) < len(parents) {
+		if finfo.flags&(fElement|fUnmarshaler) == 0 || len(finfo.parents) < len(parents) {
 			continue
 		}
 		for j := range parents {
@@ -451,7 +496,15 @@ Loop:
 		}
 		if len(finfo.parents) == len(parents) && finfo.name == start.Name.Local {
 			// It's a perfect match, unmarshal the field.
-			return true, p.unmarshal(finfo.value(sv), start)
+			fv := finfo.value(sv)
+			if finfo.flags&fUnmarshaler != 0 {
+				var ok bool
+				p.unmarshaler, ok = fv.Interface().(Unmarshaler)
+				if !ok && fv.CanAddr() {
+					p.unmarshaler, _ = fv.Addr().Interface().(Unmarshaler)
+				}
+			}
+			return true, p.unmarshal(fv, start)
 		}
 		if len(finfo.parents) > len(parents) && finfo.parents[len(parents)] == start.Name.Local {
 			// It's a prefix for the field. Break and recurse
@@ -473,6 +526,10 @@ Loop:
 	// or more fields have the path to this element as a parent
 	// prefix. Recurse and attempt to match these.
 	for {
+		var savedOffset int
+		if p.saved != nil {
+			savedOffset = p.savedOffset()
+		}
 		var tok Token
 		tok, err = p.Token()
 		if err != nil {
@@ -480,6 +537,7 @@ Loop:
 		}
 		switch t := tok.(type) {
 		case StartElement:
+			p.startUnmXML = savedOffset
 			consumed2, err := p.unmarshalPath(tinfo, sv, parents, &t)
 			if err != nil {
 				return true, err
