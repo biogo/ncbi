@@ -350,6 +350,9 @@ Loop:
 					if startOffset < p.startUnmXML {
 						startOffset = p.startUnmXML
 					}
+					if p.endUnmXML <= startOffset {
+						p.endUnmXML = p.savedOffset()
+					}
 					consumed = true
 					err = p.unmarshaler.UnmarshalXML(p.saved.Bytes()[startOffset:p.endUnmXML])
 					if err != nil {

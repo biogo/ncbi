@@ -5,7 +5,8 @@
 package entrez
 
 import (
-	. "code.google.com/p/biogo.entrez/link"
+	"code.google.com/p/biogo.entrez/link"
+	"code.google.com/p/biogo.entrez/xml"
 	check "launchpad.net/gocheck"
 	"strings"
 )
@@ -15,6 +16,75 @@ func (s *S) TestParseLink(c *check.C) {
 		retval string
 		link   Link
 	}{
+		{
+			`<?xml version="1.0"?>
+<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 23 November 2010//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_101123.dtd">
+<eLinkResult>
+
+	<LinkSet>
+		<DbFrom>protein</DbFrom>
+		<IdList>
+			<Id>15718680</Id>
+		</IdList>
+		<LinkSetDb>
+			<DbTo>gene</DbTo>
+			<LinkName>protein_gene</LinkName>
+			<Link>
+				<Id>3702</Id>
+			</Link>
+		</LinkSetDb>
+	</LinkSet>
+
+	<LinkSet>
+		<DbFrom>protein</DbFrom>
+		<IdList>
+			<Id>157427902</Id>
+		</IdList>
+		<LinkSetDb>
+			<DbTo>gene</DbTo>
+			<LinkName>protein_gene</LinkName>
+			<Link>
+				<Id>522311</Id>
+			</Link>
+		</LinkSetDb>
+	</LinkSet>
+</eLinkResult>`,
+			Link{
+				LinkSets: []link.LinkSet{
+					{
+						DbFrom: "protein",
+						IdList: []link.Id{
+							{Id: 15718680},
+						},
+						Neighbor: []link.LinkSetDb{
+							{
+								DbTo:     "gene",
+								LinkName: "protein_gene",
+								Link: []link.Link{
+									{Id: link.Id{Id: 3702}, Score: nil},
+								},
+							},
+						},
+					},
+					{
+						DbFrom: "protein",
+						IdList: []link.Id{
+							{Id: 157427902},
+						},
+						Neighbor: []link.LinkSetDb{
+							{
+								DbTo:     "gene",
+								LinkName: "protein_gene",
+								Link: []link.Link{
+									{Id: link.Id{Id: 522311}, Score: nil},
+								},
+							},
+						},
+					},
+				},
+				Err: nil,
+			},
+		},
 		{
 			`<?xml version="1.0"?>
 <!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 23 November 2010//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_101123.dtd">
@@ -41,25 +111,23 @@ func (s *S) TestParseLink(c *check.C) {
 </eLinkResult>
 `,
 			Link{
-				LinkSets: []LinkSet{
+				LinkSets: []link.LinkSet{
 					{
 						DbFrom: "protein",
-						IdList: []int{
-							15718680,
-							157427902,
+						IdList: []link.Id{
+							{Id: 15718680},
+							{Id: 157427902},
 						},
-						LinkSetDbs: []LinkSetDb{
+						Neighbor: []link.LinkSetDb{
 							{
 								DbTo:     "gene",
 								LinkName: "protein_gene",
-								Link: []LinkId{
-									{Id: Id{Id: 522311}, Score: 0},
-									{Id: Id{Id: 3702}, Score: 0},
+								Link: []link.Link{
+									{Id: link.Id{Id: 522311}, Score: nil},
+									{Id: link.Id{Id: 3702}, Score: nil},
 								},
 							},
 						},
-						IdUrls: nil,
-						Err:    nil,
 					},
 				},
 				Err: nil,
@@ -140,45 +208,44 @@ func (s *S) TestParseLink(c *check.C) {
 </eLinkResult>
 `,
 			Link{
-				LinkSets: []LinkSet{
+				LinkSets: []link.LinkSet{
 					{
 						DbFrom: "pubmed",
-						IdList: []int{
-							20210808,
-							20210909,
+						IdList: []link.Id{
+							{Id: 20210808},
+							{Id: 20210909},
 						},
-						LinkSetDbs: []LinkSetDb{
+						Neighbor: []link.LinkSetDb{
 							{
 								DbTo:     "pubmed",
 								LinkName: "pubmed_pubmed",
-								Link: []LinkId{
-									{Id: Id{Id: 15876306}, Score: 75133399},
-									{Id: Id{Id: 20816181}, Score: 25095241},
-									{Id: Id{Id: 21053465}, Score: 24834712},
-									{Id: Id{Id: 22032786}, Score: 24243731},
-									{Id: Id{Id: 22374193}, Score: 23718577},
-									{Id: Id{Id: 19387030}, Score: 23425951},
-									{Id: Id{Id: 21978852}, Score: 22647663},
-									{Id: Id{Id: 22857403}, Score: 19564745},
+								Link: []link.Link{
+									{Id: link.Id{Id: 15876306}, Score: intPtr(75133399)},
+									{Id: link.Id{Id: 20816181}, Score: intPtr(25095241)},
+									{Id: link.Id{Id: 21053465}, Score: intPtr(24834712)},
+									{Id: link.Id{Id: 22032786}, Score: intPtr(24243731)},
+									{Id: link.Id{Id: 22374193}, Score: intPtr(23718577)},
+									{Id: link.Id{Id: 19387030}, Score: intPtr(23425951)},
+									{Id: link.Id{Id: 21978852}, Score: intPtr(22647663)},
+									{Id: link.Id{Id: 22857403}, Score: intPtr(19564745)},
 								},
 							},
 							{
 								DbTo:     "pubmed",
 								LinkName: "pubmed_pubmed_reviews_five",
-								Link: []LinkId{
-									{Id: Id{Id: 12376064}, Score: 56460889},
-									{Id: Id{Id: 15125698}, Score: 50774274},
-									{Id: Id{Id: 10931782}, Score: 50227044},
-									{Id: Id{Id: 10096822}, Score: 48788287},
-									{Id: Id{Id: 12582308}, Score: 48635669},
+								Link: []link.Link{
+									{Id: link.Id{Id: 12376064}, Score: intPtr(56460889)},
+									{Id: link.Id{Id: 15125698}, Score: intPtr(50774274)},
+									{Id: link.Id{Id: 10931782}, Score: intPtr(50227044)},
+									{Id: link.Id{Id: 10096822}, Score: intPtr(48788287)},
+									{Id: link.Id{Id: 12582308}, Score: intPtr(48635669)},
 								},
 							},
 						},
-						IdUrls: nil,
-						Err:    nil,
 					},
 				},
-				Err: nil},
+				Err: nil,
+			},
 		},
 		{
 			`<?xml version="1.0"?>
@@ -243,63 +310,59 @@ func (s *S) TestParseLink(c *check.C) {
 </eLinkResult>
 `,
 			Link{
-				LinkSets: []LinkSet{
+				LinkSets: []link.LinkSet{
 					{
 						DbFrom: "pubmed",
-						IdUrls: []IdUrlList{
-							{
-								IdUrlSets: []IdUrlSet{
-									{
-										Id: Id{Id: 19880848},
-										ObjUrls: []ObjUrl{
-											{
-												Url:         Url{Url: "http://www.labome.org//expert/switzerland/university/klingenberg/roland-klingenberg-1568163.html"},
-												LinkName:    stringPtr("Labome Researcher Resource"),
-												SubjectType: []string{"author profiles"},
-												Category:    []string{"Other Literature Sources"},
-												Attribute:   []string{"subscription/membership/fee required"},
-												Provider: Provider{
-													Name:     "ExactAntigen/Labome",
-													NameAbbr: "EADB",
-													Id:       Id{Id: 5753},
-													Url:      Url{Url: "http://www.labome.com", Lang: "EN"},
-												},
+						IdUrlList: &link.IdUrlList{
+							IdUrlSets: []link.IdUrlSet{
+								{
+									Id: link.Id{Id: 19880848},
+									ObjUrl: []link.ObjUrl{
+										{
+											Url:         link.Url{Url: "http://www.labome.org//expert/switzerland/university/klingenberg/roland-klingenberg-1568163.html"},
+											LinkName:    stringPtr("Labome Researcher Resource"),
+											SubjectType: []string{"author profiles"},
+											Category:    []string{"Other Literature Sources"},
+											Attribute:   []string{"subscription/membership/fee required"},
+											Provider: link.Provider{
+												Name:     "ExactAntigen/Labome",
+												NameAbbr: "EADB",
+												Id:       link.Id{Id: 5753},
+												Url:      link.Url{Url: "http://www.labome.com", Lang: "EN"},
 											},
-											{
-												Url:         Url{Url: "http://eurheartj.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=19880848"},
-												IconUrl:     &Url{Url: "http://www.ncbi.nlm.nih.gov/corehtml/query/egifs/http:--highwire.stanford.edu-icons-externalservices-pubmed-custom-oxfordjournals_final_free.gif", Lang: "EN"},
-												SubjectType: []string{"publishers/providers"},
-												Category:    []string{"Full Text Sources"},
-												Attribute:   []string{"free resource", "full-text online", "publisher of information in url"},
-												Provider: Provider{
-													Name:     "HighWire",
-													NameAbbr: "HighWire",
-													Id:       Id{Id: 3051},
-													Url:      Url{Url: "http://highwire.stanford.edu", Lang: "EN"},
-												},
+										},
+										{
+											Url:         link.Url{Url: "http://eurheartj.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=19880848"},
+											IconUrl:     &link.Url{Url: "http://www.ncbi.nlm.nih.gov/corehtml/query/egifs/http:--highwire.stanford.edu-icons-externalservices-pubmed-custom-oxfordjournals_final_free.gif", Lang: "EN"},
+											SubjectType: []string{"publishers/providers"},
+											Category:    []string{"Full Text Sources"},
+											Attribute:   []string{"free resource", "full-text online", "publisher of information in url"},
+											Provider: link.Provider{
+												Name:     "HighWire",
+												NameAbbr: "HighWire",
+												Id:       link.Id{Id: 3051},
+												Url:      link.Url{Url: "http://highwire.stanford.edu", Lang: "EN"},
 											},
-											{
-												Url:         Url{Url: "http://www.nlm.nih.gov/medlineplus/atherosclerosis.html"},
-												IconUrl:     &Url{Url: "http://www.ncbi.nlm.nih.gov/corehtml/query/egifs/http:--www.nlm.nih.gov-medlineplus-images-linkout_sm.gif", Lang: "EN"},
-												LinkName:    stringPtr("Atherosclerosis"),
-												SubjectType: []string{"consumer health"},
-												Category:    []string{"Medical"},
-												Attribute:   []string{"free resource"},
-												Provider: Provider{
-													Name:     "MedlinePlus Health Information",
-													NameAbbr: "MEDPLUS",
-													Id:       Id{Id: 3162},
-													Url:      Url{Url: "http://medlineplus.gov/", Lang: "EN"},
-													IconUrl:  &Url{Url: "http://www.nlm.nih.gov/medlineplus/images/linkout_sm.gif", Lang: "EN"},
-												},
+										},
+										{
+											Url:         link.Url{Url: "http://www.nlm.nih.gov/medlineplus/atherosclerosis.html"},
+											IconUrl:     &link.Url{Url: "http://www.ncbi.nlm.nih.gov/corehtml/query/egifs/http:--www.nlm.nih.gov-medlineplus-images-linkout_sm.gif", Lang: "EN"},
+											LinkName:    stringPtr("Atherosclerosis"),
+											SubjectType: []string{"consumer health"},
+											Category:    []string{"Medical"},
+											Attribute:   []string{"free resource"},
+											Provider: link.Provider{
+												Name:     "MedlinePlus Health Information",
+												NameAbbr: "MEDPLUS",
+												Id:       link.Id{Id: 3162},
+												Url:      link.Url{Url: "http://medlineplus.gov/", Lang: "EN"},
+												IconUrl:  &link.Url{Url: "http://www.nlm.nih.gov/medlineplus/images/linkout_sm.gif", Lang: "EN"},
 											},
 										},
 									},
 								},
-								Err: nil,
 							},
 						},
-						Err: nil,
 					},
 				},
 				Err: nil,
@@ -307,32 +370,27 @@ func (s *S) TestParseLink(c *check.C) {
 		},
 		{
 			`<?xml version="1.0"?>
-		<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 23 November 2010//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_101123.dtd">
-		<eLinkResult>
-			<LinkSet>
-				<DbFrom>nuccore</DbFrom>
-				<IdCheckList>
-					<Id HasNeighbor="Y">21614549</Id>
-					<Id HasNeighbor="N">219152114</Id>
-				</IdCheckList>
-			</LinkSet>
-		</eLinkResult>
+<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 23 November 2010//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_101123.dtd">
+<eLinkResult>
+	<LinkSet>
+		<DbFrom>nuccore</DbFrom>
+		<IdCheckList>
+			<Id HasNeighbor="Y">21614549</Id>
+			<Id HasNeighbor="N">219152114</Id>
+		</IdCheckList>
+	</LinkSet>
+</eLinkResult>
 		`,
 			Link{
-				LinkSets: []LinkSet{
+				LinkSets: []link.LinkSet{
 					{
-						DbFrom:     "nuccore",
-						IdList:     nil,
-						LinkSetDbs: nil,
-						IdUrls:     nil,
-						IdChecks: &IdChecks{
-							Ids: []Id{
+						DbFrom: "nuccore",
+						IdCheckList: &link.IdCheckList{
+							Id: []link.Id{
 								{Id: 21614549, HasNeighbor: boolPtr(true)},
 								{Id: 219152114, HasNeighbor: boolPtr(false)},
 							},
-							Err: nil,
 						},
-						Err: nil,
 					},
 				},
 				Err: nil,
@@ -340,157 +398,151 @@ func (s *S) TestParseLink(c *check.C) {
 		},
 		{
 			`<?xml version="1.0"?>
-		<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 23 November 2010//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_101123.dtd">
-		<eLinkResult>
-			<LinkSet>
-				<DbFrom>protein</DbFrom>
-				<IdCheckList>
-					<IdLinkSet>
-						<Id>15718680</Id>
-						<LinkInfo>
-							<DbTo>pubmed</DbTo>
-							<LinkName>protein_pubmed</LinkName>
-							<MenuTag>PubMed Links</MenuTag>
-							<HtmlTag>PubMed</HtmlTag>
-							<Priority>128</Priority>
-						</LinkInfo>
-						<LinkInfo>
-							<DbTo>pubmed</DbTo>
-							<LinkName>protein_pubmed_refseq</LinkName>
-							<MenuTag>PubMed (RefSeq) Links</MenuTag>
-							<HtmlTag>PubMed (RefSeq)</HtmlTag>
-							<Priority>128</Priority>
-						</LinkInfo>
-						<LinkInfo>
-							<DbTo>pubmed</DbTo>
-							<LinkName>protein_pubmed_weighted</LinkName>
-							<MenuTag>PubMed (Weighted) Links</MenuTag>
-							<HtmlTag>PubMed (Weighted)</HtmlTag>
-							<Priority>128</Priority>
-						</LinkInfo>
-						<LinkInfo>
-							<DbTo>LinkOut</DbTo>
-							<LinkName>ExternalLink</LinkName>
-							<MenuTag>LinkOut</MenuTag>
-							<HtmlTag>LinkOut</HtmlTag>
-							<Priority>255</Priority>
-						</LinkInfo>
-					</IdLinkSet>
-					<IdLinkSet>
-						<Id>157427902</Id>
-						<LinkInfo>
-							<DbTo>pubmed</DbTo>
-							<LinkName>protein_pubmed</LinkName>
-							<MenuTag>PubMed Links</MenuTag>
-							<HtmlTag>PubMed</HtmlTag>
-							<Priority>128</Priority>
-						</LinkInfo>
-						<LinkInfo>
-							<DbTo>pubmed</DbTo>
-							<LinkName>protein_pubmed_refseq</LinkName>
-							<MenuTag>PubMed (RefSeq) Links</MenuTag>
-							<HtmlTag>PubMed (RefSeq)</HtmlTag>
-							<Priority>128</Priority>
-						</LinkInfo>
-						<LinkInfo>
-							<DbTo>pubmed</DbTo>
-							<LinkName>protein_pubmed_weighted</LinkName>
-							<MenuTag>PubMed (Weighted) Links</MenuTag>
-							<HtmlTag>PubMed (Weighted)</HtmlTag>
-							<Priority>128</Priority>
-						</LinkInfo>
-						<LinkInfo>
-							<DbTo>LinkOut</DbTo>
-							<LinkName>ExternalLink</LinkName>
-							<MenuTag>LinkOut</MenuTag>
-							<HtmlTag>LinkOut</HtmlTag>
-							<Priority>255</Priority>
-						</LinkInfo>
-					</IdLinkSet>
-				</IdCheckList>
-			</LinkSet>
-		</eLinkResult>
-		`,
+<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 23 November 2010//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_101123.dtd">
+<eLinkResult>
+	<LinkSet>
+		<DbFrom>protein</DbFrom>
+		<IdCheckList>
+			<IdLinkSet>
+				<Id>15718680</Id>
+				<LinkInfo>
+					<DbTo>pubmed</DbTo>
+					<LinkName>protein_pubmed</LinkName>
+					<MenuTag>PubMed Links</MenuTag>
+					<HtmlTag>PubMed</HtmlTag>
+					<Priority>128</Priority>
+				</LinkInfo>
+				<LinkInfo>
+					<DbTo>pubmed</DbTo>
+					<LinkName>protein_pubmed_refseq</LinkName>
+					<MenuTag>PubMed (RefSeq) Links</MenuTag>
+					<HtmlTag>PubMed (RefSeq)</HtmlTag>
+					<Priority>128</Priority>
+				</LinkInfo>
+				<LinkInfo>
+					<DbTo>pubmed</DbTo>
+					<LinkName>protein_pubmed_weighted</LinkName>
+					<MenuTag>PubMed (Weighted) Links</MenuTag>
+					<HtmlTag>PubMed (Weighted)</HtmlTag>
+					<Priority>128</Priority>
+				</LinkInfo>
+				<LinkInfo>
+					<DbTo>LinkOut</DbTo>
+					<LinkName>ExternalLink</LinkName>
+					<MenuTag>LinkOut</MenuTag>
+					<HtmlTag>LinkOut</HtmlTag>
+					<Priority>255</Priority>
+				</LinkInfo>
+			</IdLinkSet>
+			<IdLinkSet>
+				<Id>157427902</Id>
+				<LinkInfo>
+					<DbTo>pubmed</DbTo>
+					<LinkName>protein_pubmed</LinkName>
+					<MenuTag>PubMed Links</MenuTag>
+					<HtmlTag>PubMed</HtmlTag>
+					<Priority>128</Priority>
+				</LinkInfo>
+				<LinkInfo>
+					<DbTo>pubmed</DbTo>
+					<LinkName>protein_pubmed_refseq</LinkName>
+					<MenuTag>PubMed (RefSeq) Links</MenuTag>
+					<HtmlTag>PubMed (RefSeq)</HtmlTag>
+					<Priority>128</Priority>
+				</LinkInfo>
+				<LinkInfo>
+					<DbTo>pubmed</DbTo>
+					<LinkName>protein_pubmed_weighted</LinkName>
+					<MenuTag>PubMed (Weighted) Links</MenuTag>
+					<HtmlTag>PubMed (Weighted)</HtmlTag>
+					<Priority>128</Priority>
+				</LinkInfo>
+				<LinkInfo>
+					<DbTo>LinkOut</DbTo>
+					<LinkName>ExternalLink</LinkName>
+					<MenuTag>LinkOut</MenuTag>
+					<HtmlTag>LinkOut</HtmlTag>
+					<Priority>255</Priority>
+				</LinkInfo>
+			</IdLinkSet>
+		</IdCheckList>
+	</LinkSet>
+</eLinkResult>
+`,
 			Link{
-				LinkSets: []LinkSet{
+				LinkSets: []link.LinkSet{
 					{
-						DbFrom:     "protein",
-						IdList:     nil,
-						LinkSetDbs: nil,
-						IdUrls:     nil,
-						IdChecks: &IdChecks{
-							Ids: nil,
-							IdLinkSets: []IdLinkSet{
+						DbFrom: "protein",
+						IdCheckList: &link.IdCheckList{
+							IdLinkSet: []link.IdLinkSet{
 								{
-									Id: Id{Id: 15718680},
-									LinkInfo: []LinkInfo{
+									Id: link.Id{Id: 15718680},
+									LinkInfo: []link.LinkInfo{
 										{
 											DbTo:     "pubmed",
 											LinkName: "protein_pubmed",
 											MenuTag:  stringPtr("PubMed Links"),
 											HtmlTag:  stringPtr("PubMed"),
-											Priority: "128",
+											Priority: 128,
 										},
 										{
 											DbTo:     "pubmed",
 											LinkName: "protein_pubmed_refseq",
 											MenuTag:  stringPtr("PubMed (RefSeq) Links"),
 											HtmlTag:  stringPtr("PubMed (RefSeq)"),
-											Priority: "128",
+											Priority: 128,
 										},
 										{
 											DbTo:     "pubmed",
 											LinkName: "protein_pubmed_weighted",
 											MenuTag:  stringPtr("PubMed (Weighted) Links"),
 											HtmlTag:  stringPtr("PubMed (Weighted)"),
-											Priority: "128",
+											Priority: 128,
 										},
 										{
 											DbTo:     "LinkOut",
 											LinkName: "ExternalLink",
 											MenuTag:  stringPtr("LinkOut"),
 											HtmlTag:  stringPtr("LinkOut"),
-											Priority: "255",
+											Priority: 255,
 										},
 									},
 								},
 								{
-									Id: Id{Id: 157427902},
-									LinkInfo: []LinkInfo{
+									Id: link.Id{Id: 157427902},
+									LinkInfo: []link.LinkInfo{
 										{
 											DbTo:     "pubmed",
 											LinkName: "protein_pubmed",
 											MenuTag:  stringPtr("PubMed Links"),
 											HtmlTag:  stringPtr("PubMed"),
-											Priority: "128",
+											Priority: 128,
 										},
 										{
 											DbTo:     "pubmed",
 											LinkName: "protein_pubmed_refseq",
 											MenuTag:  stringPtr("PubMed (RefSeq) Links"),
 											HtmlTag:  stringPtr("PubMed (RefSeq)"),
-											Priority: "128",
+											Priority: 128,
 										},
 										{
 											DbTo:     "pubmed",
 											LinkName: "protein_pubmed_weighted",
 											MenuTag:  stringPtr("PubMed (Weighted) Links"),
 											HtmlTag:  stringPtr("PubMed (Weighted)"),
-											Priority: "128",
+											Priority: 128,
 										},
 										{
 											DbTo:     "LinkOut",
 											LinkName: "ExternalLink",
 											MenuTag:  stringPtr("LinkOut"),
 											HtmlTag:  stringPtr("LinkOut"),
-											Priority: "255",
+											Priority: 255,
 										},
 									},
 								},
 							},
-							Err: nil,
 						},
-						Err: nil,
 					},
 				},
 				Err: nil,
@@ -498,7 +550,7 @@ func (s *S) TestParseLink(c *check.C) {
 		},
 	} {
 		var l Link
-		err := l.Unmarshal(strings.NewReader(t.retval))
+		err := xml.NewDecoder(strings.NewReader(t.retval)).Decode(&l)
 		c.Check(err, check.Equals, nil, check.Commentf("Test: %d", i))
 		c.Check(l, check.DeepEquals, t.link, check.Commentf("Test: %d", i))
 	}

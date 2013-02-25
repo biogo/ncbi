@@ -5,7 +5,7 @@
 package entrez
 
 import (
-	"errors"
+	"code.google.com/p/biogo.entrez/xml"
 	check "launchpad.net/gocheck"
 	"strings"
 )
@@ -24,10 +24,8 @@ func (s *S) TestParsePost(c *check.C) {
 </ePostResult>
 `,
 			Post{
-				History: &History{
-					QueryKey: 1,
-					WebEnv:   "NCID_1_298287560_130.14.18.48_5555_1360293704_91337037",
-				},
+				QueryKey: intPtr(1),
+				WebEnv:   stringPtr("NCID_1_298287560_130.14.18.48_5555_1360293704_91337037"),
 			},
 		},
 		{
@@ -40,11 +38,9 @@ func (s *S) TestParsePost(c *check.C) {
 </ePostResult>
 `,
 			Post{
-				History: &History{
-					QueryKey: 1,
-					WebEnv:   "NCID_1_299062774_130.14.18.97_5555_1360293760_1713152879",
-				},
-				Err: errors.New("IDs contain invalid characters which was treated as delimiters."),
+				QueryKey: intPtr(1),
+				WebEnv:   stringPtr("NCID_1_299062774_130.14.18.97_5555_1360293760_1713152879"),
+				Err:      stringPtr("IDs contain invalid characters which was treated as delimiters."),
 			},
 		},
 		{
@@ -67,7 +63,7 @@ func (s *S) TestParsePost(c *check.C) {
 		},
 	} {
 		var p Post
-		err := p.Unmarshal(strings.NewReader(t.retval))
+		err := xml.NewDecoder(strings.NewReader(t.retval)).Decode(&p)
 		c.Check(err, check.Equals, nil, check.Commentf("Test: %d", i))
 		c.Check(p, check.DeepEquals, t.post, check.Commentf("Test: %d", i))
 	}

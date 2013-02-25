@@ -6,6 +6,7 @@ package entrez
 
 import (
 	"code.google.com/p/biogo.entrez/global"
+	"code.google.com/p/biogo.entrez/xml"
 	check "launchpad.net/gocheck"
 	"strings"
 )
@@ -122,7 +123,7 @@ func (s *S) TestParseGlobal(c *check.C) {
 		},
 	} {
 		var g Global
-		err := g.Unmarshal(strings.NewReader(t.retval))
+		err := xml.NewDecoder(strings.NewReader(t.retval)).Decode(&g)
 		c.Check(err, check.Equals, nil, check.Commentf("Test: %d", i))
 		c.Check(g, check.DeepEquals, t.global, check.Commentf("Test: %d", i))
 	}

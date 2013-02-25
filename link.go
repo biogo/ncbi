@@ -6,12 +6,6 @@ package entrez
 
 import (
 	"code.google.com/p/biogo.entrez/link"
-	"code.google.com/p/biogo.entrez/stack"
-	"encoding/xml"
-	"errors"
-	"fmt"
-	"io"
-	"reflect"
 )
 
 // <!--
@@ -86,7 +80,7 @@ import (
 //
 // <!ELEMENT	IdUrlSet	(Id,(ObjUrl+|Info))>
 //
-// <!ELEMENT   FirstChars  (FirstChar*)>
+// <!ELEMENT	FirstChars  (FirstChar*)>
 //
 // <!ELEMENT	LinkInfo	(DbTo, LinkName, MenuTag?, HtmlTag?, Url?, Priority)>
 // <!ELEMENT	IdLinkSet	(Id, LinkInfo*)>
@@ -104,58 +98,6 @@ import (
 
 // A Link holds the deserialised results of an ELink request.
 type Link struct {
-	LinkSets []link.LinkSet
-	Err      error
-}
-
-// Unmarshal fills the fields of a Link from an XML stream read from r.
-func (l *Link) Unmarshal(r io.Reader) error {
-	dec := xml.NewDecoder(r)
-	var st stack.Stack
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err != io.EOF {
-				return err
-			}
-			if !st.Empty() {
-				return io.ErrUnexpectedEOF
-			}
-			break
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			if t.Name.Local == "LinkSet" {
-				var ls link.LinkSet
-				err := ls.Unmarshal(dec, st[len(st)-1:])
-				if !(reflect.DeepEqual(ls, link.LinkSet{})) {
-					l.LinkSets = append(l.LinkSets, ls)
-				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "ERROR":
-				l.Err = errors.New(string(t))
-			case "eLinkResult":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	LinkSets []link.LinkSet `xml:"LinkSet"`
+	Err      *string        `xml:"ERROR"`
 }

@@ -5,11 +5,8 @@
 package info
 
 import (
-	"code.google.com/p/biogo.entrez/stack"
-	"encoding/xml"
-	"fmt"
-	"io"
-	"strconv"
+	"code.google.com/p/biogo.entrez/xml"
+	"errors"
 )
 
 // <!--
@@ -72,254 +69,51 @@ import (
 // <!ELEMENT	eInfoResult	(DbList|DbInfo|ERROR)>
 
 type Field struct {
-	Name          string
-	FullName      string
-	Description   string
-	TermCount     int
-	IsDate        bool
-	IsNumerical   bool
-	SingleToken   bool
-	Hierarchy     bool
-	IsHidden      bool
-	IsRangeable   bool
-	IsTruncatable bool
-}
-
-func (f *Field) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err != io.EOF {
-				return err
-			}
-			break
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-		case xml.CharData:
-			switch name := st.Peek(0); name {
-			case "Name":
-				f.Name = string(t)
-			case "FullName":
-				f.FullName = string(t)
-			case "Description":
-				f.Description = string(t)
-			case "TermCount":
-				c, err := strconv.Atoi(string(t))
-				if err != nil {
-					return err
-				}
-				f.TermCount = c
-			case "IsDate":
-				switch b := string(t); b {
-				case "Y", "N":
-					f.IsDate = b == "Y"
-				default:
-					return fmt.Errorf("eutil: bad boolean: %q", b)
-				}
-			case "IsNumerical":
-				switch b := string(t); b {
-				case "Y", "N":
-					f.IsNumerical = b == "Y"
-				default:
-					return fmt.Errorf("eutil: bad boolean: %q", b)
-				}
-			case "SingleToken":
-				switch b := string(t); b {
-				case "Y", "N":
-					f.SingleToken = b == "Y"
-				default:
-					return fmt.Errorf("eutil: bad boolean: %q", b)
-				}
-			case "Hierarchy":
-				switch b := string(t); b {
-				case "Y", "N":
-					f.Hierarchy = b == "Y"
-				default:
-					return fmt.Errorf("eutil: bad boolean: %q", b)
-				}
-			case "IsHidden":
-				switch b := string(t); b {
-				case "Y", "N":
-					f.IsHidden = b == "Y"
-				default:
-					return fmt.Errorf("eutil: bad boolean: %q", b)
-				}
-			case "IsRangable":
-				switch b := string(t); b {
-				case "Y", "N":
-					f.IsRangeable = b == "Y"
-				default:
-					return fmt.Errorf("eutil: bad boolean: %q", b)
-				}
-			case "IsTruncatable":
-				switch b := string(t); b {
-				case "Y", "N":
-					f.IsTruncatable = b == "Y"
-				default:
-					return fmt.Errorf("eutil: bad boolean: %q", b)
-				}
-			case "Field":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if t.Name.Local == "Field" {
-				return nil
-			}
-		}
-	}
-	return nil
+	Name          string `xml:"Name"`
+	FullName      string `xml:"FullName"`
+	Description   string `xml:"Description"`
+	TermCount     int    `xml:"TermCount"`
+	IsDate        Bool   `xml:"IsData"`
+	IsNumerical   Bool   `xml:"IsNumerical"`
+	SingleToken   Bool   `xml:"SingleToken"`
+	Hierarchy     Bool   `xml:"Hierarchy"`
+	IsHidden      Bool   `xml:"IsHidden"`
+	IsRangeable   Bool   `xml:"IsRangable"`
+	IsTruncatable Bool   `xml:"IsTruncatable"`
 }
 
 type DbLink struct {
-	Name        string
-	FullName    string
-	Description string
-	DbTo        string
-}
-
-func (d *DbLink) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err != io.EOF {
-				return err
-			}
-			break
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "Name":
-				d.Name = string(t)
-			case "FullName":
-				d.FullName = string(t)
-			case "Description":
-				d.Description = string(t)
-			case "DbTo":
-				d.DbTo = string(t)
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if t.Name.Local == "LinkList" {
-				return nil
-			}
-		}
-	}
-	return nil
+	Name        string `xml:"Name"`
+	FullName    string `xml:"FullName"`
+	Description string `xml:"Description"`
+	DbTo        string `xml:"DbTo"`
 }
 
 type DbInfo struct {
-	DbName      string
-	MenuName    string
-	Description string
-	Count       int
-	LastUpdate  string
-	FieldList   []Field
-	LinkList    []DbLink
+	DbName      string   `xml:"DbName"`
+	MenuName    string   `xml:"MenuName"`
+	Description string   `xml:"Description"`
+	Count       int      `xml:"Count"`
+	LastUpdate  string   `xml:"LastUpdate"`
+	FieldList   []Field  `xml:"FieldList>Field"`
+	LinkList    []DbLink `xml:"LinkList>Link"`
 }
 
-func (d *DbInfo) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	var ldone, fdone bool
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err != io.EOF {
-				return err
-			}
-			break
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			switch t.Name.Local {
-			case "FieldList":
-				fdone = false
-			case "LinkList":
-				ldone = false
-			case "Field":
-				var f Field
-				err := f.Unmarshal(dec, st[len(st)-1:])
-				if (f != Field{}) {
-					d.FieldList = append(d.FieldList, f)
-				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-				continue
-			case "List":
-				var l DbLink
-				err := l.Unmarshal(dec, st[len(st)-1:])
-				if (l != DbLink{}) {
-					d.LinkList = append(d.LinkList, l)
-				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-				continue
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "DbName":
-				d.DbName = string(t)
-			case "MenuName":
-				d.MenuName = string(t)
-			case "Description":
-				d.Description = string(t)
-			case "Count":
-				c, err := strconv.Atoi(string(t))
-				if err != nil {
-					return err
-				}
-				d.Count = c
-			case "LastUpdate":
-				d.LastUpdate = string(t)
-			case "FieldList", "LinkList", "DbInfo":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			switch t.Name.Local {
-			case "FieldList":
-				fdone = true
-			case "LinkList":
-				ldone = true
-			}
-			if ldone && fdone {
-				return nil
-			}
-		}
+type Bool bool
+
+func (t *Bool) UnmarshalXML(b []byte) error {
+	var c string
+	err := xml.Unmarshal(b, &c)
+	if err != nil {
+		return err
+	}
+	switch c {
+	case "Y":
+		*t = true
+	case "N":
+		*t = false
+	default:
+		return errors.New("entrez: bad boolean")
 	}
 	return nil
 }

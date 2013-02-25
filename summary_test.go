@@ -6,7 +6,7 @@ package entrez
 
 import (
 	. "code.google.com/p/biogo.entrez/summary"
-
+	"code.google.com/p/biogo.entrez/xml"
 	check "launchpad.net/gocheck"
 	"strings"
 )
@@ -18,108 +18,108 @@ func (s *S) TestParseSummary(c *check.C) {
 	}{
 		{
 			`<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE eSummaryResult PUBLIC "-//NLM//DTD eSummaryResult, 29 October 2004//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eSummary_041029.dtd">
-<eSummaryResult>
-<DocSum>
-	<Id>6678417</Id>
-	<Item Name="Caption" Type="String">NP_033443</Item>
-	<Item Name="Title" Type="String">thyroid peroxidase precursor [Mus musculus]</Item>
-	<Item Name="Extra" Type="String">gi|6678417|ref|NP_033443.1|[6678417]</Item>
-	<Item Name="Gi" Type="Integer">6678417</Item>
-	<Item Name="CreateDate" Type="String">2000/01/04</Item>
-	<Item Name="UpdateDate" Type="String">2012/12/12</Item>
-	<Item Name="Flags" Type="Integer">512</Item>
-	<Item Name="TaxId" Type="Integer">10090</Item>
-	<Item Name="Length" Type="Integer">914</Item>
-	<Item Name="Status" Type="String">live</Item>
-	<Item Name="ReplacedBy" Type="String"></Item>
-	<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
-</DocSum>
+			<!DOCTYPE eSummaryResult PUBLIC "-//NLM//DTD eSummaryResult, 29 October 2004//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eSummary_041029.dtd">
+			<eSummaryResult>
+			<DocSum>
+				<Id>6678417</Id>
+				<Item Name="Caption" Type="String">NP_033443</Item>
+				<Item Name="Title" Type="String">thyroid peroxidase precursor [Mus musculus]</Item>
+				<Item Name="Extra" Type="String">gi|6678417|ref|NP_033443.1|[6678417]</Item>
+				<Item Name="Gi" Type="Integer">6678417</Item>
+				<Item Name="CreateDate" Type="String">2000/01/04</Item>
+				<Item Name="UpdateDate" Type="String">2012/12/12</Item>
+				<Item Name="Flags" Type="Integer">512</Item>
+				<Item Name="TaxId" Type="Integer">10090</Item>
+				<Item Name="Length" Type="Integer">914</Item>
+				<Item Name="Status" Type="String">live</Item>
+				<Item Name="ReplacedBy" Type="String"></Item>
+				<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+			</DocSum>
 
-<DocSum>
-	<Id>9507199</Id>
-	<Item Name="Caption" Type="String">NP_062226</Item>
-	<Item Name="Title" Type="String">thyroid peroxidase precursor [Rattus norvegicus]</Item>
-	<Item Name="Extra" Type="String">gi|9507199|ref|NP_062226.1|[9507199]</Item>
-	<Item Name="Gi" Type="Integer">9507199</Item>
-	<Item Name="CreateDate" Type="String">2000/07/22</Item>
-	<Item Name="UpdateDate" Type="String">2012/03/24</Item>
-	<Item Name="Flags" Type="Integer">512</Item>
-	<Item Name="TaxId" Type="Integer">10116</Item>
-	<Item Name="Length" Type="Integer">914</Item>
-	<Item Name="Status" Type="String">replaced</Item>
-	<Item Name="ReplacedBy" Type="String">NP_062226.2</Item>
-	<Item Name="Comment" Type="String"><![CDATA[ This record was replaced or removed. ]]></Item>
-</DocSum>
+			<DocSum>
+				<Id>9507199</Id>
+				<Item Name="Caption" Type="String">NP_062226</Item>
+				<Item Name="Title" Type="String">thyroid peroxidase precursor [Rattus norvegicus]</Item>
+				<Item Name="Extra" Type="String">gi|9507199|ref|NP_062226.1|[9507199]</Item>
+				<Item Name="Gi" Type="Integer">9507199</Item>
+				<Item Name="CreateDate" Type="String">2000/07/22</Item>
+				<Item Name="UpdateDate" Type="String">2012/03/24</Item>
+				<Item Name="Flags" Type="Integer">512</Item>
+				<Item Name="TaxId" Type="Integer">10116</Item>
+				<Item Name="Length" Type="Integer">914</Item>
+				<Item Name="Status" Type="String">replaced</Item>
+				<Item Name="ReplacedBy" Type="String">NP_062226.2</Item>
+				<Item Name="Comment" Type="String"><![CDATA[ This record was replaced or removed. ]]></Item>
+			</DocSum>
 
-<DocSum>
-	<Id>28558982</Id>
-	<Item Name="Caption" Type="String">NP_000538</Item>
-	<Item Name="Title" Type="String">thyroid peroxidase isoform a precursor [Homo sapiens]</Item>
-	<Item Name="Extra" Type="String">gi|28558982|ref|NP_000538.3|[28558982]</Item>
-	<Item Name="Gi" Type="Integer">28558982</Item>
-	<Item Name="CreateDate" Type="String">1999/03/19</Item>
-	<Item Name="UpdateDate" Type="String">2013/01/07</Item>
-	<Item Name="Flags" Type="Integer">512</Item>
-	<Item Name="TaxId" Type="Integer">9606</Item>
-	<Item Name="Length" Type="Integer">933</Item>
-	<Item Name="Status" Type="String">live</Item>
-	<Item Name="ReplacedBy" Type="String"></Item>
-	<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
-</DocSum>
+			<DocSum>
+				<Id>28558982</Id>
+				<Item Name="Caption" Type="String">NP_000538</Item>
+				<Item Name="Title" Type="String">thyroid peroxidase isoform a precursor [Homo sapiens]</Item>
+				<Item Name="Extra" Type="String">gi|28558982|ref|NP_000538.3|[28558982]</Item>
+				<Item Name="Gi" Type="Integer">28558982</Item>
+				<Item Name="CreateDate" Type="String">1999/03/19</Item>
+				<Item Name="UpdateDate" Type="String">2013/01/07</Item>
+				<Item Name="Flags" Type="Integer">512</Item>
+				<Item Name="TaxId" Type="Integer">9606</Item>
+				<Item Name="Length" Type="Integer">933</Item>
+				<Item Name="Status" Type="String">live</Item>
+				<Item Name="ReplacedBy" Type="String"></Item>
+				<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+			</DocSum>
 
-<DocSum>
-	<Id>28558984</Id>
-	<Item Name="Caption" Type="String">NP_783650</Item>
-	<Item Name="Title" Type="String">thyroid peroxidase isoform b precursor [Homo sapiens]</Item>
-	<Item Name="Extra" Type="String">gi|28558984|ref|NP_783650.1|[28558984]</Item>
-	<Item Name="Gi" Type="Integer">28558984</Item>
-	<Item Name="CreateDate" Type="String">2003/02/25</Item>
-	<Item Name="UpdateDate" Type="String">2013/01/07</Item>
-	<Item Name="Flags" Type="Integer">512</Item>
-	<Item Name="TaxId" Type="Integer">9606</Item>
-	<Item Name="Length" Type="Integer">876</Item>
-	<Item Name="Status" Type="String">live</Item>
-	<Item Name="ReplacedBy" Type="String"></Item>
-	<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
-</DocSum>
+			<DocSum>
+				<Id>28558984</Id>
+				<Item Name="Caption" Type="String">NP_783650</Item>
+				<Item Name="Title" Type="String">thyroid peroxidase isoform b precursor [Homo sapiens]</Item>
+				<Item Name="Extra" Type="String">gi|28558984|ref|NP_783650.1|[28558984]</Item>
+				<Item Name="Gi" Type="Integer">28558984</Item>
+				<Item Name="CreateDate" Type="String">2003/02/25</Item>
+				<Item Name="UpdateDate" Type="String">2013/01/07</Item>
+				<Item Name="Flags" Type="Integer">512</Item>
+				<Item Name="TaxId" Type="Integer">9606</Item>
+				<Item Name="Length" Type="Integer">876</Item>
+				<Item Name="Status" Type="String">live</Item>
+				<Item Name="ReplacedBy" Type="String"></Item>
+				<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+			</DocSum>
 
-<DocSum>
-	<Id>28558988</Id>
-	<Item Name="Caption" Type="String">NP_783652</Item>
-	<Item Name="Title" Type="String">thyroid peroxidase isoform d precursor [Homo sapiens]</Item>
-	<Item Name="Extra" Type="String">gi|28558988|ref|NP_783652.1|[28558988]</Item>
-	<Item Name="Gi" Type="Integer">28558988</Item>
-	<Item Name="CreateDate" Type="String">2003/02/25</Item>
-	<Item Name="UpdateDate" Type="String">2013/01/07</Item>
-	<Item Name="Flags" Type="Integer">512</Item>
-	<Item Name="TaxId" Type="Integer">9606</Item>
-	<Item Name="Length" Type="Integer">889</Item>
-	<Item Name="Status" Type="String">live</Item>
-	<Item Name="ReplacedBy" Type="String"></Item>
-	<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
-</DocSum>
+			<DocSum>
+				<Id>28558988</Id>
+				<Item Name="Caption" Type="String">NP_783652</Item>
+				<Item Name="Title" Type="String">thyroid peroxidase isoform d precursor [Homo sapiens]</Item>
+				<Item Name="Extra" Type="String">gi|28558988|ref|NP_783652.1|[28558988]</Item>
+				<Item Name="Gi" Type="Integer">28558988</Item>
+				<Item Name="CreateDate" Type="String">2003/02/25</Item>
+				<Item Name="UpdateDate" Type="String">2013/01/07</Item>
+				<Item Name="Flags" Type="Integer">512</Item>
+				<Item Name="TaxId" Type="Integer">9606</Item>
+				<Item Name="Length" Type="Integer">889</Item>
+				<Item Name="Status" Type="String">live</Item>
+				<Item Name="ReplacedBy" Type="String"></Item>
+				<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+			</DocSum>
 
-<DocSum>
-	<Id>28558990</Id>
-	<Item Name="Caption" Type="String">NP_783653</Item>
-	<Item Name="Title" Type="String">thyroid peroxidase isoform e precursor [Homo sapiens]</Item>
-	<Item Name="Extra" Type="String">gi|28558990|ref|NP_783653.1|[28558990]</Item>
-	<Item Name="Gi" Type="Integer">28558990</Item>
-	<Item Name="CreateDate" Type="String">2003/02/25</Item>
-	<Item Name="UpdateDate" Type="String">2013/01/07</Item>
-	<Item Name="Flags" Type="Integer">512</Item>
-	<Item Name="TaxId" Type="Integer">9606</Item>
-	<Item Name="Length" Type="Integer">760</Item>
-	<Item Name="Status" Type="String">live</Item>
-	<Item Name="ReplacedBy" Type="String"></Item>
-	<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
-</DocSum>
+			<DocSum>
+				<Id>28558990</Id>
+				<Item Name="Caption" Type="String">NP_783653</Item>
+				<Item Name="Title" Type="String">thyroid peroxidase isoform e precursor [Homo sapiens]</Item>
+				<Item Name="Extra" Type="String">gi|28558990|ref|NP_783653.1|[28558990]</Item>
+				<Item Name="Gi" Type="Integer">28558990</Item>
+				<Item Name="CreateDate" Type="String">2003/02/25</Item>
+				<Item Name="UpdateDate" Type="String">2013/01/07</Item>
+				<Item Name="Flags" Type="Integer">512</Item>
+				<Item Name="TaxId" Type="Integer">9606</Item>
+				<Item Name="Length" Type="Integer">760</Item>
+				<Item Name="Status" Type="String">live</Item>
+				<Item Name="ReplacedBy" Type="String"></Item>
+				<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+			</DocSum>
 
-</eSummaryResult>
-`,
+			</eSummaryResult>
+			`,
 			Summary{
-				Docs: []Doc{
+				Documents: []Document{
 					{
 						Id: 6678417,
 						Items: []Item{
@@ -223,12 +223,11 @@ func (s *S) TestParseSummary(c *check.C) {
 						},
 					},
 				},
-				Err: nil,
 			},
 		},
 	} {
 		var s Summary
-		err := s.Unmarshal(strings.NewReader(t.retval))
+		err := xml.NewDecoder(strings.NewReader(t.retval)).Decode(&s)
 		c.Check(err, check.Equals, nil, check.Commentf("Test: %d", i))
 		c.Check(s, check.DeepEquals, t.summary, check.Commentf("Test: %d", i))
 	}

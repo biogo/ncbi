@@ -4,6 +4,14 @@
 
 package spell
 
+import (
+	"bytes"
+	"code.google.com/p/biogo.entrez/xml"
+	"io"
+)
+
+// "code.google.com/p/biogo.entrez/xml"
+
 // <!--
 // This is the Current DTD for Entrez eSpell
 // $Id:
@@ -40,3 +48,36 @@ type New string
 
 func (r New) String() string { return string(r) }
 func (r New) Type() string   { return "Replaced" }
+
+type Replacements []Replacement
+
+func (r *Replacements) UnmarshalXML(b []byte) error {
+	*r = (*r)[:0]
+	dec := xml.NewDecoder(bytes.NewReader(b))
+	var field string
+	for {
+		tok, err := dec.Token()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+
+		switch tok := tok.(type) {
+		case xml.StartElement:
+			field = tok.Name.Local
+		case xml.CharData:
+			switch field {
+			case "Replaced":
+				*r = append(*r, New(string(tok)))
+			case "Original":
+				*r = append(*r, Old(string(tok)))
+			}
+		case xml.EndElement:
+			field = ""
+		}
+	}
+
+	panic("cannot reach")
+}

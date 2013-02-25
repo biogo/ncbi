@@ -5,9 +5,9 @@
 package search
 
 import (
-	"code.google.com/p/biogo.entrez/stack"
-	"encoding/xml"
-	"fmt"
+	"bytes"
+	"code.google.com/p/biogo.entrez/xml"
+	"errors"
 	"io"
 	"strconv"
 )
@@ -76,6 +76,71 @@ import (
 // 				WarningList?
 // 				)>
 
+type TranslationStack []Node
+
+func (ts *TranslationStack) UnmarshalXML(b []byte) error {
+	*ts = (*ts)[:0]
+	dec := xml.NewDecoder(bytes.NewReader(b))
+	var (
+		field string
+		tm    Term
+	)
+	for {
+		tok, err := dec.Token()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+
+		switch tok := tok.(type) {
+		case xml.StartElement:
+			field = tok.Name.Local
+		case xml.CharData:
+			if field == "" {
+				continue
+			}
+			switch field {
+			case "OP":
+				*ts = append(*ts, Op(string(tok)))
+			case "Term":
+				tm.Term = string(tok)
+			case "Field":
+				tm.Field = string(tok)
+			case "Count":
+				c, err := strconv.Atoi(string(tok))
+				if err != nil {
+					return err
+				}
+				tm.Count = c
+			case "Explode":
+				if len(tok) != 1 {
+					return errors.New("entrez: bad boolean")
+				}
+				switch tok[0] {
+				case 'Y', 'N':
+					tm.Explode = tok[0] == 'Y'
+				default:
+					return errors.New("entrez: bad boolean")
+				}
+			}
+		case xml.EndElement:
+			if tok.Name.Local == "TermSet" {
+				*ts, tm = append(*ts, tm), Term{}
+			}
+			field = ""
+		}
+	}
+
+	panic("cannot reach")
+}
+
+// A Node is an element of the ESearch translation stack.
+type Node interface {
+	Consume([]Node) Node
+}
+
 type Op string
 
 func (o Op) Consume(s []Node) Node {
@@ -104,105 +169,18 @@ type Term struct {
 
 func (tm Term) Consume(_ []Node) Node { return tm }
 
-func (tm *Term) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "Term":
-				tm.Term = string(t)
-			case "Field":
-				tm.Field = string(t)
-			case "Count":
-				c, err := strconv.Atoi(string(t))
-				if err != nil {
-					return err
-				}
-				tm.Count = c
-			case "Explode":
-				switch b := string(t); b {
-				case "Y", "N":
-					tm.Explode = b == "Y"
-				default:
-					return fmt.Errorf("entrez: bad boolean: %q", b)
-				}
-			case "TermSet":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.Empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
-}
-
 type Translation struct {
 	From string
 	To   string
 }
 
-func (tr *Translation) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "From":
-				tr.From = string(t)
-			case "To":
-				tr.To = string(t)
-			case "TranslationSet", "Translation":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.Empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
+type NotFound struct {
+	Phrase []string `xml:"PhraseNotFound"`
+	Field  []string `xml:"FieldNotFound"`
 }
 
-// A Node is an element of the ESearch translation stack.Stack.
-type Node interface {
-	Consume([]Node) Node
+type Warnings struct {
+	Ignored  []string `xml:"PhraseIgnored"`
+	NotFound []string `xml:"QuotedPhraseNotFound"`
+	Message  []string `xml:"OutputMessage"`
 }

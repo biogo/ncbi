@@ -5,12 +5,10 @@
 package link
 
 import (
-	"code.google.com/p/biogo.entrez/stack"
-	"encoding/xml"
+	"bytes"
+	"code.google.com/p/biogo.entrez/xml"
 	"errors"
-	"fmt"
 	"io"
-	"reflect"
 	"strconv"
 )
 
@@ -86,7 +84,7 @@ import (
 //
 // <!ELEMENT	IdUrlSet	(Id,(ObjUrl+|Info))>
 //
-// <!ELEMENT   FirstChars  (FirstChar*)>
+// <!ELEMENT	FirstChars  (FirstChar*)>
 //
 // <!ELEMENT	LinkInfo	(DbTo, LinkName, MenuTag?, HtmlTag?, Url?, Priority)>
 // <!ELEMENT	IdLinkSet	(Id, LinkInfo*)>
@@ -102,798 +100,136 @@ import (
 //
 // <!ELEMENT	eLinkResult	(LinkSet*, ERROR?)>
 
-type LinkId struct {
-	Id    Id
-	Score int
-}
-
-func (li *LinkId) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			if t.Name.Local == "Id" {
-				for _, attr := range t.Attr {
-					switch attr.Name.Local {
-					case "HasLinkOut":
-						switch b := attr.Value; b {
-						case "Y", "N":
-							linkOut := b == "Y"
-							li.Id.HasLinkOut = &linkOut
-						default:
-							return fmt.Errorf("eutil: bad boolean: %q", b)
-						}
-					case "HasNeighbor":
-						switch b := attr.Value; b {
-						case "Y", "N":
-							neighbor := b == "Y"
-							li.Id.HasNeighbor = &neighbor
-						default:
-							return fmt.Errorf("eutil: bad boolean: %q", b)
-						}
-					default:
-						return fmt.Errorf("entrez: unknown attribute: %q", attr.Name.Local)
-					}
-				}
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "Id":
-				id, err := strconv.Atoi(string(t))
-				if err != nil {
-					return err
-				}
-				li.Id.Id = id
-			case "Score":
-				s, err := strconv.Atoi(string(t))
-				if err != nil {
-					return err
-				}
-				li.Score = s
-			case "Link":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.Empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
+type Link struct {
+	Id    Id   `xml:"Id"`
+	Score *int `xml:"Score"`
 }
 
 type LinkSetDb struct {
-	DbTo     string
-	LinkName string
-	Link     []LinkId
-}
-
-func (ls *LinkSetDb) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			if t.Name.Local == "Link" {
-				var li LinkId
-				err := li.Unmarshal(dec, st[len(st)-1:])
-				if (li != LinkId{}) {
-					ls.Link = append(ls.Link, li)
-				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-				continue
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "DbTo":
-				ls.DbTo = string(t)
-			case "LinkName":
-				ls.LinkName = string(t)
-			case "LinkSetDb":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.Empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
+	DbTo     string  `xml:"DbTo"`
+	LinkName string  `xml:"LinkName"`
+	Link     []Link  `xml:"Link"`
+	Info     *string `xml:"Info"`
+	Err      error   `xml:"ERROR"`
 }
 
 type Url struct {
-	Url  string
-	Lang string
-}
-
-func (u *Url) getLang(t xml.StartElement) error {
-	for _, attr := range t.Attr {
-		switch attr.Name.Local {
-		case "LNG":
-			switch attr.Value {
-			case "DA", "DE", "EN", "EL", "ES", "FR", "IT", "IW", "JA", "NL", "NO", "RU", "SV", "ZH":
-				u.Lang = attr.Value
-			default:
-				return fmt.Errorf("eutil: unknown language id: %q", attr.Value)
-			}
-		default:
-			return fmt.Errorf("entrez: unknown attribute: %q", attr.Name.Local)
-		}
-	}
-	return nil
+	Url  string `xml:",chardata"`
+	Lang string `xml:"LNG,attr"`
 }
 
 type Provider struct {
-	Name     string
-	NameAbbr string
-	Id       Id
-	Url      Url
-	IconUrl  *Url
-}
-
-func (p *Provider) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			switch t.Name.Local {
-			case "Url":
-				err = p.Url.getLang(t)
-			case "IconUrl":
-				p.IconUrl = &Url{}
-				err = p.IconUrl.getLang(t)
-			case "Id":
-				for _, attr := range t.Attr {
-					switch attr.Name.Local {
-					case "HasLinkOut":
-						switch b := attr.Value; b {
-						case "Y", "N":
-							linkOut := b == "Y"
-							p.Id.HasLinkOut = &linkOut
-						default:
-							return fmt.Errorf("eutil: bad boolean: %q", b)
-						}
-					case "HasNeighbor":
-						switch b := attr.Value; b {
-						case "Y", "N":
-							neighbor := b == "Y"
-							p.Id.HasNeighbor = &neighbor
-						default:
-							return fmt.Errorf("eutil: bad boolean: %q", b)
-						}
-					default:
-						return fmt.Errorf("entrez: unknown attribute: %q", attr.Name.Local)
-					}
-				}
-			}
-			if err != nil {
-				return err
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "Name":
-				p.Name = string(t)
-			case "NameAbbr":
-				p.NameAbbr = string(t)
-			case "Id":
-				id, err := strconv.Atoi(string(t))
-				if err != nil {
-					return err
-				}
-				p.Id.Id = id
-			case "Url":
-				p.Url.Url = string(t)
-			case "IconUrl":
-				p.IconUrl.Url = string(t)
-			case "Provider":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.Empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
+	Name     string `xml:"Name"`
+	NameAbbr string `xml:"NameAbbr"`
+	Id       Id     `xml:"Id"`
+	Url      Url    `xml:"Url"`
+	IconUrl  *Url   `xml:"IconUrl"`
 }
 
 type ObjUrl struct {
-	Url         Url
-	IconUrl     *Url
-	LinkName    *string
-	SubjectType []string
-	Category    []string
-	Attribute   []string
-	Provider    Provider
-	SubProvider *string
-}
-
-func (ou *ObjUrl) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			switch t.Name.Local {
-			case "Provider":
-				err := ou.Provider.Unmarshal(dec, st[len(st)-1:])
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-			case "Url":
-				err = ou.Url.getLang(t)
-			case "IconUrl":
-				ou.IconUrl = &Url{}
-				err = ou.IconUrl.getLang(t)
-			}
-			if err != nil {
-				return err
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "Url":
-				ou.Url.Url = string(t)
-			case "IconUrl":
-				ou.IconUrl.Url = string(t)
-			case "LinkName":
-				s := string(t)
-				ou.LinkName = &s
-			case "SubjectType":
-				ou.SubjectType = append(ou.SubjectType, string(t))
-			case "Category":
-				ou.Category = append(ou.Category, string(t))
-			case "Attribute":
-				ou.Attribute = append(ou.Attribute, string(t))
-			case "SubProvider":
-				s := string(t)
-				ou.SubProvider = &s
-			case "ObjUrl":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.Empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
+	Url         Url      `xml:"Url"`
+	IconUrl     *Url     `xml:"IconUrl"`
+	LinkName    *string  `xml:"LinkName"`
+	SubjectType []string `xml:"SubjectType"`
+	Category    []string `xml:"Category"`
+	Attribute   []string `xml:"Attribute"`
+	Provider    Provider `xml:"Provider"`
+	SubProvider *string  `xml:"SubProvider"`
 }
 
 type IdUrlSet struct {
-	Id      Id
-	ObjUrls []ObjUrl
-	Info    string
-}
-
-func (us *IdUrlSet) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			switch t.Name.Local {
-			case "ObjUrl":
-				var ou ObjUrl
-				err := ou.Unmarshal(dec, st[len(st)-1:])
-				if !reflect.DeepEqual(ou, IdUrlSet{}) {
-					us.ObjUrls = append(us.ObjUrls, ou)
-				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-			case "Id":
-				for _, attr := range t.Attr {
-					switch attr.Name.Local {
-					case "HasLinkOut":
-						switch b := attr.Value; b {
-						case "Y", "N":
-							linkOut := b == "Y"
-							us.Id.HasLinkOut = &linkOut
-						default:
-							return fmt.Errorf("eutil: bad boolean: %q", b)
-						}
-					case "HasNeighbor":
-						switch b := attr.Value; b {
-						case "Y", "N":
-							neighbor := b == "Y"
-							us.Id.HasNeighbor = &neighbor
-						default:
-							return fmt.Errorf("eutil: bad boolean: %q", b)
-						}
-					default:
-						return fmt.Errorf("entrez: unknown attribute: %q", attr.Name.Local)
-					}
-				}
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "Id":
-				id, err := strconv.Atoi(string(t))
-				if err != nil {
-					return err
-				}
-				us.Id.Id = id
-			case "Info":
-				us.Info = string(t)
-			case "IdUrlSet", "ObjUrl":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.Empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
+	Id     Id       `xml"Id"`
+	ObjUrl []ObjUrl `xml"ObjUrl"`
+	Info   *string  `xml"Info"`
 }
 
 type IdUrlList struct {
-	IdUrlSets []IdUrlSet
-	Err       error
-}
-
-func (ul *IdUrlList) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			if t.Name.Local == "IdUrlSet" {
-				var us IdUrlSet
-				err := us.Unmarshal(dec, st[len(st)-1:])
-				if !reflect.DeepEqual(us, IdUrlSet{}) {
-					ul.IdUrlSets = append(ul.IdUrlSets, us)
-				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-				continue
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "ERROR":
-				ul.Err = errors.New(string(t))
-			case "IdUrlList":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.Empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
-}
-
-type LinkInfo struct {
-	DbTo     string
-	LinkName string
-	MenuTag  *string
-	HtmlTag  *string
-	Url      *Url
-	Priority string
-}
-
-func (li *LinkInfo) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			if t.Name.Local == "Url" {
-				li.Url = &Url{}
-				err = li.Url.getLang(t)
-				if err != nil {
-					return err
-				}
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "DbTo":
-				li.DbTo = string(t)
-			case "LinkName":
-				li.LinkName = string(t)
-			case "MenuTag":
-				s := string(t)
-				li.MenuTag = &s
-			case "HtmlTag":
-				s := string(t)
-				li.HtmlTag = &s
-			case "Url":
-				li.Url.Url = string(t)
-			case "Priority":
-				li.Priority = string(t)
-			case "LinkInfo":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.Empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
-}
-
-type Id struct {
-	Id          int
-	HasLinkOut  *bool
-	HasNeighbor *bool
+	IdUrlSets  []IdUrlSet `xml:"IdUrlSet"`
+	FirstChars [][]string `xml:"FirstChars>FirstChar"`
 }
 
 type IdLinkSet struct {
-	Id       Id
-	LinkInfo []LinkInfo
+	Id       Id         `xml:"Id"`
+	LinkInfo []LinkInfo `xml:"LinkInfo"`
 }
 
-func (is *IdLinkSet) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	var hasLinkOut, hasNeighbor *bool
+type LinkInfo struct {
+	DbTo     string  `xml:"DbTo"`
+	LinkName string  `xml:"LinkName"`
+	MenuTag  *string `xml:"MenuTag"`
+	HtmlTag  *string `xml:"HtmlTag"`
+	Url      *Url    `xml:"Url"`
+	Priority int     `xml:"Priority"`
+}
+
+type Id struct {
+	Id          int   `xml:"Id"`
+	HasLinkOut  *bool `xml:",attr"`
+	HasNeighbor *bool `xml:",attr"`
+}
+
+func (id *Id) UnmarshalXML(b []byte) error {
+	dec := xml.NewDecoder(bytes.NewReader(b))
 	for {
-		t, err := dec.Token()
+		tok, err := dec.Token()
 		if err != nil {
 			if err == io.EOF {
-				return io.ErrUnexpectedEOF
+				return nil
 			}
 			return err
 		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
+
+		switch tok := tok.(type) {
 		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			switch t.Name.Local {
-			case "Id":
-				for _, attr := range t.Attr {
-					switch attr.Name.Local {
-					case "HasLinkOut":
-						switch b := attr.Value; b {
-						case "Y", "N":
-							linkOut := b == "Y"
-							hasLinkOut = &linkOut
-						default:
-							return fmt.Errorf("eutil: bad boolean: %q", b)
-						}
-					case "HasNeighbor":
-						switch b := attr.Value; b {
-						case "Y", "N":
-							neighbor := b == "Y"
-							hasNeighbor = &neighbor
-						default:
-							return fmt.Errorf("eutil: bad boolean: %q", b)
-						}
-					default:
-						return fmt.Errorf("entrez: unknown attribute: %q", attr.Name.Local)
-					}
+			for _, attr := range tok.Attr {
+				var b *bool
+				switch attr.Value {
+				case "Y", "N":
+					b = new(bool)
+					*b = attr.Value == "Y"
+				default:
+					return errors.New("entrez: bad boolean")
 				}
-			case "LinkInfo":
-				var li LinkInfo
-				err := li.Unmarshal(dec, st[len(st)-1:])
-				if (li != LinkInfo{}) {
-					is.LinkInfo = append(is.LinkInfo, li)
+				switch attr.Name.Local {
+				case "HasLinkOut":
+					id.HasNeighbor = b
+				case "HasNeighbor":
+					id.HasNeighbor = b
 				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
 			}
 		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "Id":
-				id, err := strconv.Atoi(string(t))
-				if err != nil {
-					return err
-				}
-				is.Id = Id{Id: id, HasLinkOut: hasLinkOut, HasNeighbor: hasNeighbor}
-			case "IdLinkSet", "LinkInfo":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
+			i, err := strconv.Atoi(string(tok))
 			if err != nil {
 				return err
 			}
-			if st.Empty() {
-				return nil
-			}
+			id.Id = i
 		}
 	}
+
 	panic("cannot reach")
 }
 
-type IdChecks struct {
-	Ids        []Id
-	IdLinkSets []IdLinkSet
-	Err        error
+type IdCheckList struct {
+	Id        []Id        `xml:"Id"`
+	IdLinkSet []IdLinkSet `xml:"IdLinkSet"`
+	Err       error       `xml:"ERROR"`
 }
 
-func (ic *IdChecks) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	var hasLinkOut, hasNeighbor *bool
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			switch t.Name.Local {
-			case "Id":
-				for _, attr := range t.Attr {
-					switch attr.Name.Local {
-					case "HasLinkOut":
-						switch b := attr.Value; b {
-						case "Y", "N":
-							linkOut := b == "Y"
-							hasLinkOut = &linkOut
-						default:
-							return fmt.Errorf("eutil: bad boolean: %q", b)
-						}
-					case "HasNeighbor":
-						switch b := attr.Value; b {
-						case "Y", "N":
-							neighbor := b == "Y"
-							hasNeighbor = &neighbor
-						default:
-							return fmt.Errorf("eutil: bad boolean: %q", b)
-						}
-					default:
-						return fmt.Errorf("entrez: unknown attribute: %q", attr.Name.Local)
-					}
-				}
-			case "IdLinkSet":
-				var is IdLinkSet
-				err := is.Unmarshal(dec, st[len(st)-1:])
-				if !reflect.DeepEqual(is, IdLinkSet{}) {
-					ic.IdLinkSets = append(ic.IdLinkSets, is)
-				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "ERROR":
-				ic.Err = errors.New(string(t))
-			case "Id":
-				id, err := strconv.Atoi(string(t))
-				if err != nil {
-					return err
-				}
-				ic.Ids = append(ic.Ids, Id{Id: id, HasLinkOut: hasLinkOut, HasNeighbor: hasNeighbor})
-			case "IdCheckList":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.Empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
+type LinkSetDbHistory struct {
+	DbTo     string  `xml:"DbTo"`
+	LinkName string  `xml:"LinkName"`
+	QueryKey *int    `xml:"QueryKey"`
+	Info     *string `xml:"Info"`
+	Err      error   `xml:"ERROR"`
 }
 
 type LinkSet struct {
-	DbFrom     string
-	IdList     []int
-	LinkSetDbs []LinkSetDb
-	IdUrls     []IdUrlList
-	IdChecks   *IdChecks
-	Err        error
-}
-
-func (li *LinkSet) Unmarshal(dec *xml.Decoder, st stack.Stack) error {
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err == io.EOF {
-				return io.ErrUnexpectedEOF
-			}
-			return err
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			switch t.Name.Local {
-			case "IdUrlList":
-				var ul IdUrlList
-				err := ul.Unmarshal(dec, st[len(st)-1:])
-				if !reflect.DeepEqual(ul, IdUrlList{}) {
-					li.IdUrls = append(li.IdUrls, ul)
-				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-			case "LinkSetDb":
-				var ls LinkSetDb
-				err := ls.Unmarshal(dec, st[len(st)-1:])
-				if !reflect.DeepEqual(ls, LinkSetDb{}) {
-					li.LinkSetDbs = append(li.LinkSetDbs, ls)
-				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-			case "IdCheckList":
-				var id IdChecks
-				err := id.Unmarshal(dec, st[len(st)-1:])
-				if !reflect.DeepEqual(id, IdChecks{}) {
-					li.IdChecks = &id
-				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "DbFrom":
-				li.DbFrom = string(t)
-			case "Id":
-				if st.Peek(1) != "IdList" {
-					return fmt.Errorf("entrez: unexpected tag: %q", name)
-				}
-				id, err := strconv.Atoi(string(t))
-				if err != nil {
-					return err
-				}
-				li.IdList = append(li.IdList, id)
-			case "LinkSet", "IdList", "IdUrlList":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-			if st.Empty() {
-				return nil
-			}
-		}
-	}
-	panic("cannot reach")
+	DbFrom           string             `xml:"DbFrom"`
+	IdList           []Id               `xml:"IdList>Id"`
+	Neighbor         []LinkSetDb        `xml:"LinkSetDb"`
+	LinkSetDbHistory []LinkSetDbHistory `xml:"LinkSetDbHistory"`
+	WebEnv           *string            `xml:"WebEnv"`
+	IdUrlList        *IdUrlList         `xml:"IdUrlList"`
+	IdCheckList      *IdCheckList       `xml:"IdCheckList"`
+	Err              []string           `xml:"ERROR"`
 }

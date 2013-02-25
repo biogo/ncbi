@@ -5,10 +5,9 @@
 package entrez
 
 import (
-	. "code.google.com/p/biogo.entrez/link"
+	"code.google.com/p/biogo.entrez/link"
 	. "code.google.com/p/biogo.entrez/spell"
 	. "code.google.com/p/biogo.entrez/summary"
-
 	"flag"
 	"io/ioutil"
 	check "launchpad.net/gocheck"
@@ -65,7 +64,7 @@ func (s *S) TestDoInfo(c *check.C) {
 			"pubmedhealth", "seqannot", "snp", "sra",
 			"taxonomy", "toolkit", "toolkitall", "toolkitbook",
 			"unigene", "unists", "gencoll"},
-		DbInfo: nil, Err: nil})
+		DbInfo: nil, Err: ""})
 }
 
 func (s *S) TestDoSearch(c *check.C) {
@@ -83,9 +82,11 @@ func (s *S) TestDoPost(c *check.C) {
 	}
 	p, err := DoPost("protein", "biogo.entrez-testsuite", "", nil, 15718680, 157427902, 119703751)
 	c.Check(err, check.Equals, nil)
-	c.Assert(p.History, check.NotNil)
-	c.Check(p.History.QueryKey, check.DeepEquals, 1)
-	c.Check(p.History.WebEnv, check.Matches, "NCID_[0-9]+_.*")
+	c.Assert(p.QueryKey, check.NotNil)
+	c.Assert(p.WebEnv, check.NotNil)
+	c.Check(p.History(), check.NotNil)
+	c.Check(*p.QueryKey, check.DeepEquals, 1)
+	c.Check(*p.WebEnv, check.Matches, "NCID_[0-9]+_.*")
 }
 
 func (s *S) TestFetch(c *check.C) {
@@ -156,8 +157,8 @@ func (s *S) TestDoSummary(c *check.C) {
 	c.Check(err, check.Equals, nil)
 	c.Check(sum, check.DeepEquals, &Summary{
 		Database: "protein",
-		Docs: []Doc{
-			Doc{
+		Documents: []Document{
+			Document{
 				Id: 15718680,
 				Items: []Item{
 					{Value: "NP_005537", Name: "Caption", Type: "String"},
@@ -174,7 +175,7 @@ func (s *S) TestDoSummary(c *check.C) {
 					{Value: "  ", Name: "Comment", Type: "String"},
 				},
 			},
-			Doc{
+			Document{
 				Id: 157427902,
 				Items: []Item{
 					{Value: "NP_001098858", Name: "Caption", Type: "String"},
@@ -182,7 +183,7 @@ func (s *S) TestDoSummary(c *check.C) {
 					{Value: "gi|157427902|ref|NP_001098858.1|[157427902]", Name: "Extra", Type: "String"},
 					{Value: "157427902", Name: "Gi", Type: "Integer"},
 					{Value: "2007/09/24", Name: "CreateDate", Type: "String"},
-					{Value: "2012/08/27", Name: "UpdateDate", Type: "String"},
+					{Value: "2013/02/23", Name: "UpdateDate", Type: "String"},
 					{Value: "512", Name: "Flags", Type: "Integer"},
 					{Value: "9913", Name: "TaxId", Type: "Integer"},
 					{Value: "620", Name: "Length", Type: "Integer"},
@@ -191,7 +192,7 @@ func (s *S) TestDoSummary(c *check.C) {
 					{Value: "  ", Name: "Comment", Type: "String"},
 				},
 			},
-			Doc{
+			Document{
 				Id: 119703751,
 				Items: []Item{
 					{Value: "NP_034713", Name: "Caption", Type: "String"},
@@ -209,7 +210,6 @@ func (s *S) TestDoSummary(c *check.C) {
 				},
 			},
 		},
-		Err: nil,
 	})
 }
 
@@ -232,23 +232,23 @@ func (s *S) TestDoLink(c *check.C) {
 		{
 			"protein", "gene", "", "", nil, "biogo.entrez-testsuite", "", nil, [][]int{{15718680, 157427902}},
 			&Link{
-				LinkSets: []LinkSet{
+				LinkSets: []link.LinkSet{
 					{
 						DbFrom: "protein",
-						IdList: []int{15718680, 157427902},
-						LinkSetDbs: []LinkSetDb{
-							LinkSetDb{
+						IdList: []link.Id{
+							{Id: 15718680},
+							{Id: 157427902},
+						},
+						Neighbor: []link.LinkSetDb{
+							{
 								DbTo:     "gene",
 								LinkName: "protein_gene",
-								Link: []LinkId{
-									LinkId{Id: Id{Id: 522311}, Score: 0},
-									LinkId{Id: Id{Id: 3702}, Score: 0},
+								Link: []link.Link{
+									{Id: link.Id{Id: 522311}, Score: nil},
+									{Id: link.Id{Id: 3702}, Score: nil},
 								},
 							},
 						},
-						IdUrls:   nil,
-						IdChecks: nil,
-						Err:      nil,
 					},
 				},
 				Err: nil,
@@ -257,38 +257,36 @@ func (s *S) TestDoLink(c *check.C) {
 		{
 			"protein", "gene", "", "", nil, "biogo.entrez-testsuite", "", nil, [][]int{{15718680}, {157427902}},
 			&Link{
-				LinkSets: []LinkSet{
+				LinkSets: []link.LinkSet{
 					{
 						DbFrom: "protein",
-						IdList: []int{15718680},
-						LinkSetDbs: []LinkSetDb{
+						IdList: []link.Id{
+							{Id: 15718680},
+						},
+						Neighbor: []link.LinkSetDb{
 							{
 								DbTo:     "gene",
 								LinkName: "protein_gene",
-								Link: []LinkId{
-									{Id: Id{Id: 3702}, Score: 0},
+								Link: []link.Link{
+									{Id: link.Id{Id: 3702}, Score: nil},
 								},
 							},
 						},
-						IdUrls:   nil,
-						IdChecks: nil,
-						Err:      nil,
 					},
 					{
 						DbFrom: "protein",
-						IdList: []int{157427902},
-						LinkSetDbs: []LinkSetDb{
+						IdList: []link.Id{
+							{Id: 157427902},
+						},
+						Neighbor: []link.LinkSetDb{
 							{
 								DbTo:     "gene",
 								LinkName: "protein_gene",
-								Link: []LinkId{
-									{Id: Id{Id: 522311}, Score: 0},
+								Link: []link.Link{
+									{Id: link.Id{Id: 522311}, Score: nil},
 								},
 							},
 						},
-						IdUrls:   nil,
-						IdChecks: nil,
-						Err:      nil,
 					},
 				},
 				Err: nil,
@@ -325,6 +323,6 @@ func (s *S) TestDoSpell(c *check.C) {
 			Old(" OR "),
 			New("allergies"),
 		},
-		Err: nil,
+		Err: "",
 	})
 }

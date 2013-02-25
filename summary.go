@@ -5,13 +5,7 @@
 package entrez
 
 import (
-	"code.google.com/p/biogo.entrez/stack"
 	"code.google.com/p/biogo.entrez/summary"
-	"encoding/xml"
-	"errors"
-	"fmt"
-	"io"
-	"reflect"
 )
 
 // <!--
@@ -37,59 +31,7 @@ import (
 
 // A Summary holds the deserialised results of an ESummary request.
 type Summary struct {
-	Database string
-	Docs     []summary.Doc
-	Err      error
-}
-
-// Unmarshal fills the fields of a Summary from an XML stream read from r.
-func (s *Summary) Unmarshal(r io.Reader) error {
-	dec := xml.NewDecoder(r)
-	var st stack.Stack
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err != io.EOF {
-				return err
-			}
-			if !st.Empty() {
-				return io.ErrUnexpectedEOF
-			}
-			break
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			if t.Name.Local == "DocSum" {
-				var d summary.Doc
-				err := d.Unmarshal(dec, st[len(st)-1:])
-				if !(reflect.DeepEqual(d, summary.Doc{})) {
-					s.Docs = append(s.Docs, d)
-				}
-				if err != nil {
-					return err
-				}
-				st = st.Drop()
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "ERROR":
-				s.Err = errors.New(string(t))
-			case "eSummaryResult":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	Database  string
+	Documents []summary.Document `xml:"DocSum"`
+	Err       []string           `xml:"ERROR"`
 }

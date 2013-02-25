@@ -6,12 +6,6 @@ package entrez
 
 import (
 	"code.google.com/p/biogo.entrez/info"
-	"code.google.com/p/biogo.entrez/stack"
-	"encoding/xml"
-	"errors"
-	"fmt"
-	"io"
-	"reflect"
 )
 
 // <!--
@@ -75,65 +69,7 @@ import (
 
 // An Info holds the deserialised results of an EInfo request.
 type Info struct {
-	DbList []string
-	DbInfo []info.DbInfo
-	Err    error
-}
-
-// Unmarshal fills the fields of an Info from an XML stream read from r.
-func (i *Info) Unmarshal(r io.Reader) error {
-	dec := xml.NewDecoder(r)
-	var st stack.Stack
-	for {
-		t, err := dec.Token()
-		if err != nil {
-			if err != io.EOF {
-				return err
-			}
-			if !st.Empty() {
-				return io.ErrUnexpectedEOF
-			}
-			break
-		}
-		switch t := t.(type) {
-		case xml.ProcInst:
-		case xml.Directive:
-		case xml.StartElement:
-			st = st.Push(t.Name.Local)
-			if t.Name.Local == "DbInfo" {
-				var d info.DbInfo
-				err := d.Unmarshal(dec, st[len(st)-1:])
-				if !reflect.DeepEqual(d, info.DbInfo{}) {
-					i.DbInfo = append(i.DbInfo, d)
-				}
-				if err != nil {
-					return err
-				}
-				st.Drop()
-				continue
-			}
-		case xml.CharData:
-			if st.Empty() {
-				continue
-			}
-			switch name := st.Peek(0); name {
-			case "DbName":
-				if st.Peek(1) != "DbList" {
-					return fmt.Errorf("entrez: unexpected tag: %q", name)
-				}
-				i.DbList = append(i.DbList, string(t))
-			case "ERROR":
-				i.Err = errors.New(string(t))
-			case "eInfoResult", "DbList", "DbInfo":
-			default:
-				return fmt.Errorf("entrez: unknown name: %q", name)
-			}
-		case xml.EndElement:
-			st, err = st.Pair(t.Name.Local)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	DbList []string     `xml:"DbList>DbName"`
+	DbInfo *info.DbInfo `xml:"DbInfo"`
+	Err    string       `xml:"ERROR"`
 }

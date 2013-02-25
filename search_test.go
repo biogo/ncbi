@@ -7,7 +7,7 @@ package entrez
 import (
 	. "code.google.com/p/biogo.entrez/search"
 
-	"errors"
+	"code.google.com/p/biogo.entrez/xml"
 	check "launchpad.net/gocheck"
 	"strings"
 )
@@ -131,8 +131,8 @@ func (s *S) TestParseSearch(c *check.C) {
 				Count:    6,
 				RetMax:   6,
 				RetStart: 0,
-				History:  nil,
-				IdList:   []int{19008416, 18927361, 18787170, 18487186, 18239126, 18239125},
+				WebEnv:   nil, QueryKey: nil,
+				IdList: []int{19008416, 18927361, 18787170, 18487186, 18239126, 18239125},
 				Translations: []Translation{
 					{
 						From: "science[journal]",
@@ -268,9 +268,7 @@ func (s *S) TestParseSearch(c *check.C) {
 					`)` +
 					` AND ` +
 					`2008[pdat]`),
-				Err:      nil,
-				Errors:   nil,
-				Warnings: nil,
+				Err: nil,
 			},
 		},
 		{`<?xml version="1.0" ?>
@@ -279,7 +277,7 @@ func (s *S) TestParseSearch(c *check.C) {
 	<ERROR>Empty term and query_key - nothing todo</ERROR>
 </eSearchResult>
 `,
-			Search{Err: errors.New("Empty term and query_key - nothing todo")},
+			Search{Err: stringPtr("Empty term and query_key - nothing todo")},
 		},
 		{`<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE eSearchResult PUBLIC "-//NLM//DTD eSearchResult, 11 May 2002//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eSearch_020511.dtd">
@@ -287,7 +285,7 @@ func (s *S) TestParseSearch(c *check.C) {
 	<ERROR>Invalid db name specified: pub</ERROR>
 </eSearchResult>
 `,
-			Search{Err: errors.New("Invalid db name specified: pub")},
+			Search{Err: stringPtr("Invalid db name specified: pub")},
 		},
 		{
 			`<?xml version="1.0" ?>
@@ -303,17 +301,16 @@ func (s *S) TestParseSearch(c *check.C) {
 				Count:            20,
 				RetMax:           20,
 				RetStart:         0,
-				History:          nil,
+				WebEnv:           nil,
+				QueryKey:         nil,
 				IdList:           nil,
 				Translations:     nil,
 				TranslationStack: nil,
 				QueryTranslation: nil,
 				Err:              nil,
-				Errors: []error{
-					NotFound{Type: "field not found", Value: "jungle"},
-					NotFound{Type: "field not found", Value: "pat"},
+				NotFound: &NotFound{
+					Field: []string{"jungle", "pat"},
 				},
-				Warnings: nil,
 			},
 		},
 		{
@@ -340,24 +337,24 @@ func (s *S) TestParseSearch(c *check.C) {
 				Count:            0,
 				RetMax:           0,
 				RetStart:         0,
-				History:          nil,
+				WebEnv:           nil,
+				QueryKey:         nil,
 				IdList:           nil,
 				Translations:     nil,
 				TranslationStack: nil,
 				QueryTranslation: stringPtr("(nonjournal[journal] AND nonyear[date])"),
 				Err:              nil,
-				Errors: []error{
-					NotFound{Type: "phrase not found", Value: "nonjournal[journal]"},
-					NotFound{Type: "phrase not found", Value: "nonyear[date]"},
+				NotFound: &NotFound{
+					Phrase: []string{"nonjournal[journal]", "nonyear[date]"},
 				},
-				Warnings: []error{
-					Warning{Type: "output message", Value: "No items found."},
+				Warnings: &Warnings{
+					Message: []string{"No items found."},
 				},
 			},
 		},
 	} {
 		var s Search
-		err := s.Unmarshal(strings.NewReader(t.retval))
+		err := xml.NewDecoder(strings.NewReader(t.retval)).Decode(&s)
 		c.Check(err, check.Equals, nil, check.Commentf("Test: %d", i))
 		c.Check(s, check.DeepEquals, t.search, check.Commentf("Test: %d", i))
 	}

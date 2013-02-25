@@ -28,6 +28,7 @@
 package entrez
 
 import (
+	"code.google.com/p/biogo.entrez/xml"
 	"errors"
 	"fmt"
 	"io"
@@ -101,8 +102,8 @@ type Parameters struct {
 // History stores an Entrez Web Environment and query key. The zero values of QueryKey and WebEnv
 // indicate unset values.
 type History struct {
-	QueryKey int
-	WebEnv   string
+	QueryKey int    `xml:"QueryKey"`
+	WebEnv   string `xml:"WebEnv"`
 }
 
 // Util implements low level request generator for interaction with the Entrez Programming Utilities.
@@ -202,7 +203,7 @@ var GetMethodLimit = 2048
 // get performs a GET or POST method call to the URI in ut, passing the parameters in v,
 // tool and email. The returned stream is unmarshaled into d. The decision on which
 // method to use is based on the length of the constructed URL the value of GetMethodLimit.
-func get(ut Util, v url.Values, tool, email string, d unmarshaler) error {
+func get(ut Util, v url.Values, tool, email string, d interface{}) error {
 	u, err := prepare(ut, v, tool, email)
 	var resp *http.Response
 	Limit.Wait()
@@ -217,7 +218,7 @@ func get(ut Util, v url.Values, tool, email string, d unmarshaler) error {
 		return err
 	}
 	defer resp.Body.Close()
-	return d.Unmarshal(resp.Body)
+	return xml.NewDecoder(resp.Body).Decode(d)
 }
 
 // fillParams adds elements to v based on the "param" tag of p if the value is not the
@@ -265,17 +266,16 @@ func DoInfo(db, tool, email string) (*Info, error) {
 	if err != nil {
 		return nil, err
 	}
-	if i.Err != nil {
-		return nil, i.Err
+	if i.Err != "" {
+		return &i, errors.New(i.Err)
 	}
 	return &i, nil
 }
 
 // DoSearch returns a Search filled with data obtained from an ESearch query of the
-// specified db. If h is not nil the search will use the Entrez history server, filling h
-// with the returned web environment and query key. If h.WebEnv is not empty, it will be
-// passed to ESearch as the web environment and if h.QueryKey is not zero, it will be
-// passed as the query key.
+// specified db. If h is not nil the search will use the Entrez history server. If
+// h.WebEnv is not empty, it will be passed to ESearch as the web environment and
+// if h.QueryKey is not zero, it will be passed as the query key.
 func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (*Search, error) {
 	v := url.Values{}
 	if db != "" {
@@ -289,7 +289,6 @@ func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (
 	fillParams(p, v)
 	s := Search{Database: db}
 	if h != nil {
-		s.History = h
 		v["usehistory"] = []string{"y"}
 		if h.WebEnv != "" {
 			v["webenv"] = []string{h.WebEnv}
@@ -307,7 +306,6 @@ func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (
 
 // DoPost returns a Post filled with the response from an EPost action on the specified
 // id list. If h is not nil, its WebEnv field is passed as the E-utilies webenv parameter.
-// h will hold the returned web environment and query key at the end of the call.
 func DoPost(db, tool, email string, h *History, id ...int) (*Post, error) {
 	if len(id) == 0 {
 		return nil, ErrNoIdProvided
@@ -323,7 +321,7 @@ func DoPost(db, tool, email string, h *History, id ...int) (*Post, error) {
 	if h != nil && h.WebEnv != "" {
 		v["webenv"] = []string{h.WebEnv}
 	}
-	p := Post{History: h}
+	p := Post{}
 	err := get(PostUri, v, tool, email, &p)
 	if err != nil {
 		return nil, err
