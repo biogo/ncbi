@@ -1,13 +1,14 @@
-// Copyright ©2013 The bíogo.entrez Authors. All rights reserved.
+// Copyright ©2013 The bíogo.ncbi Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package entrez
 
 import (
-	"code.google.com/p/biogo.entrez/link"
-	. "code.google.com/p/biogo.entrez/spell"
-	. "code.google.com/p/biogo.entrez/summary"
+	"code.google.com/p/biogo.ncbi/entrez/link"
+	. "code.google.com/p/biogo.ncbi/entrez/spell"
+	. "code.google.com/p/biogo.ncbi/entrez/summary"
+
 	"flag"
 	"io/ioutil"
 	check "launchpad.net/gocheck"
@@ -41,10 +42,10 @@ func (s *S) TestLimiter(c *check.C) {
 	c.Check(count < 10, check.Equals, true)
 }
 
-var net = flag.Bool("net", false, "Run tests involving network connections.")
+var net = flag.String("net", "", "Runs tests involving network connections if given an email address.")
 
 func (s *S) TestDoInfo(c *check.C) {
-	if !*net {
+	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
 	i, err := DoInfo("", "biogo.entrez-testsuite", "")
@@ -68,7 +69,7 @@ func (s *S) TestDoInfo(c *check.C) {
 }
 
 func (s *S) TestDoSearch(c *check.C) {
-	if !*net {
+	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
 	sr, err := DoSearch("nuccore", "hox", nil, nil, "biogo.entrez-testsuite", "")
@@ -77,7 +78,7 @@ func (s *S) TestDoSearch(c *check.C) {
 }
 
 func (s *S) TestDoPost(c *check.C) {
-	if !*net {
+	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
 	p, err := DoPost("protein", "biogo.entrez-testsuite", "", nil, 15718680, 157427902, 119703751)
@@ -90,7 +91,7 @@ func (s *S) TestDoPost(c *check.C) {
 }
 
 func (s *S) TestFetch(c *check.C) {
-	if !*net {
+	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
 	for i, t := range []struct { //db, tool, email string, id ...int
@@ -150,7 +151,7 @@ func (s *S) TestFetch(c *check.C) {
 }
 
 func (s *S) TestDoSummary(c *check.C) {
-	if !*net {
+	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
 	sum, err := DoSummary("protein", nil, "biogo.entrez-testsuite", "", nil, 15718680, 157427902, 119703751)
@@ -214,7 +215,7 @@ func (s *S) TestDoSummary(c *check.C) {
 }
 
 func (s *S) TestDoLink(c *check.C) {
-	if !*net {
+	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
 	for i, t := range []struct {
@@ -300,7 +301,7 @@ func (s *S) TestDoLink(c *check.C) {
 }
 
 func (s *S) TestDoGlobal(c *check.C) {
-	if !*net {
+	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
 	g, err := DoGlobal("toolkit", "biogo.entrez-testsuite", "")
@@ -309,7 +310,7 @@ func (s *S) TestDoGlobal(c *check.C) {
 }
 
 func (s *S) TestDoSpell(c *check.C) {
-	if !*net {
+	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
 	sp, err := DoSpell("", "asthmaa OR alergies", "biogo.entrez-testsuite", "")

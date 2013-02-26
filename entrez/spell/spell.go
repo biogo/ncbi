@@ -1,4 +1,4 @@
-// Copyright ©2013 The bíogo.entrez Authors. All rights reserved.
+// Copyright ©2013 The bíogo.ncbi Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -6,7 +6,7 @@ package spell
 
 import (
 	"bytes"
-	"code.google.com/p/biogo.entrez/xml"
+	"code.google.com/p/biogo.ncbi/xml"
 	"io"
 )
 

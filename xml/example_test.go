@@ -5,7 +5,7 @@
 package xml_test
 
 import (
-	"code.google.com/p/biogo.entrez/xml"
+	"code.google.com/p/biogo.ncbi/xml"
 	"fmt"
 	"os"
 )

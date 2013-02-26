@@ -1,11 +1,12 @@
-// Copyright ©2013 The bíogo.entrez Authors. All rights reserved.
+// Copyright ©2013 The bíogo.ncbi Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package entrez
+package info
 
 import (
-	"code.google.com/p/biogo.entrez/info"
+	"code.google.com/p/biogo.ncbi/xml"
+	"errors"
 )
 
 // <!--
@@ -67,9 +68,52 @@ import (
 //
 // <!ELEMENT	eInfoResult	(DbList|DbInfo|ERROR)>
 
-// An Info holds the deserialised results of an EInfo request.
-type Info struct {
-	DbList []string     `xml:"DbList>DbName"`
-	DbInfo *info.DbInfo `xml:"DbInfo"`
-	Err    string       `xml:"ERROR"`
+type Field struct {
+	Name          string `xml:"Name"`
+	FullName      string `xml:"FullName"`
+	Description   string `xml:"Description"`
+	TermCount     int    `xml:"TermCount"`
+	IsDate        Bool   `xml:"IsData"`
+	IsNumerical   Bool   `xml:"IsNumerical"`
+	SingleToken   Bool   `xml:"SingleToken"`
+	Hierarchy     Bool   `xml:"Hierarchy"`
+	IsHidden      Bool   `xml:"IsHidden"`
+	IsRangeable   Bool   `xml:"IsRangable"`
+	IsTruncatable Bool   `xml:"IsTruncatable"`
+}
+
+type DbLink struct {
+	Name        string `xml:"Name"`
+	FullName    string `xml:"FullName"`
+	Description string `xml:"Description"`
+	DbTo        string `xml:"DbTo"`
+}
+
+type DbInfo struct {
+	DbName      string   `xml:"DbName"`
+	MenuName    string   `xml:"MenuName"`
+	Description string   `xml:"Description"`
+	Count       int      `xml:"Count"`
+	LastUpdate  string   `xml:"LastUpdate"`
+	FieldList   []Field  `xml:"FieldList>Field"`
+	LinkList    []DbLink `xml:"LinkList>Link"`
+}
+
+type Bool bool
+
+func (t *Bool) UnmarshalXML(b []byte) error {
+	var c string
+	err := xml.Unmarshal(b, &c)
+	if err != nil {
+		return err
+	}
+	switch c {
+	case "Y":
+		*t = true
+	case "N":
+		*t = false
+	default:
+		return errors.New("entrez: bad boolean")
+	}
+	return nil
 }

@@ -1,8 +1,12 @@
-// Copyright ©2013 The bíogo.entrez Authors. All rights reserved.
+// Copyright ©2013 The bíogo.ncbi Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package summary
+package entrez
+
+import (
+	"code.google.com/p/biogo.ncbi/entrez/summary"
+)
 
 // <!--
 // This is the Current DTD for Entrez eSummary version 2
@@ -25,13 +29,9 @@ package summary
 //
 // <!ELEMENT eSummaryResult    (DocSum|ERROR)+>
 
-type Item struct {
-	Value string `xml:",chardata"`
-	Name  string `xml:",attr"`
-	Type  string `xml:",attr"`
-}
-
-type Document struct {
-	Id    int    `xml:"Id"`
-	Items []Item `xml:"Item"`
+// A Summary holds the deserialised results of an ESummary request.
+type Summary struct {
+	Database  string
+	Documents []summary.Document `xml:"DocSum"`
+	Err       []string           `xml:"ERROR"`
 }

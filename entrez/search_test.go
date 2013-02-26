@@ -1,13 +1,13 @@
-// Copyright ©2013 The bíogo.entrez Authors. All rights reserved.
+// Copyright ©2013 The bíogo.ncbi Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package entrez
 
 import (
-	. "code.google.com/p/biogo.entrez/search"
+	. "code.google.com/p/biogo.ncbi/entrez/search"
 
-	"code.google.com/p/biogo.entrez/xml"
+	"code.google.com/p/biogo.ncbi/xml"
 	check "launchpad.net/gocheck"
 	"strings"
 )

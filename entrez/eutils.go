@@ -1,4 +1,4 @@
-// Copyright ©2013 The bíogo.entrez Authors. All rights reserved.
+// Copyright ©2013 The bíogo.ncbi Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -28,15 +28,14 @@
 package entrez
 
 import (
-	"code.google.com/p/biogo.entrez/xml"
+	"code.google.com/p/biogo.ncbi"
+
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"reflect"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -49,31 +48,7 @@ const defaultDb = "pubmed"
 // of http.Requests provided by NewRequest without overrunning the Entrez request limit.
 // Changing the the value of Limit to allow more frequent requests may result in IP blocking
 // by the Entrez servers.
-var Limit = NewLimiter(time.Second / 3)
-
-// Limiter implements a thread-safe event frequency limit.
-type Limiter struct {
-	m     sync.Mutex
-	delay time.Duration
-	next  time.Time
-}
-
-// NewLimiter returns a Limiter that will wait for the specified duration between Wait calls.
-func NewLimiter(d time.Duration) *Limiter {
-	return &Limiter{delay: d}
-}
-
-// Wait blocks until the Limiter's specified duration has passed since the last Wait call.
-func (d *Limiter) Wait() {
-	d.m.Lock()
-	defer d.m.Unlock()
-	now := time.Now()
-	if d.next.After(now) {
-		time.Sleep(d.next.Sub(now))
-		now = time.Now()
-	}
-	d.next = now.Add(d.delay)
-}
+var Limit = ncbi.NewLimiter(time.Second / 3)
 
 var (
 	ErrNoIdProvided = errors.New("entrez: no id provided")
@@ -106,12 +81,6 @@ type History struct {
 	WebEnv   string `xml:"WebEnv"`
 }
 
-// Util implements low level request generator for interaction with the Entrez Programming Utilities.
-// It is the clients responsibility to provide appropriate program parameters and deserialise the returned
-// data using the appropriate Unmarshal method. The functions provided by each of the utility programs
-// is listed below.
-type Util string
-
 const (
 	// Base is the base URL for the NCBI Entrez Programming Utilities (E-utilities) API.
 	Base = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
@@ -119,26 +88,26 @@ const (
 	//  * Provides a list of the names of all valid Entrez databases.
 	//  * Provides statistics for a single database, including lists of indexing fields and available
 	//    link names.
-	InfoUri Util = Util(Base + "einfo.fcgi")
+	InfoUri = ncbi.Util(Base + "einfo.fcgi")
 
 	//  * Provides a list of UIDs matching a text query.
 	//  * Posts the results of a search on the History server.
 	//  * Downloads all UIDs from a dataset stored on the History server.
 	//  * Combines or limits UID datasets stored on the History server.
 	//  * Sorts sets of UIDs.
-	SearchUri Util = Util(Base + "esearch.fcgi")
+	SearchUri = ncbi.Util(Base + "esearch.fcgi")
 
 	//  * Uploads a list of UIDs to the Entrez History server.
 	//  * Appends a list of UIDs to an existing set of UID lists attached to a Web Environment.
-	PostUri Util = Util(Base + "epost.fcgi")
+	PostUri = ncbi.Util(Base + "epost.fcgi")
 
 	//  * Returns document summaries (DocSums) for a list of input UIDs.
 	//  * Returns DocSums for a set of UIDs stored on the Entrez History server.
-	SummaryUri Util = Util(Base + "esummary.fcgi")
+	SummaryUri = ncbi.Util(Base + "esummary.fcgi")
 
 	//  * Returns formatted data records for a list of input UIDs.
 	//  * Returns formatted data records for a set of UIDs stored on the Entrez History server.
-	FetchUri Util = Util(Base + "efetch.fcgi")
+	FetchUri = ncbi.Util(Base + "efetch.fcgi")
 
 	//  * Returns UIDs linked to an input set of UIDs in either the same or a different Entrez database.
 	//  * Returns UIDs linked to other UIDs in the same Entrez database that match an Entrez query.
@@ -147,78 +116,21 @@ const (
 	//  * Lists LinkOut URLs and attributes for a set of UIDs.
 	//  * Lists hyperlinks to primary LinkOut providers for a set of UIDs.
 	//  * Creates hyperlinks to the primary LinkOut provider for a single UID.
-	LinkUri Util = Util(Base + "elink.fcgi")
+	LinkUri = ncbi.Util(Base + "elink.fcgi")
 
 	//  * Provides the number of records retrieved in all Entrez databases by a single text query.
-	GlobalUri Util = Util(Base + "egquery.fcgi")
+	GlobalUri = ncbi.Util(Base + "egquery.fcgi")
 
 	//  * Provides spelling suggestions for terms within a single text query in a given database.
-	SpellUri Util = Util(Base + "espell.fcgi")
+	SpellUri = ncbi.Util(Base + "espell.fcgi")
 )
-
-// NewRequest returns an http.Request for the utility, ut using the given method. Parameters to be
-// sent to the utility program should be places in db, v, tool and email. NewRequest is subject to
-// a limit that prevents requests being sent more frequently than 3 per second. This is easy to
-// circumvent, this may result in IP blocking by the Entrez servers, so please do not do this.
-func (ut Util) NewRequest(method, db string, v url.Values, tool, email string) (*http.Request, error) {
-	if db != "" {
-		v["db"] = []string{db}
-	}
-	u, err := prepare(ut, v, tool, email)
-	if err != nil {
-		return nil, err
-	}
-	req, err := http.NewRequest(method, u.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-	Limit.Wait()
-	return req, nil
-}
-
-// prepare contructs a URL with the base provided by ut and the parameters provided by v, tool and email.
-func prepare(ut Util, v url.Values, tool, email string) (*url.URL, error) {
-	u, err := url.Parse(string(ut))
-	if err != nil {
-		return nil, err
-	}
-	if tool != "" {
-		v["tool"] = []string{tool}
-	}
-	if email != "" {
-		v["email"] = []string{email}
-	}
-	u.RawQuery = v.Encode()
-	return u, nil
-}
 
 type unmarshaler interface {
 	Unmarshal(io.Reader) error
 }
 
-// GetMethodLimit is the maximum length of a constructed URL that will be retrieved by
-// the high level API functions using the GET method.
-var GetMethodLimit = 2048
-
-// get performs a GET or POST method call to the URI in ut, passing the parameters in v,
-// tool and email. The returned stream is unmarshaled into d. The decision on which
-// method to use is based on the length of the constructed URL the value of GetMethodLimit.
-func get(ut Util, v url.Values, tool, email string, d interface{}) error {
-	u, err := prepare(ut, v, tool, email)
-	var resp *http.Response
-	Limit.Wait()
-	if len(ut)+len(u.RawQuery) < GetMethodLimit {
-		resp, err = http.Get(u.String())
-	} else {
-		buf := strings.NewReader(u.RawQuery)
-		u.RawQuery = ""
-		resp, err = http.Post(u.String(), "", buf)
-	}
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return xml.NewDecoder(resp.Body).Decode(d)
+func get(ut ncbi.Util, v url.Values, tool, email string, d interface{}) error {
+	return ut.GetXML(v, tool, email, Limit, d)
 }
 
 // fillParams adds elements to v based on the "param" tag of p if the value is not the
@@ -330,7 +242,7 @@ func DoPost(db, tool, email string, h *History, id ...int) (*Post, error) {
 }
 
 // Fetch returns an io.ReadCloser that reads from the stream returned by an EFetch of the
-// the given id list or history.
+// the given id list or history. It is the responsibility of the caller to close this.
 func Fetch(db string, p *Parameters, tool, email string, h *History, id ...int) (io.ReadCloser, error) {
 	if len(id) == 0 && h == nil {
 		return nil, ErrNoIdProvided
@@ -350,16 +262,11 @@ func Fetch(db string, p *Parameters, tool, email string, h *History, id ...int) 
 	} else if len(id) == 0 {
 		return nil, ErrNoIdProvided
 	}
-	u, err := prepare(FetchUri, v, tool, email)
+	resp, err := FetchUri.Get(v, tool, email, Limit)
 	if err != nil {
 		return nil, err
 	}
-	Limit.Wait()
-	resp, err := http.Get(u.String())
-	if err != nil {
-		return nil, err
-	}
-	return resp.Body, nil
+	return resp, nil
 }
 
 // DoSummary returns a Summary filled with the response from an ESummary query on the specified

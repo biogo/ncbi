@@ -1,11 +1,15 @@
-// Copyright ©2013 The bíogo.entrez Authors. All rights reserved.
+// Copyright ©2013 The bíogo.ncbi Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package entrez
+package search
 
 import (
-	"code.google.com/p/biogo.entrez/search"
+	"bytes"
+	"code.google.com/p/biogo.ncbi/xml"
+	"errors"
+	"io"
+	"strconv"
 )
 
 // <!--
@@ -72,34 +76,111 @@ import (
 // 				WarningList?
 // 				)>
 
-// A Search holds the deserialised results of an ESearch request.
-type Search struct {
-	Database         string
-	Count            int                     `xml:"Count"`
-	RetMax           int                     `xml:"RetMax"`
-	RetStart         int                     `xml:"RetStart"`
-	QueryKey         *int                    `xml:"QueryKey"`
-	WebEnv           *string                 `xml:"WebEnv"`
-	IdList           []int                   `xml:"IdList>Id"`
-	Translations     []search.Translation    `xml:"TranslationSet>Translation"`
-	TranslationStack search.TranslationStack `xml:"TranslationStack"`
-	QueryTranslation *string                 `xml:"QueryTranslation"`
-	Err              *string                 `xml:"ERROR"`
-	NotFound         *search.NotFound        `xml:"ErrorList"`
-	Warnings         *search.Warnings        `xml:"WarningList"`
+type TranslationStack []Node
+
+func (ts *TranslationStack) UnmarshalXML(b []byte) error {
+	*ts = (*ts)[:0]
+	dec := xml.NewDecoder(bytes.NewReader(b))
+	var (
+		field string
+		tm    Term
+	)
+	for {
+		tok, err := dec.Token()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+
+		switch tok := tok.(type) {
+		case xml.StartElement:
+			field = tok.Name.Local
+		case xml.CharData:
+			if field == "" {
+				continue
+			}
+			switch field {
+			case "OP":
+				*ts = append(*ts, Op(string(tok)))
+			case "Term":
+				tm.Term = string(tok)
+			case "Field":
+				tm.Field = string(tok)
+			case "Count":
+				c, err := strconv.Atoi(string(tok))
+				if err != nil {
+					return err
+				}
+				tm.Count = c
+			case "Explode":
+				if len(tok) != 1 {
+					return errors.New("entrez: bad boolean")
+				}
+				switch tok[0] {
+				case 'Y', 'N':
+					tm.Explode = tok[0] == 'Y'
+				default:
+					return errors.New("entrez: bad boolean")
+				}
+			}
+		case xml.EndElement:
+			if tok.Name.Local == "TermSet" {
+				*ts, tm = append(*ts, tm), Term{}
+			}
+			field = ""
+		}
+	}
+
+	panic("cannot reach")
 }
 
-// History returns a History containing the Search's query key and web environment.
-func (s *Search) History() *History {
-	var h *History
-	if s.QueryKey != nil {
-		h = &History{QueryKey: *s.QueryKey}
+// A Node is an element of the ESearch translation stack.
+type Node interface {
+	Consume([]Node) Node
+}
+
+type Op string
+
+func (o Op) Consume(s []Node) Node {
+	// TODO Flesh out Op to be a struct:
+	//
+	//  type Op struct {
+	//  	Operation string
+	//  	Operands  []Node
+	//  }
+	//
+	// Then we can build an AST for the search. To do this we need to understand what
+	// RANGE and GROUP actually do - this is not specified.
+	switch o {
+	case "AND", "OR", "NOT", "RANGE", "GROUP":
+		return o
 	}
-	if s.WebEnv != nil {
-		if h == nil {
-			h = &History{}
-		}
-		h.WebEnv = *s.WebEnv
-	}
-	return h
+	return nil
+}
+
+type Term struct {
+	Term    string
+	Field   string
+	Count   int
+	Explode bool
+}
+
+func (tm Term) Consume(_ []Node) Node { return tm }
+
+type Translation struct {
+	From string
+	To   string
+}
+
+type NotFound struct {
+	Phrase []string `xml:"PhraseNotFound"`
+	Field  []string `xml:"FieldNotFound"`
+}
+
+type Warnings struct {
+	Ignored  []string `xml:"PhraseIgnored"`
+	NotFound []string `xml:"QuotedPhraseNotFound"`
+	Message  []string `xml:"OutputMessage"`
 }
