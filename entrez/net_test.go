@@ -16,6 +16,8 @@ import (
 	"time"
 )
 
+const tool = "biogo.ncbi/entrez-testsuite"
+
 // Helpers
 func intPtr(i int) *int          { return &i }
 func boolPtr(b bool) *bool       { return &b }
@@ -48,7 +50,7 @@ func (s *S) TestDoInfo(c *check.C) {
 	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
-	i, err := DoInfo("", "biogo.entrez-testsuite", "")
+	i, err := DoInfo("", tool, *net)
 	c.Check(err, check.Equals, nil)
 	c.Check(i, check.DeepEquals, &Info{
 		DbList: []string{
@@ -72,7 +74,7 @@ func (s *S) TestDoSearch(c *check.C) {
 	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
-	sr, err := DoSearch("nuccore", "hox", nil, nil, "biogo.entrez-testsuite", "")
+	sr, err := DoSearch("nuccore", "hox", nil, nil, tool, *net)
 	c.Check(err, check.Equals, nil)
 	c.Check(sr, check.Not(check.Equals), nil)
 }
@@ -81,7 +83,7 @@ func (s *S) TestDoPost(c *check.C) {
 	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
-	p, err := DoPost("protein", "biogo.entrez-testsuite", "", nil, 15718680, 157427902, 119703751)
+	p, err := DoPost("protein", tool, *net, nil, 15718680, 157427902, 119703751)
 	c.Check(err, check.Equals, nil)
 	c.Assert(p.History, check.NotNil)
 	c.Check(p.QueryKey, check.DeepEquals, 1)
@@ -96,13 +98,11 @@ func (s *S) TestFetch(c *check.C) {
 		db      string
 		rettype string
 		retmode string
-		tool    string
-		email   string
 		ids     []int
 		expect  string
 	}{
 		{
-			"protein", "fasta", "text", "biogo.entrez-testsuite", "", []int{15718680, 157427902, 119703751},
+			"protein", "fasta", "text", []int{15718680, 157427902, 119703751},
 			"" +
 				">gi|15718680|ref|NP_005537.3| tyrosine-protein kinase ITK/TSK [Homo sapiens]\n" +
 				"MNNFILLEEQLIKKSQQKRRTSPSNFKVRFFVLTKASLAYFEDRHGKKRTLKGSIELSRIKCVEIVKSDI\n" +
@@ -139,7 +139,7 @@ func (s *S) TestFetch(c *check.C) {
 				"\n",
 		},
 	} {
-		rc, err := Fetch(t.db, &Parameters{RetMode: t.retmode, RetType: t.rettype}, t.tool, t.email, nil, t.ids...)
+		rc, err := Fetch(t.db, &Parameters{RetMode: t.retmode, RetType: t.rettype}, tool, *net, nil, t.ids...)
 		c.Assert(err, check.Equals, nil, check.Commentf("Test %d", i))
 		b, err := ioutil.ReadAll(rc)
 		rc.Close()
@@ -152,7 +152,7 @@ func (s *S) TestDoSummary(c *check.C) {
 	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
-	sum, err := DoSummary("protein", nil, "biogo.entrez-testsuite", "", nil, 15718680, 157427902, 119703751)
+	sum, err := DoSummary("protein", nil, tool, *net, nil, 15718680, 157427902, 119703751)
 	c.Check(err, check.Equals, nil)
 	c.Check(sum, check.DeepEquals, &Summary{
 		Database: "protein",
@@ -222,14 +222,12 @@ func (s *S) TestDoLink(c *check.C) {
 		cmd    string
 		query  string
 		params *Parameters
-		tool   string
-		email  string
 		hist   *History
 		ids    [][]int
 		expect *Link
 	}{
 		{
-			"protein", "gene", "", "", nil, "biogo.entrez-testsuite", "", nil, [][]int{{15718680, 157427902}},
+			"protein", "gene", "", "", nil, nil, [][]int{{15718680, 157427902}},
 			&Link{
 				LinkSets: []link.LinkSet{
 					{
@@ -254,7 +252,7 @@ func (s *S) TestDoLink(c *check.C) {
 			},
 		},
 		{
-			"protein", "gene", "", "", nil, "biogo.entrez-testsuite", "", nil, [][]int{{15718680}, {157427902}},
+			"protein", "gene", "", "", nil, nil, [][]int{{15718680}, {157427902}},
 			&Link{
 				LinkSets: []link.LinkSet{
 					{
@@ -292,7 +290,7 @@ func (s *S) TestDoLink(c *check.C) {
 			},
 		},
 	} {
-		l, err := DoLink(t.db, t.fromDb, t.cmd, t.query, t.params, t.tool, t.email, t.hist, t.ids...)
+		l, err := DoLink(t.db, t.fromDb, t.cmd, t.query, t.params, tool, *net, t.hist, t.ids...)
 		c.Check(err, check.Equals, nil, check.Commentf("Test %d", i))
 		c.Check(l, check.DeepEquals, t.expect, check.Commentf("Test %d", i))
 	}
@@ -302,7 +300,7 @@ func (s *S) TestDoGlobal(c *check.C) {
 	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
-	g, err := DoGlobal("toolkit", "biogo.entrez-testsuite", "")
+	g, err := DoGlobal("toolkit", tool, *net)
 	c.Check(err, check.Equals, nil)
 	c.Check(g, check.Not(check.Equals), nil)
 }
@@ -311,7 +309,7 @@ func (s *S) TestDoSpell(c *check.C) {
 	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
-	sp, err := DoSpell("", "asthmaa OR alergies", "biogo.entrez-testsuite", "")
+	sp, err := DoSpell("", "asthmaa OR alergies", tool, *net)
 	c.Check(err, check.Equals, nil)
 	c.Check(sp, check.DeepEquals, &Spell{
 		Database:  "pubmed",
