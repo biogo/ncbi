@@ -21,23 +21,7 @@ package entrez
 
 // A Post holds the deserialised results of an EPost request.
 type Post struct {
-	InvalidIds []int   `xml:"InvalidIdList>Id"`
-	QueryKey   *int    `xml:"QueryKey"`
-	WebEnv     *string `xml:"WebEnv"`
-	Err        *string `xml:"ERROR"`
-}
-
-// History returns a History containing the Post's query key and web environment.
-func (p *Post) History() *History {
-	var h *History
-	if p.QueryKey != nil {
-		h = &History{QueryKey: *p.QueryKey}
-	}
-	if p.WebEnv != nil {
-		if h == nil {
-			h = &History{}
-		}
-		h.WebEnv = *p.WebEnv
-	}
-	return h
+	InvalidIds []int `xml:"InvalidIdList>Id"`
+	*History
+	Err *string `xml:"ERROR"`
 }

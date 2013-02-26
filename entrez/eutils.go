@@ -185,9 +185,10 @@ func DoInfo(db, tool, email string) (*Info, error) {
 }
 
 // DoSearch returns a Search filled with data obtained from an ESearch query of the
-// specified db. If h is not nil the search will use the Entrez history server. If
-// h.WebEnv is not empty, it will be passed to ESearch as the web environment and
-// if h.QueryKey is not zero, it will be passed as the query key.
+// specified db. If h is not nil the search will use the Entrez history server and will
+// be filled with the history results of the ESearch query. If h.WebEnv is not empty,
+// it will be passed to ESearch as the web environment and if h.QueryKey is not zero,
+// it will be passed as the query key.
 func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (*Search, error) {
 	v := url.Values{}
 	if db != "" {
@@ -199,7 +200,7 @@ func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (
 		v["term"] = []string{query}
 	}
 	fillParams(p, v)
-	s := Search{Database: db}
+	s := Search{Database: db, History: h}
 	if h != nil {
 		v["usehistory"] = []string{"y"}
 		if h.WebEnv != "" {
@@ -217,7 +218,8 @@ func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (
 }
 
 // DoPost returns a Post filled with the response from an EPost action on the specified
-// id list. If h is not nil, its WebEnv field is passed as the E-utilies webenv parameter.
+// id list. If h is not nil, its WebEnv field is passed as the E-utilies webenv parameter,
+// and if h.QueryKey is zero, h will be filled with the history result from the EPost request.
 func DoPost(db, tool, email string, h *History, id ...int) (*Post, error) {
 	if len(id) == 0 {
 		return nil, ErrNoIdProvided
@@ -230,10 +232,12 @@ func DoPost(db, tool, email string, h *History, id ...int) (*Post, error) {
 	if db != "" {
 		v["db"] = []string{db}
 	}
+	p := Post{}
 	if h != nil && h.WebEnv != "" {
 		v["webenv"] = []string{h.WebEnv}
+	} else if h != nil && h.QueryKey == 0 {
+		p.History = h
 	}
-	p := Post{}
 	err := get(PostUri, v, tool, email, &p)
 	if err != nil {
 		return nil, err

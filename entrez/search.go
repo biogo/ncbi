@@ -74,12 +74,11 @@ import (
 
 // A Search holds the deserialised results of an ESearch request.
 type Search struct {
-	Database         string
-	Count            int                     `xml:"Count"`
-	RetMax           int                     `xml:"RetMax"`
-	RetStart         int                     `xml:"RetStart"`
-	QueryKey         *int                    `xml:"QueryKey"`
-	WebEnv           *string                 `xml:"WebEnv"`
+	Database string
+	Count    int `xml:"Count"`
+	RetMax   int `xml:"RetMax"`
+	RetStart int `xml:"RetStart"`
+	*History
 	IdList           []int                   `xml:"IdList>Id"`
 	Translations     []search.Translation    `xml:"TranslationSet>Translation"`
 	TranslationStack search.TranslationStack `xml:"TranslationStack"`
@@ -87,19 +86,4 @@ type Search struct {
 	Err              *string                 `xml:"ERROR"`
 	NotFound         *search.NotFound        `xml:"ErrorList"`
 	Warnings         *search.Warnings        `xml:"WarningList"`
-}
-
-// History returns a History containing the Search's query key and web environment.
-func (s *Search) History() *History {
-	var h *History
-	if s.QueryKey != nil {
-		h = &History{QueryKey: *s.QueryKey}
-	}
-	if s.WebEnv != nil {
-		if h == nil {
-			h = &History{}
-		}
-		h.WebEnv = *s.WebEnv
-	}
-	return h
 }

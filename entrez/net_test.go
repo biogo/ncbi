@@ -83,11 +83,9 @@ func (s *S) TestDoPost(c *check.C) {
 	}
 	p, err := DoPost("protein", "biogo.entrez-testsuite", "", nil, 15718680, 157427902, 119703751)
 	c.Check(err, check.Equals, nil)
-	c.Assert(p.QueryKey, check.NotNil)
-	c.Assert(p.WebEnv, check.NotNil)
-	c.Check(p.History(), check.NotNil)
-	c.Check(*p.QueryKey, check.DeepEquals, 1)
-	c.Check(*p.WebEnv, check.Matches, "NCID_[0-9]+_.*")
+	c.Assert(p.History, check.NotNil)
+	c.Check(p.QueryKey, check.DeepEquals, 1)
+	c.Check(p.WebEnv, check.Matches, "NCID_[0-9]+_.*")
 }
 
 func (s *S) TestFetch(c *check.C) {
