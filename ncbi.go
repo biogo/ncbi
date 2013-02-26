@@ -2,12 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// All documentation in this package should agree with documents in the
-// 'Entrez Programming Utilities Help': http://www.ncbi.nlm.nih.gov/books/NBK25501/
-// In case of disagreement that document is correct unless otherwise specified.
-
-// Please people, let's start using JSON for these kinds of things.
-
 // Package ncbi provides support for interaction with the NCBI services, Entrez and Blast.
 //
 // Please check the relevant usage policy when using these services. Note that the Blast
