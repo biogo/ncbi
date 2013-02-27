@@ -118,6 +118,7 @@ type WebParameters struct {
 	Database                   string   `param:"DATABASE"`
 	DbGeneticCode              []int    `param:"DB_GENETIC_CODE"`
 	Descriptions               int      `param:"DESCRIPTIONS"`
+	DocType                    string   `param:"DOC_TYPE"`
 	EndPoints                  bool     `param:"ENDPOINTS"`
 	EntrezLinksNewWindow       bool     `param:"ENTREZ_LINKS_NEW_WINDOW"`
 	EntrezQuery                string   `param:"ENTREZ_QUERY"`
@@ -140,6 +141,7 @@ type WebParameters struct {
 	NuclPenalty                int      `param:"NUCL_PENALTY"`
 	NuclReward                 int      `param:"NUCL_REWARD"`
 	OtherAdvanced              string   `param:"OTHER_ADVANCED"`
+	PageType                   string   `param:"PAGE_TYPE"`
 	PercIdent                  int      `param:"PERC_IDENT"`
 	PhiPattern                 string   `param:"PHI_PATTERN"`
 	Program                    string   `param:"PROGRAM"`
