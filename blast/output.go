@@ -383,7 +383,7 @@ type Hsp struct {
 	HspGaps        *int    `xml:"Hsp_gaps"`         // Hsp_gaps?
 	AlignLen       *int    `xml:"Hsp_align-len"`    // Hsp_align-len?
 	Density        *int    `xml:"Hsp_density"`      // Hsp_density?
-	QuerySeq       *string `xml:"Hsp_qseq"`         // Hsp_qseq
-	SubjectSeq     *string `xml:"Hsp_hseq"`         // Hsp_hseq
-	FormatMidline  *string `xml:"Hsp_midline"`      // Hsp_midline?
+	QuerySeq       []byte  `xml:"Hsp_qseq"`         // Hsp_qseq
+	SubjectSeq     []byte  `xml:"Hsp_hseq"`         // Hsp_hseq
+	FormatMidline  []byte  `xml:"Hsp_midline"`      // Hsp_midline?
 }
