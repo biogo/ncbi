@@ -6,13 +6,15 @@ package blast
 
 import (
 	"flag"
-	"github.com/davecgh/go-spew/spew"
 	check "launchpad.net/gocheck"
 	"testing"
 	"time"
 )
 
-const tool = "biogo.ncbi/blast-testsuite"
+const (
+	tool    = "biogo.ncbi/blast-testsuite"
+	retries = 3
+)
 
 // Helpers
 func intPtr(i int) *int           { return &i }
@@ -120,7 +122,13 @@ func (s *S) TestBlast(c *check.C) {
 		r, err := Put(t.query, t.putParams, tool, *net)
 		c.Assert(err, check.Equals, nil, check.Commentf("Test %d", i))
 		<-r.Ready()
-		o, err := r.GetOutput(t.getParams, tool, *net)
+		var o *Output
+		for k := 0; k < retries; k++ {
+			o, err = r.GetOutput(t.getParams, tool, *net)
+			if err == nil {
+				break
+			}
+		}
 		c.Assert(err, check.Equals, nil, check.Commentf("Test %d", i))
 		c.Check(o.Program, check.Equals, t.expect.Program)
 		c.Check(o.Reference, check.Equals, t.expect.Reference)
@@ -130,6 +138,5 @@ func (s *S) TestBlast(c *check.C) {
 		c.Assert(len(o.Iterations) > 0, check.Equals, true)
 		c.Assert(len(o.Iterations[0].Hits) > 0, check.Equals, true)
 		c.Check(o.Iterations[0].Hits[0], check.DeepEquals, t.expect.Iterations[0].Hits[0])
-		spew.Dump(o)
 	}
 }
