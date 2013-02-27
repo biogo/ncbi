@@ -7,19 +7,19 @@
 // Package blast provides support for interaction with the NCBI BLAST service.
 //
 // Please see http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=DeveloperInfo
-// for the Blast service usage policy.
+// for the BLAST service usage policy.
 //
 // Required parameters are specified by name in the function call. Optional parameters are
 // passed via parameter struct values. See the 'QBlast URL API User's Guide' at
 // http://www.ncbi.nlm.nih.gov/BLAST/Doc/urlapi.html for explanation of the use of these
 // programs.
 //
-// The following two parameters should be included in all Blast requests.
+// The following two parameters should be included in all BLAST requests.
 //
-//  tool   Name of application making the Blast call. Its value must be a string with no
+//  tool   Name of application making the BLAST call. Its value must be a string with no
 //         internal spaces.
 //
-//  email  E-mail address of the Blast user. Its value must be a string with no internal
+//  email  E-mail address of the BLAST user. Its value must be a string with no internal
 //         spaces, and should be a valid e-mail address.
 package blast
 
@@ -40,11 +40,11 @@ var (
 	ErrMissingRid    = errors.New("blast: missing RID/RTOE field")
 )
 
-// Limit is a package level limit on requests that can be sent to the Entrez server. This
-// limit is mandated by chapter 2 of the E-utilities manual. Limit is exported to allow reuse
-// of http.Requests provided by NewRequest without overrunning the Entrez request limit.
+// Limit is a package level limit on requests that can be sent to the BLAST server. This
+// limit is mandated by the BLAST service usage policy. Limit is exported to allow reuse
+// of http.Requests provided by RequestWebReadCloser without overrunning the BLAST request limit.
 // Changing the the value of Limit to allow more frequent requests may result in IP blocking
-// by the Entrez servers.
+// by the BLAST servers.
 var Limit = ncbi.NewLimiter(3 * time.Second)
 
 const cmdParam = "CMD" // parameter CMD
@@ -246,8 +246,8 @@ func RequestWebReadCloser(page string, p *WebParameters, tool, email string) (io
 	return resp, nil
 }
 
-// Put submits a request for a Blast job to the NCBI Blast server and return the associated
-// Rid containing the rid for the request.
+// Put submits a request for a BLAST job to the NCBI BLAST server and returns the associated
+// Rid containing the RID for the request.
 func Put(query string, p *PutParameters, tool, email string) (*Rid, error) {
 	v := url.Values{}
 	if query != "" {
@@ -267,7 +267,8 @@ func Put(query string, p *PutParameters, tool, email string) (*Rid, error) {
 	return &rid, nil
 }
 
-// GetOutput returns an Output filled with data obtained from an Get request for a given rid.
+// GetOutput returns an Output filled with data obtained from an Get request for the request
+// corresponding to r.
 func (r *Rid) GetOutput(p *GetParameters, tool, email string) (*Output, error) {
 	v := url.Values{}
 	if r.rid != "" {
@@ -287,7 +288,7 @@ func (r *Rid) GetOutput(p *GetParameters, tool, email string) (*Output, error) {
 }
 
 // GetReadCloser returns an io.ReadCloser that reads from the stream returned by a Get request
-// for a given rid. It is the responsibility of the caller to close the returned stream.
+// corresponding to r. It is the responsibility of the caller to close the returned stream.
 func (r *Rid) GetReadCloser(p *GetParameters, tool, email string) (io.ReadCloser, error) {
 	v := url.Values{}
 	if r.rid != "" {
@@ -304,8 +305,7 @@ func (r *Rid) GetReadCloser(p *GetParameters, tool, email string) (io.ReadCloser
 	return resp, nil
 }
 
-// Delete deletes the the request and results corresponding to specified rid from the NCBI
-// Blast server.
+// Delete deletes the the request and results corresponding to r from the NCBI BLAST server.
 func (r *Rid) Delete(tool, email string) error {
 	v := url.Values{}
 	if r.rid != "" {
@@ -321,7 +321,7 @@ func (r *Rid) Delete(tool, email string) error {
 	return resp.Close()
 }
 
-// RequestInfo returns an Info with up-to-date information about NCBI Blast services.
+// RequestInfo returns an Info with up-to-date information about NCBI BLAST services.
 func RequestInfo(target string, tool, email string) (*Info, error) {
 	v := url.Values{}
 	if target != "" {
