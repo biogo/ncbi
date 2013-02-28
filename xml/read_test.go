@@ -5,7 +5,9 @@
 package xml
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"reflect"
 	"testing"
 	"time"
@@ -495,6 +497,48 @@ type structUnmar0 struct {
 	Item6 []string `xml:"Item6>Item7"`
 }
 
+type UnmarAttrStruct struct {
+	Value string
+	Attr1 string
+	Attr2 string
+}
+
+func (u *UnmarAttrStruct) UnmarshalXML(b []byte) error {
+	dec := NewDecoder(bytes.NewReader(b))
+	for {
+		tok, err := dec.Token()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+
+		switch tok := tok.(type) {
+		case StartElement:
+			for _, attr := range tok.Attr {
+				switch attr.Name.Local {
+				case "Attr1":
+					u.Attr1 = attr.Value
+				case "Attr2":
+					u.Attr2 = attr.Value
+				}
+			}
+		case CharData:
+			u.Value = string(tok)
+		}
+	}
+
+	panic("cannot reach")
+}
+
+type structAttrUnmar0 struct {
+	Item1 string `xml:"Item1"`
+	Item2 string
+	Item4 []string          `xml:">Item5"`
+	Item6 []UnmarAttrStruct `xml:"Item6>Item7"`
+}
+
 const unmarshalerTestData = `
 <Result>
 	<Item1>A</Item1>
@@ -507,8 +551,8 @@ const unmarshalerTestData = `
 			<Item5>E</Item5>
 	</Item4>
 	<Item6>
-			<Item7>F</Item7>
-			<Item7>G</Item7>
+			<Item7 Attr1="X">F</Item7>
+			<Item7 Attr2="Y">G</Item7>
 	</Item6>
 	<Item8>H</Item8>
 </Result>
@@ -585,14 +629,16 @@ var unmarshalerTests = []struct {
 		&bytesUnmar0{
 			Item1: "A", Item2: "B",
 			Item4: UnmarByteSlice([]byte("Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>")),
-			Item6: []string{"F", "G"}},
+			Item6: []string{"F", "G"},
+		},
 	},
 	{
 		&bytesUnmar1{},
 		&bytesUnmar1{
 			Item1: "A", Item2: "B",
 			Item4: UnmarByteSlice([]byte("Unmarshaled:<Item5>E</Item5>")),
-			Item6: []string{"F", "G"}},
+			Item6: []string{"F", "G"},
+		},
 	},
 	{
 		&structUnmar0{},
@@ -601,7 +647,19 @@ var unmarshalerTests = []struct {
 			Item4: UnmarByteStruct{
 				A: []byte("Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>"),
 			},
-			Item6: []string{"F", "G"}},
+			Item6: []string{"F", "G"},
+		},
+	},
+	{
+		&structAttrUnmar0{},
+		&structAttrUnmar0{
+			Item1: "A", Item2: "B",
+			Item4: []string{"D", "E"},
+			Item6: []UnmarAttrStruct{
+				{Value: "F", Attr1: "X"},
+				{Value: "G", Attr2: "Y"},
+			},
+		},
 	},
 }
 
