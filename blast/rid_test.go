@@ -1152,3 +1152,166 @@ QBlastInfoEnd
 		c.Check(int(d.Seconds()), check.Equals, int(t.wait.Seconds()), check.Commentf("Test: %d", i))
 	}
 }
+
+func (s *S) TestParseSearchInfo(c *check.C) {
+	for i, t := range []struct {
+		retval   string
+		status   string
+		haveHits bool
+		err      error
+	}{
+		{
+			`<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="jig" content="ncbitoggler"/>
+<meta name="ncbitoggler" content="animation:'none'"/>
+<title>NCBI Blast:</title>
+<script type="text/javascript" src="http://www.ncbi.nlm.nih.gov/core/jig/1.11/js/jig.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/main.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="css/blastRes.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="css/print.css" media="print" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" type="text/css" href="css/ie6_or_less.css" />
+<![endif]-->
+<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="js/results.js"></script>
+</head>
+
+<body id="type-a" class="noToggleCheck" >
+<div id="wrap">
+			<div id="header">
+		<div id="site-name"><a id="logolink" href="http://www.ncbi.nlm.nih.gov" title="NCBI Home Page"><img src="css/images/helix.gif" alt="NCBI Logo" title="Link to NCBI Home Page" /></a>BLAST <span id="trdm"> &reg;</span><h1 class="desc">Basic Local Alignment Search Tool</h1>
+		</div>
+		<div id="search">
+
+<div>
+<script language="JavaScript" type="text/javascript"><!--
+// --></script><table class="medium1" style="border:2px solid #336699;" cellpadding="2" cellspacing="0" id="myncbi_off"><tr><td
+bgcolor="#336699" align="left"><a href="http://www.ncbi.nlm.nih.gov/myncbi/?"><font color="#FFFFFF"><b>My NCBI</b></font></a></td><td
+bgcolor="#336699" align="right"><a href="http://www.ncbi.nlm.nih.gov/books/NBK3842/" title="My NCBI help"><img border="0"
+src="http://www.ncbi.nlm.nih.gov/corehtml/query/MyNCBI/myncbihelpicon.gif" alt="My NCBI help" /></a></td></tr><tr><td colspan="2" nowrap="nowrap"><a
+href="http://www.ncbi.nlm.nih.gov/account/?back_url=http%3A%2F%2Fwww%2Encbi%2Enlm%2Enih%2Egov%2Fblast%2FBlast%2Ecgi%3FCMD%3DGet%26FORMAT%5FOBJECT%3DSearchInfo%26OLD%5FBLAST%3Dfalse%26RID%3DJXM8KY9G01R%26email%3Ddan%2Ekortschak%2540adelaide%2Eedu%2Eau%26tool%3Dbiogo%2Encbi%252Fblast%2Dtestsuite" title="Click to sign in"
+onclick="MyNCBI_auto_submit('http://www.ncbi.nlm.nih.gov/account/?back_url=http%3A%2F%2Fwww%2Encbi%2Enlm%2Enih%2Egov%2Fblast%2FBlast%2Ecgi%3FCMD%3DGet%26FORMAT%5FOBJECT%3DSearchInfo%26OLD%5FBLAST%3Dfalse%26RID%3DJXM8KY9G01R%26email%3Ddan%2Ekortschak%2540adelaide%2Eedu%2Eau%26tool%3Dbiogo%2Encbi%252Fblast%2Dtestsuite');return false;">[Sign In]</a> <a
+href="http://www.ncbi.nlm.nih.gov/account/register/?back_url=http%3A%2F%2Fwww%2Encbi%2Enlm%2Enih%2Egov%2Fblast%2FBlast%2Ecgi%3FCMD%3DGet%26FORMAT%5FOBJECT%3DSearchInfo%26OLD%5FBLAST%3Dfalse%26RID%3DJXM8KY9G01R%26email%3Ddan%2Ekortschak%2540adelaide%2Eedu%2Eau%26tool%3Dbiogo%2Encbi%252Fblast%2Dtestsuite" title="Click to register for an account"
+onclick="MyNCBI_auto_submit('http://www.ncbi.nlm.nih.gov/account/register/?back_url=http%3A%2F%2Fwww%2Encbi%2Enlm%2Enih%2Egov%2Fblast%2FBlast%2Ecgi%3FCMD%3DGet%26FORMAT%5FOBJECT%3DSearchInfo%26OLD%5FBLAST%3Dfalse%26RID%3DJXM8KY9G01R%26email%3Ddan%2Ekortschak%2540adelaide%2Eedu%2Eau%26tool%3Dbiogo%2Encbi%252Fblast%2Dtestsuite');return false;">[Register]</a></td></tr></table></div>
+		</div>
+		<a class="skp" href="#content-wrap">Jump to Page Content</a>
+		<ul id="nav">
+                <li  class="first "><a href="Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastHome" title="BLAST Home">Home</a></li>
+                <li  class="recent "><a href="Blast.cgi?CMD=GetSaved&amp;RECENT_RESULTS=on" title="Unexpired BLAST jobs">Recent Results</a></li>
+                <li  class="saved "><a href="Blast.cgi?CMD=GetSaved" title="Saved sets of BLAST search parameters">Saved Strategies</a></li>
+                <li  class= "last documentation "> <a href="Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs" title="BLAST documentation">Help</a></li>
+                </ul>
+    </div>
+
+        <div id="content-wrap">
+
+                <div id="breadcrumb" class="inlineDiv">
+                   <a href="http://www.ncbi.nlm.nih.gov/">NCBI</a>/
+                   <a href="Blast.cgi?CMD=Web&PAGE_TYPE=BlastHome">BLAST</a>/
+                   <a href="Blast.cgi?PAGE=Nucleotides&PROGRAM=blastn&BLAST_PROGRAMS=megaBlast&PAGE_TYPE=BlastSearch&SHOW_DEFAULTS=on&BLAST_SPEC=">blastn suite</a>/
+                   <strong>Formatting Results - JXM8KY9G01R</strong>
+                </div>
+                <div class="inlineDiv resHeader">
+				   <a  id="frmPage"  class="READY" href="#" submitForm="reformat">[Formatting options] </a>
+                </div>
+                <h3 id="jtitle" >Job Title: </h3>
+
+                <div id="content">
+                <!--<ul id="msg" class="msg"><li class=""><p class=""></p><p class=""></p><p class=""></p></ul> -->
+                <ul id="msg" class="msg"><li class=""></li></ul>
+                <p><!--
+                QBlastInfoBegin
+	                Status=READY
+                QBlastInfoEnd
+                --></p>
+                <!--
+QBlastInfoBegin
+	ThereAreHits=yes
+QBlastInfoEnd
+--><p>
+
+                <SCRIPT LANGUAGE="JavaScript"><!--
+                    var tm = "";
+                    if (tm != "") {
+                        setTimeout('document.forms[0].submit();',tm);
+                    }
+                //--></SCRIPT>
+                <table id="statInfo" class="READY">
+                <tr><td>Request ID</td><td> <b>JXM8KY9G01R</b></td></tr>
+                <tr class="odd"><td>Status</td><td>Searching</td></tr>
+                <tr><td>Submitted at</td><td></td></tr>
+                <tr class="odd"><td>Current time</td><td></td></tr>
+                <tr><td>Time since submission</td><td></td></tr>
+                </table>
+                <p class="READY">This page will be automatically updated in <b></b> seconds</p>
+                <form action="Blast.cgi" enctype="application/x-www-form-urlencoded" method="POST" id="results">
+                <input name="FORMAT_OBJECT" type="hidden" value="SearchInfo"><input name="OLD_BLAST" type="hidden" value="false"><input name="RID" type="hidden" value="JXM8KY9G01R"><input name="SEARCH_DB_STATUS" type="hidden" value="43"><input name="USER_TYPE" type="hidden" value="2"><input name="_PGR" type="hidden" value="0"><input name="email" type="hidden" value="dan.kortschak@adelaide.edu.au"><input name="tool" type="hidden" value="biogo.ncbi/blast-testsuite">
+                <input name="_PGR" type="hidden" value="0" >
+                <input name="CMD" type="hidden" value="Get">
+
+                </form>
+
+				</div><!-- /#content -->
+				<form action="Blast.cgi" enctype="application/x-www-form-urlencoded"  method="post" name="reformat" id="reformat">
+				   <input name="QUERY_INFO" type="hidden" value="" />
+				   <input name="ENTREZ_QUERY" type="hidden" value="" />
+                   <input name="CDD_RID" type="hidden" value="" />
+                   <input name="CDD_SEARCH_STATE" type="hidden" value="" />
+                   <input name="RID" type="hidden" value="JXM8KY9G01R" />
+				   <input name="STEP_NUMBER" type="hidden" value="" />
+				   <input name="CMD" type="hidden" value="Web"/>
+				   <input NAME="PAGE_TYPE" type="hidden"  value="BlastFormatting"/>
+
+				   <!-- TO DO: test all of those changes -->
+				   <!-- Psi blast params  PSI_BLAST_PARAMS - commented- using forms[0] from fromatter> -->
+				   <!-- Current Formatting options FORMATTING_OPTIONS- commented- using forms[0] from fromatter> -->
+				   <!-- Current Search options CURR_SAVED_OPTIONS - commented- using forms[0] from fromatter> -->
+                 </form>
+        </div><!-- /#content-wrap -->
+
+
+<div id="footer">
+   <div id="rgs">BLAST is a registered trademark of the National Library of Medicine.</div>
+   <p id="orgns">
+      <a href="http://www.ncbi.nlm.nih.gov/" title="National Center for Biotechnology Information">NCBI</a> |
+      <a href="http://www.nlm.nih.gov/" title="National Library of Medicine">NLM</a> |
+      <a href="http://www.nih.gov/" title="National Institutes of Health">NIH</a> |
+      <a href="http://www.hhs.gov/" title="US Department of Health and Human Services">DHHS</a>
+   </p>
+
+   <p>
+      <a href='http://www.ncbi.nlm.nih.gov/About/disclaimer.html'
+      title='NCBI intellectual property statement'>Copyright</a> |
+      <a href='http://www.ncbi.nlm.nih.gov/About/disclaimer.html#disclaimer'
+      title='About liability, endorsements, external links, pop-up advertisements'>Disclaimer</a> |
+      <a href='http://www.nlm.nih.gov/privacy.html'
+      title='NLM privacy policy'>Privacy</a> |
+      <a href='http://www.ncbi.nlm.nih.gov/About/accessibility.html'
+      title='About using NCBI resources with assistive technology'>Accessibility</a> |
+      <a href='http://www.ncbi.nlm.nih.gov/About/glance/contact_info.html'
+      title='How to get help, submit data, or provide feedback'>Contact</a> |
+      <a href='mailto:blast-help@ncbi.nlm.nih.gov'
+      title='How to get help, submit data, or provide feedback'>Send feedback</a>
+   </p>
+</div>
+   </div><!--/#wrap-->
+</body>
+
+</html>
+
+`,
+			"READY",
+			true,
+			nil,
+		},
+	} {
+		var s SearchInfo
+		err := s.unmarshal(strings.NewReader(t.retval))
+		c.Check(err, check.Equals, t.err, check.Commentf("Test: %d", i))
+		c.Check(s.Status, check.Equals, t.status, check.Commentf("Test: %d", i))
+		c.Check(s.HaveHits, check.Equals, t.haveHits, check.Commentf("Test: %d", i))
+	}
+}

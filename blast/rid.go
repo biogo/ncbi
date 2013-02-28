@@ -7,6 +7,7 @@ package blast
 import (
 	"code.google.com/p/biogo.ncbi"
 	"code.google.com/p/biogo.ncbi/html"
+	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -86,4 +87,52 @@ func (r *Rid) TimeOfExecution() time.Duration {
 // is returned closed.
 func (r *Rid) Ready() <-chan time.Time {
 	return r.delay
+}
+
+// SearchInfo holds search status information.
+type SearchInfo struct {
+	*Rid
+	Status   string
+	HaveHits bool
+}
+
+func (s *SearchInfo) String() string {
+	return fmt.Sprintf("%s Status:%s Hits:%v", s.Rid, s.Status, s.HaveHits)
+}
+
+func (s *SearchInfo) unmarshal(r io.Reader) error {
+	z := html.NewTokenizer(r)
+	for {
+		tt := z.Next()
+		if tt == html.ErrorToken {
+			err := z.Err()
+			if err == io.EOF {
+				break
+			}
+			return err
+		}
+		if tt == html.CommentToken {
+			d := z.Token().Data
+			if strings.Contains(d, "QBlastInfoBegin") {
+				for _, l := range strings.Split(d, "\n") {
+					l = strings.TrimSpace(l)
+					kv := strings.Split(l, "=")
+					if len(kv) != 2 {
+						continue
+					}
+					switch kv[0] {
+					case "Status":
+						s.Status = kv[1]
+					case "ThereAreHits":
+						s.HaveHits = true
+					}
+				}
+			}
+		}
+	}
+
+	if s.Status == "" {
+		return ErrMissingStatus
+	}
+	return nil
 }

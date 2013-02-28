@@ -121,9 +121,14 @@ func (s *S) TestBlast(c *check.C) {
 	} {
 		r, err := Put(t.query, t.putParams, tool, *net)
 		c.Assert(err, check.Equals, nil, check.Commentf("Test %d", i))
-		<-r.Ready()
 		var o *Output
 		for k := 0; k < retries; k++ {
+			s, err := r.SearchInfo(tool, *net)
+			if !s.HaveHits {
+				continue
+			}
+			c.Check(s.Rid.String(), check.Equals, r.String())
+			c.Check(s.Status, check.Equals, "READY")
 			o, err = r.GetOutput(t.getParams, tool, *net)
 			if err == nil {
 				break

@@ -25,7 +25,6 @@ package blast
 
 import (
 	"code.google.com/p/biogo.ncbi"
-
 	"errors"
 	"fmt"
 	"io"
@@ -38,6 +37,7 @@ import (
 var (
 	ErrNoRidProvided = errors.New("blast: no RID provided")
 	ErrMissingRid    = errors.New("blast: missing RID/RTOE field")
+	ErrMissingStatus = errors.New("blast: missing Status field")
 )
 
 // Limit is a package level limit on requests that can be sent to the BLAST server. This
@@ -267,6 +267,30 @@ func Put(query string, p *PutParameters, tool, email string) (*Rid, error) {
 		return nil, err
 	}
 	return &rid, nil
+}
+
+// SearchInfo returns status information for the search request corresponding to r.
+func (r *Rid) SearchInfo(tool, email string) (*SearchInfo, error) {
+	v := url.Values{}
+	if r.rid != "" {
+		v["RID"] = []string{r.rid}
+	} else {
+		return nil, ErrNoRidProvided
+	}
+	v[cmdParam] = []string{"Get"}
+	v["FORMAT_OBJECT"] = []string{"SearchInfo"}
+	<-r.Ready()
+	resp, err := BlastUri.Get(v, tool, email, Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Close()
+	s := SearchInfo{Rid: r}
+	err = s.unmarshal(resp)
+	if err != nil {
+		return nil, err
+	}
+	return &s, nil
 }
 
 // GetOutput returns an Output filled with data obtained from an Get request for the request
