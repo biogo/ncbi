@@ -48,7 +48,7 @@ func (s *S) TestBlast(c *check.C) {
 	if *net == "" {
 		c.Skip("Network tests not requested.")
 	}
-	for i, t := range []struct {
+	for _, t := range []struct {
 		query     string
 		putParams *PutParameters
 		getParams *GetParameters
@@ -120,21 +120,22 @@ func (s *S) TestBlast(c *check.C) {
 		},
 	} {
 		r, err := Put(t.query, t.putParams, tool, *net)
-		c.Assert(err, check.Equals, nil, check.Commentf("Test %d", i))
+		c.Assert(err, check.Equals, nil)
 		var o *Output
 		for k := 0; k < retries; k++ {
 			s, err := r.SearchInfo(tool, *net)
+			c.Assert(err, check.Equals, nil)
+			c.Check(s.Status, check.Equals, "READY")
 			if !s.HaveHits {
 				continue
 			}
 			c.Check(s.Rid.String(), check.Equals, r.String())
-			c.Check(s.Status, check.Equals, "READY")
 			o, err = r.GetOutput(t.getParams, tool, *net)
 			if err == nil {
 				break
 			}
 		}
-		c.Assert(err, check.Equals, nil, check.Commentf("Test %d", i))
+		c.Assert(err, check.Equals, nil)
 		c.Check(o.Program, check.Equals, t.expect.Program)
 		c.Check(o.Reference, check.Equals, t.expect.Reference)
 		c.Check(o.Database, check.Equals, t.expect.Database)
