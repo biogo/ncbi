@@ -10,25 +10,25 @@ import (
 	"fmt"
 )
 
-var (
-	query     = "X14032.1"
-	tool      = "example-blast"
-	email     = "foo@bar.org"
-	retries   = 3
-	putParams = &blast.PutParameters{Program: "nblast", Database: "nr"}
-	getParams = &blast.GetParameters{}
+const (
+	tool  = "blast-example"
+	email = "foo@bar.org"
 )
 
-func Example_1() (*blast.Output, error) {
-	// Put the query request on the BLAST server.
-	r, err := blast.Put(query, putParams, tool, email)
+// Example submits a query to the BLAST server, waits for the server's estimated time of
+// execution and retrieves the search status. If the search is ready the results are then
+// retrieved and returned. If errors are returned during data retrieval from the server,
+// retrieval is retried with up to retry attempts; all server requests honour the request
+// frequency policy specified in the BLAST usage guidelines.
+func Example(query string, retry int, pp *blast.PutParameters, gp *blast.GetParameters) (*blast.Output, error) {
+	// Put the query request to the BLAST server.
+	r, err := blast.Put(query, pp, tool, email)
 	if err != nil {
 		return nil, err
 	}
 
 	var o *blast.Output
-	// Try to retrieve results up to maximum number of retires times.
-	for k := 0; k < retries; k++ {
+	for k := 0; k < retry; k++ {
 		// Wait for RTOE to elapse and get search status.
 		var s *blast.SearchInfo
 		s, err = r.SearchInfo(tool, email)
@@ -55,7 +55,7 @@ func Example_1() (*blast.Output, error) {
 		}
 
 		// We have hits, so get the BLAST output.
-		o, err = r.GetOutput(getParams, tool, email)
+		o, err = r.GetOutput(gp, tool, email)
 		if err == nil {
 			break
 		}
