@@ -123,7 +123,8 @@ func (s *S) TestBlast(c *check.C) {
 		c.Assert(err, check.Equals, nil)
 		var o *Output
 		for k := 0; k < retries; k++ {
-			s, err := r.SearchInfo(tool, *net)
+			var s *SearchInfo
+			s, err = r.SearchInfo(tool, *net)
 			c.Assert(err, check.Equals, nil)
 			c.Check(s.Status, check.Equals, "READY")
 			if !s.HaveHits {
