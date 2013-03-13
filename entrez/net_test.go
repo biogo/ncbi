@@ -154,7 +154,8 @@ func (s *S) TestDoSummary(c *check.C) {
 	}
 	sum, err := DoSummary("protein", nil, tool, *net, nil, 15718680, 157427902, 119703751)
 	c.Check(err, check.Equals, nil)
-	c.Check(sum, check.DeepEquals, &Summary{
+	c.Check(sum.Database, check.Equals, "protein")
+	expect := &Summary{
 		Database: "protein",
 		Documents: []Document{
 			Document{
@@ -165,7 +166,7 @@ func (s *S) TestDoSummary(c *check.C) {
 					{Value: "gi|15718680|ref|NP_005537.3|[15718680]", Name: "Extra", Type: "String"},
 					{Value: "15718680", Name: "Gi", Type: "Integer"},
 					{Value: "1999/06/09", Name: "CreateDate", Type: "String"},
-					{Value: "2013/01/05", Name: "UpdateDate", Type: "String"},
+					{Value: "not tested", Name: "UpdateDate", Type: "String"},
 					{Value: "512", Name: "Flags", Type: "Integer"},
 					{Value: "9606", Name: "TaxId", Type: "Integer"},
 					{Value: "620", Name: "Length", Type: "Integer"},
@@ -182,7 +183,7 @@ func (s *S) TestDoSummary(c *check.C) {
 					{Value: "gi|157427902|ref|NP_001098858.1|[157427902]", Name: "Extra", Type: "String"},
 					{Value: "157427902", Name: "Gi", Type: "Integer"},
 					{Value: "2007/09/24", Name: "CreateDate", Type: "String"},
-					{Value: "2013/02/23", Name: "UpdateDate", Type: "String"},
+					{Value: "not tested", Name: "UpdateDate", Type: "String"},
 					{Value: "512", Name: "Flags", Type: "Integer"},
 					{Value: "9913", Name: "TaxId", Type: "Integer"},
 					{Value: "620", Name: "Length", Type: "Integer"},
@@ -199,7 +200,7 @@ func (s *S) TestDoSummary(c *check.C) {
 					{Value: "gi|119703751|ref|NP_034713.2|[119703751]", Name: "Extra", Type: "String"},
 					{Value: "119703751", Name: "Gi", Type: "Integer"},
 					{Value: "2000/01/25", Name: "CreateDate", Type: "String"},
-					{Value: "2013/01/20", Name: "UpdateDate", Type: "String"},
+					{Value: "not tested", Name: "UpdateDate", Type: "String"},
 					{Value: "512", Name: "Flags", Type: "Integer"},
 					{Value: "10090", Name: "TaxId", Type: "Integer"},
 					{Value: "619", Name: "Length", Type: "Integer"},
@@ -209,7 +210,16 @@ func (s *S) TestDoSummary(c *check.C) {
 				},
 			},
 		},
-	})
+	}
+	for i, d := range sum.Documents {
+		c.Check(d.Id, check.Equals, expect.Documents[i].Id)
+		for j, it := range d.Items {
+			if it.Name == "UpdateDate" {
+				continue
+			}
+			c.Check(it, check.Equals, expect.Documents[i].Items[j])
+		}
+	}
 }
 
 func (s *S) TestDoLink(c *check.C) {
