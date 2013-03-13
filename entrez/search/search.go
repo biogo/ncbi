@@ -78,12 +78,28 @@ import (
 
 type TranslationStack []Node
 
+// AST returns the root node of an abstract syntax tree of the query. Nodes in the
+// TranslationStack are altered by this method.
+func (ts *TranslationStack) AST() (Node, error) {
+	if ts == nil || len(*ts) == 0 {
+		panic("here")
+		return nil, nil
+	}
+
+	n, _ := (*ts)[len(*ts)-1].Consume((*ts)[:len(*ts)-1])
+	if n == nil {
+		return nil, errors.New("entrez: translation stack corrupted")
+	}
+
+	return n, nil
+}
+
 func (ts *TranslationStack) UnmarshalXML(b []byte) error {
 	*ts = (*ts)[:0]
 	dec := xml.NewDecoder(bytes.NewReader(b))
 	var (
 		field string
-		tm    Term
+		tm    = &Term{}
 	)
 	for {
 		tok, err := dec.Token()
@@ -103,7 +119,8 @@ func (ts *TranslationStack) UnmarshalXML(b []byte) error {
 			}
 			switch field {
 			case "OP":
-				*ts = append(*ts, Op(string(tok)))
+				o := &Op{Operation: string(tok)}
+				*ts = append(*ts, o)
 			case "Term":
 				tm.Term = string(tok)
 			case "Field":
@@ -127,7 +144,7 @@ func (ts *TranslationStack) UnmarshalXML(b []byte) error {
 			}
 		case xml.EndElement:
 			if tok.Name.Local == "TermSet" {
-				*ts, tm = append(*ts, tm), Term{}
+				*ts, tm = append(*ts, tm), &Term{}
 			}
 			field = ""
 		}
@@ -138,26 +155,53 @@ func (ts *TranslationStack) UnmarshalXML(b []byte) error {
 
 // A Node is an element of the ESearch translation stack.
 type Node interface {
-	Consume([]Node) Node
+	// Consume takes the contents of the translation stack and returns a Node
+	// representing the root node of an AST referring to nodes within the stack,
+	// and any remaining nodes.
+	Consume([]Node) (Node, []Node)
 }
 
-type Op string
+type Op struct {
+	Operation string
+	Operands  []Node
+}
 
-func (o Op) Consume(s []Node) Node {
-	// TODO Flesh out Op to be a struct:
-	//
-	//  type Op struct {
-	//  	Operation string
-	//  	Operands  []Node
-	//  }
-	//
-	// Then we can build an AST for the search. To do this we need to understand what
-	// RANGE and GROUP actually do - this is not specified.
-	switch o {
-	case "AND", "OR", "NOT", "RANGE", "GROUP":
-		return o
+func (o *Op) Consume(s []Node) (Node, []Node) {
+	var n Node
+	switch o.Operation {
+	case "AND", "OR":
+		// Handle binary operators.
+		if len(s) < 2 {
+			return nil, s
+		}
+		o.Operands = make([]Node, 2)
+		n, s = s[len(s)-1].Consume(s[:len(s)-1])
+		if n == nil {
+			return nil, s
+		}
+		o.Operands[1] = n
+		if len(s) < 1 {
+			return nil, s
+		}
+		n, s = s[len(s)-1].Consume(s[:len(s)-1])
+		if n == nil {
+			return nil, s
+		}
+		o.Operands[0] = n
+		return o, s
+	case "NOT", "RANGE", "GROUP": // It's still not entirely clear that RANGE is unary, but this seems to be the case.
+		// Handle unary operators.
+		if len(s) < 1 {
+			return nil, s
+		}
+		n, s = s[len(s)-1].Consume(s[:len(s)-1])
+		if n == nil {
+			return nil, s
+		}
+		o.Operands = []Node{n}
+		return o, s
 	}
-	return nil
+	return nil, s
 }
 
 type Term struct {
@@ -167,7 +211,7 @@ type Term struct {
 	Explode bool
 }
 
-func (tm Term) Consume(_ []Node) Node { return tm }
+func (tm *Term) Consume(s []Node) (Node, []Node) { return tm, s }
 
 type Translation struct {
 	From string

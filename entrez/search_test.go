@@ -16,6 +16,7 @@ func (s *S) TestParseSearch(c *check.C) {
 	for i, t := range []struct {
 		retval string
 		search Search
+		ast    Node
 	}{
 		{
 			`<?xml version="1.0" ?>
@@ -159,85 +160,85 @@ func (s *S) TestParseSearch(c *check.C) {
 					},
 				},
 				TranslationStack: []Node{
-					Term{
+					&Term{
 						Term:    "\"Science\"[Journal]",
 						Field:   "Journal",
 						Count:   162433,
 						Explode: true,
 					},
-					Term{
+					&Term{
 						Term:    "\"Science (80- )\"[Journal]",
 						Field:   "Journal",
 						Count:   10,
 						Explode: true,
 					},
-					Op("OR"),
-					Term{
+					&Op{Operation: "OR"},
+					&Term{
 						Term:    "\"J Zhejiang Univ Sci\"[Journal]",
 						Field:   "Journal",
 						Count:   364,
 						Explode: true,
 					},
-					Op("OR"),
-					Op("GROUP"),
-					Term{
+					&Op{Operation: "OR"},
+					&Op{Operation: "GROUP"},
+					&Term{
 						Term:    "\"breast neoplasms\"[MeSH Terms]",
 						Field:   "MeSH Terms",
 						Count:   199283,
 						Explode: true,
 					},
-					Term{Term: "\"breast\"[All Fields]",
+					&Term{Term: "\"breast\"[All Fields]",
 						Field:   "All Fields",
 						Count:   322674,
 						Explode: true,
 					},
-					Term{
+					&Term{
 						Term:    "\"neoplasms\"[All Fields]",
 						Field:   "All Fields",
 						Count:   1897643,
 						Explode: true,
 					},
-					Op("AND"),
-					Op("GROUP"),
-					Op("OR"),
-					Term{
+					&Op{Operation: "AND"},
+					&Op{Operation: "GROUP"},
+					&Op{Operation: "OR"},
+					&Term{
 						Term:    "\"breast neoplasms\"[All Fields]",
 						Field:   "All Fields",
 						Count:   199169,
 						Explode: true,
 					},
-					Op("OR"),
-					Term{
+					&Op{Operation: "OR"},
+					&Term{
 						Term:    "\"breast\"[All Fields]",
 						Field:   "All Fields",
 						Count:   322674,
 						Explode: true,
 					},
-					Term{
+					&Term{
 						Term:    "\"cancer\"[All Fields]",
 						Field:   "All Fields",
 						Count:   1166779,
 						Explode: true,
 					},
-					Op("AND"),
-					Op("GROUP"),
-					Op("OR"),
-					Term{
+					&Op{Operation: "AND"},
+					&Op{Operation: "GROUP"},
+					&Op{Operation: "OR"},
+					&Term{
 						Term:    "\"breast cancer\"[All Fields]",
 						Field:   "All Fields",
 						Count:   156855,
 						Explode: true,
 					},
-					Op("OR"),
-					Op("GROUP"),
-					Op("AND"),
-					Term{
+					&Op{Operation: "OR"},
+					&Op{Operation: "GROUP"},
+					&Op{Operation: "AND"},
+					&Term{
 						Term:    "2008[pdat]",
 						Field:   "pdat",
 						Count:   828593,
 						Explode: true,
 					},
-					Op("AND"),
+					&Op{Operation: "AND"},
 				},
 				QueryTranslation: stringPtr(`` +
 					`(` +
@@ -270,6 +271,142 @@ func (s *S) TestParseSearch(c *check.C) {
 					`2008[pdat]`),
 				Err: nil,
 			},
+			&Op{
+				Operation: "AND",
+				Operands: []Node{
+					&Op{
+						Operation: "AND",
+						Operands: []Node{
+							&Op{
+								Operation: "GROUP",
+								Operands: []Node{
+									&Op{
+										Operation: "OR",
+										Operands: []Node{
+											&Op{
+												Operation: "OR",
+												Operands: []Node{
+													&Term{
+														Term:    "\"Science\"[Journal]",
+														Field:   "Journal",
+														Count:   162433,
+														Explode: true,
+													},
+													&Term{
+														Term:    "\"Science (80- )\"[Journal]",
+														Field:   "Journal",
+														Count:   10,
+														Explode: true,
+													},
+												},
+											},
+											&Term{
+												Term:    "\"J Zhejiang Univ Sci\"[Journal]",
+												Field:   "Journal",
+												Count:   364,
+												Explode: true,
+											},
+										},
+									},
+								},
+							},
+							&Op{
+								Operation: "GROUP",
+								Operands: []Node{
+									&Op{
+										Operation: "OR",
+										Operands: []Node{
+											&Op{
+												Operation: "OR",
+												Operands: []Node{
+													&Op{
+														Operation: "OR",
+														Operands: []Node{
+															&Op{
+																Operation: "OR",
+																Operands: []Node{
+																	&Term{
+																		Term:    "\"breast neoplasms\"[MeSH Terms]",
+																		Field:   "MeSH Terms",
+																		Count:   199283,
+																		Explode: true,
+																	},
+																	&Op{
+																		Operation: "GROUP",
+																		Operands: []Node{
+																			&Op{
+																				Operation: "AND",
+																				Operands: []Node{
+																					&Term{
+																						Term:    "\"breast\"[All Fields]",
+																						Field:   "All Fields",
+																						Count:   322674,
+																						Explode: true,
+																					},
+																					&Term{
+																						Term:    "\"neoplasms\"[All Fields]",
+																						Field:   "All Fields",
+																						Count:   1897643,
+																						Explode: true,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															&Term{
+																Term:    "\"breast neoplasms\"[All Fields]",
+																Field:   "All Fields",
+																Count:   199169,
+																Explode: true,
+															},
+														},
+													},
+													&Op{
+														Operation: "GROUP",
+														Operands: []Node{
+															&Op{
+																Operation: "AND",
+																Operands: []Node{
+																	&Term{
+																		Term:    "\"breast\"[All Fields]",
+																		Field:   "All Fields",
+																		Count:   322674,
+																		Explode: true,
+																	},
+																	&Term{
+																		Term:    "\"cancer\"[All Fields]",
+																		Field:   "All Fields",
+																		Count:   1166779,
+																		Explode: true,
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+											&Term{
+												Term:    "\"breast cancer\"[All Fields]",
+												Field:   "All Fields",
+												Count:   156855,
+												Explode: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					&Term{
+						Term:    "2008[pdat]",
+						Field:   "pdat",
+						Count:   828593,
+						Explode: true,
+					},
+				},
+			},
 		},
 		{`<?xml version="1.0" ?>
 <!DOCTYPE eSearchResult PUBLIC "-//NLM//DTD eSearchResult, 11 May 2002//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eSearch_020511.dtd">
@@ -278,6 +415,7 @@ func (s *S) TestParseSearch(c *check.C) {
 </eSearchResult>
 `,
 			Search{Err: stringPtr("Empty term and query_key - nothing todo")},
+			nil,
 		},
 		{`<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE eSearchResult PUBLIC "-//NLM//DTD eSearchResult, 11 May 2002//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eSearch_020511.dtd">
@@ -286,6 +424,7 @@ func (s *S) TestParseSearch(c *check.C) {
 </eSearchResult>
 `,
 			Search{Err: stringPtr("Invalid db name specified: pub")},
+			nil,
 		},
 		{
 			`<?xml version="1.0" ?>
@@ -311,6 +450,7 @@ func (s *S) TestParseSearch(c *check.C) {
 					Field: []string{"jungle", "pat"},
 				},
 			},
+			nil,
 		},
 		{
 			`<?xml version="1.0" ?>
@@ -349,11 +489,17 @@ func (s *S) TestParseSearch(c *check.C) {
 					Message: []string{"No items found."},
 				},
 			},
+			nil,
 		},
 	} {
 		var s Search
 		err := xml.NewDecoder(strings.NewReader(t.retval)).Decode(&s)
 		c.Check(err, check.Equals, nil, check.Commentf("Test: %d", i))
 		c.Check(s, check.DeepEquals, t.search, check.Commentf("Test: %d", i))
+		if s.TranslationStack != nil {
+			n, err := s.TranslationStack.AST()
+			c.Check(err, check.Equals, nil)
+			c.Check(n, check.DeepEquals, t.ast)
+		}
 	}
 }
