@@ -287,7 +287,7 @@ func (p *Decoder) unmarshal(val reflect.Value, start *StartElement) error {
 				strv := finfo.value(sv)
 				// Look for attribute.
 				for _, a := range start.Attr {
-					if a.Name.Local == finfo.name {
+					if a.Name.Local == finfo.name && (finfo.xmlns == "" || finfo.xmlns == a.Name.Space) {
 						copyValue(strv, []byte(a.Value))
 						break
 					}
@@ -489,7 +489,7 @@ func (p *Decoder) unmarshalPath(tinfo *typeInfo, sv reflect.Value, parents []str
 Loop:
 	for i := range tinfo.fields {
 		finfo := &tinfo.fields[i]
-		if finfo.flags&(fElement|fUnmarshaler) == 0 || len(finfo.parents) < len(parents) {
+		if finfo.flags&(fElement|fUnmarshaler) == 0 || len(finfo.parents) < len(parents) || finfo.xmlns != "" && finfo.xmlns != start.Name.Space {
 			continue
 		}
 		for j := range parents {
