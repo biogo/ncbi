@@ -234,7 +234,7 @@ type Parameters struct {
 // A Statistics holds the search and database statistics for a Blast result.
 type Statistics struct {
 	DbNum    int     `xml:"Statistics_db-num"`    // Statistics_db-num
-	DbLen    int     `xml:"Statistics_db-len"`    // Statistics_db-len
+	DbLen    int64   `xml:"Statistics_db-len"`    // Statistics_db-len
 	HspLen   int     `xml:"Statistics_hsp-len"`   // Statistics_hsp-len
 	EffSpace float64 `xml:"Statistics_eff-space"` // Statistics_eff-space
 	Kappa    float64 `xml:"Statistics_kappa"`     // Statistics_kappa
