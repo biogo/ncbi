@@ -138,9 +138,9 @@ type ObjUrl struct {
 }
 
 type IdUrlSet struct {
-	Id     Id       `xml"Id"`
-	ObjUrl []ObjUrl `xml"ObjUrl"`
-	Info   *string  `xml"Info"`
+	Id     Id       `xml:"Id"`
+	ObjUrl []ObjUrl `xml:"ObjUrl"`
+	Info   *string  `xml:"Info"`
 }
 
 type IdUrlList struct {
