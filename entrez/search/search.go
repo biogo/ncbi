@@ -148,8 +148,6 @@ func (ts *TranslationStack) UnmarshalXML(b []byte) error {
 			field = ""
 		}
 	}
-
-	panic("cannot reach")
 }
 
 // A Node is an element of the ESearch translation stack.

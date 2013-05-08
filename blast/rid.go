@@ -6,7 +6,7 @@ package blast
 
 import (
 	"code.google.com/p/biogo.ncbi"
-	"code.google.com/p/biogo.ncbi/html"
+	"code.google.com/p/go.net/html"
 	"fmt"
 	"io"
 	"strconv"
@@ -66,8 +66,6 @@ func (rid *Rid) unmarshal(r io.Reader) error {
 			}
 		}
 	}
-
-	panic("cannot reach")
 }
 
 // String returns the string representation of the Rid.

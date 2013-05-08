@@ -205,8 +205,6 @@ func (id *Id) UnmarshalXML(b []byte) error {
 			id.Id = i
 		}
 	}
-
-	panic("cannot reach")
 }
 
 type IdCheckList struct {

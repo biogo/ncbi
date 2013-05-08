@@ -5,7 +5,7 @@
 package blast
 
 import (
-	"code.google.com/p/biogo.ncbi/html"
+	"code.google.com/p/go.net/html"
 	"io"
 )
 
@@ -23,6 +23,4 @@ func (i *Info) unmarshal(r io.Reader) error {
 			return nil
 		}
 	}
-
-	panic("cannot reach")
 }

@@ -78,6 +78,4 @@ func (r *Replacements) UnmarshalXML(b []byte) error {
 			field = ""
 		}
 	}
-
-	panic("cannot reach")
 }

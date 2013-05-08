@@ -750,8 +750,6 @@ func (u *UnmarAttrStruct) UnmarshalXML(b []byte) error {
 			u.Value = string(tok)
 		}
 	}
-
-	panic("cannot reach")
 }
 
 type structAttrUnmar0 struct {

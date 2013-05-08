@@ -554,7 +554,6 @@ Loop:
 			return true, nil
 		}
 	}
-	panic("unreachable")
 }
 
 // Skip reads tokens until it has consumed the end element
@@ -578,5 +577,4 @@ func (d *Decoder) Skip() error {
 			return nil
 		}
 	}
-	panic("unreachable")
 }
