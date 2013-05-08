@@ -82,7 +82,6 @@ type TranslationStack []Node
 // TranslationStack are altered by this method.
 func (ts *TranslationStack) AST() (Node, error) {
 	if ts == nil || len(*ts) == 0 {
-		panic("here")
 		return nil, nil
 	}
 
