@@ -58,7 +58,7 @@ func (s *S) TestDoInfo(c *check.C) {
 			"nucgss", "nucest", "structure", "genome",
 			"assembly", "gcassembly", "genomeprj", "bioproject",
 			"biosample", "biosystems", "blastdbinfo", "books",
-			"cdd", "clone", "gap", "gapplus",
+			"cdd", "clinvar", "clone", "gap", "gapplus",
 			"dbvar", "epigenomics", "gene", "gds",
 			"geoprofiles", "homologene", "journals", "medgen",
 			"mesh", "ncbisearch", "nlmcatalog", "omia",
