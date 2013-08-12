@@ -5,7 +5,6 @@
 package spell
 
 import (
-	"bytes"
 	"code.google.com/p/biogo.ncbi/xml"
 	"io"
 )
@@ -51,9 +50,10 @@ func (r New) Type() string   { return "Replaced" }
 
 type Replacements []Replacement
 
-func (r *Replacements) UnmarshalXML(b []byte) error {
+var _ xml.Unmarshaler = (*Replacements)(nil)
+
+func (r *Replacements) UnmarshalXML(dec *xml.Decoder, start xml.StartElement) error {
 	*r = (*r)[:0]
-	dec := xml.NewDecoder(bytes.NewReader(b))
 	var field string
 	for {
 		tok, err := dec.Token()

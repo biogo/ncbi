@@ -101,9 +101,11 @@ type DbInfo struct {
 
 type Bool bool
 
-func (t *Bool) UnmarshalXML(b []byte) error {
+var _ xml.Unmarshaler = (*Bool)(nil)
+
+func (t *Bool) UnmarshalXML(dec *xml.Decoder, start xml.StartElement) error {
 	var c string
-	err := xml.Unmarshal(b, &c)
+	err := dec.DecodeElement(&c, &start)
 	if err != nil {
 		return err
 	}

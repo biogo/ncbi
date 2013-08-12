@@ -5,7 +5,6 @@
 package search
 
 import (
-	"bytes"
 	"code.google.com/p/biogo.ncbi/xml"
 	"errors"
 	"io"
@@ -93,9 +92,10 @@ func (ts *TranslationStack) AST() (Node, error) {
 	return n, nil
 }
 
-func (ts *TranslationStack) UnmarshalXML(b []byte) error {
+var _ xml.Unmarshaler = (*TranslationStack)(nil)
+
+func (ts *TranslationStack) UnmarshalXML(dec *xml.Decoder, start xml.StartElement) error {
 	*ts = (*ts)[:0]
-	dec := xml.NewDecoder(bytes.NewReader(b))
 	var (
 		field string
 		tm    = &Term{}

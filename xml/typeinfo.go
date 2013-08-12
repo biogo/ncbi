@@ -33,13 +33,12 @@ const (
 	fAttr
 	fCharData
 	fInnerXml
-	fUnmarshaler
 	fComment
 	fAny
 
 	fOmitEmpty
 
-	fMode = fElement | fAttr | fCharData | fInnerXml | fUnmarshaler | fComment | fAny
+	fMode = fElement | fAttr | fCharData | fInnerXml | fComment | fAny
 )
 
 var tinfoMap = make(map[reflect.Type]*typeInfo)
@@ -118,17 +117,9 @@ func structFieldInfo(typ reflect.Type, f *reflect.StructField) (*fieldInfo, erro
 		finfo.xmlns, tag = tag[:i], tag[i+1:]
 	}
 
-	unmarshaler := isUnmarshaler(f.Type)
-	if unmarshaler {
-		finfo.flags = fUnmarshaler
-	} else if k := f.Type.Kind(); (k == reflect.Slice || k == reflect.Array) && isUnmarshaler(f.Type.Elem()) {
-		unmarshaler = true
-		finfo.flags = fUnmarshaler
-	}
-
 	// Parse flags.
 	tokens := strings.Split(tag, ",")
-	if len(tokens) == 1 && !unmarshaler {
+	if len(tokens) == 1 {
 		finfo.flags = fElement
 	} else {
 		tag = tokens[0]
@@ -154,8 +145,8 @@ func structFieldInfo(typ reflect.Type, f *reflect.StructField) (*fieldInfo, erro
 		switch mode := finfo.flags & fMode; mode {
 		case 0:
 			finfo.flags |= fElement
-		case fAttr, fCharData, fInnerXml, fUnmarshaler, fComment, fAny:
-			if f.Name == "XMLName" || tag != "" && mode&(fAttr|fUnmarshaler) == 0 {
+		case fAttr, fCharData, fInnerXml, fComment, fAny:
+			if f.Name == "XMLName" || tag != "" && mode != fAttr {
 				valid = false
 			}
 		default:
@@ -210,7 +201,7 @@ func structFieldInfo(typ reflect.Type, f *reflect.StructField) (*fieldInfo, erro
 	}
 	finfo.name = parents[len(parents)-1]
 	if len(parents) > 1 {
-		if (finfo.flags&fElement) == 0 && !unmarshaler {
+		if (finfo.flags & fElement) == 0 {
 			return nil, fmt.Errorf("xml: %s chain not valid with %s flag", tag, strings.Join(tokens[1:], ","))
 		}
 		finfo.parents = parents[:len(parents)-1]
@@ -228,16 +219,6 @@ func structFieldInfo(typ reflect.Type, f *reflect.StructField) (*fieldInfo, erro
 		}
 	}
 	return finfo, nil
-}
-
-// Determine whether the type, or a pointer to the type, is an Unmarshaler.
-func isUnmarshaler(t reflect.Type) bool {
-	var u Unmarshaler
-	ut := reflect.ValueOf(&u).Elem().Type()
-	if t.Implements(ut) {
-		return true
-	}
-	return reflect.PtrTo(t).Implements(ut)
 }
 
 // lookupXMLName returns the fieldInfo for typ's XMLName field

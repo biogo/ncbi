@@ -5,7 +5,6 @@
 package link
 
 import (
-	"bytes"
 	"code.google.com/p/biogo.ncbi/xml"
 	"errors"
 	"io"
@@ -168,8 +167,26 @@ type Id struct {
 	HasNeighbor *bool `xml:",attr"`
 }
 
-func (id *Id) UnmarshalXML(b []byte) error {
-	dec := xml.NewDecoder(bytes.NewReader(b))
+var _ xml.Unmarshaler = (*Id)(nil)
+
+func (id *Id) UnmarshalXML(dec *xml.Decoder, start xml.StartElement) error {
+	for _, attr := range start.Attr {
+		var b *bool
+		switch attr.Value {
+		case "Y", "N":
+			b = new(bool)
+			*b = attr.Value == "Y"
+		default:
+			return errors.New("entrez: bad boolean")
+		}
+		switch attr.Name.Local {
+		case "HasLinkOut":
+			id.HasNeighbor = b
+		case "HasNeighbor":
+			id.HasNeighbor = b
+		}
+	}
+
 	for {
 		tok, err := dec.Token()
 		if err != nil {
@@ -180,23 +197,6 @@ func (id *Id) UnmarshalXML(b []byte) error {
 		}
 
 		switch tok := tok.(type) {
-		case xml.StartElement:
-			for _, attr := range tok.Attr {
-				var b *bool
-				switch attr.Value {
-				case "Y", "N":
-					b = new(bool)
-					*b = attr.Value == "Y"
-				default:
-					return errors.New("entrez: bad boolean")
-				}
-				switch attr.Name.Local {
-				case "HasLinkOut":
-					id.HasNeighbor = b
-				case "HasNeighbor":
-					id.HasNeighbor = b
-				}
-			}
 		case xml.CharData:
 			i, err := strconv.Atoi(string(tok))
 			if err != nil {

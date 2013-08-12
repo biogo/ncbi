@@ -5,8 +5,6 @@
 package xml
 
 import (
-	"bytes"
-	"fmt"
 	"io"
 	"reflect"
 	"strings"
@@ -625,271 +623,65 @@ func TestMarshalNSAttr(t *testing.T) {
 	}
 }
 
-type UnmarString string
-
-func (u *UnmarString) UnmarshalXML(b []byte) error {
-	*u = UnmarString(fmt.Sprintf("Unmarshaled:%s", b))
-	return nil
+type MyCharData struct {
+	body string
 }
 
-type strUnmar0 struct {
-	Item1 string `xml:"Item1"`
-	Item2 string
-	Item4 UnmarString
-	Item6 []string `xml:"Item6>Item7"`
-}
-
-type strUnmar1 struct {
-	Item1 string `xml:"Item1"`
-	Item2 string
-	Item4 []UnmarString
-	Item6 []string `xml:"Item6>Item7"`
-}
-
-type strUnmar2 struct {
-	Item1 string `xml:"Item1"`
-	Item2 string
-	Item4 []UnmarString `xml:">Item5"`
-	Item6 []string      `xml:"Item6>Item7"`
-}
-
-type UnmarStringSlice []string
-
-func (u *UnmarStringSlice) UnmarshalXML(b []byte) error {
-	(*u)[len(*u)-1] = fmt.Sprintf("Unmarshaled:%s", b)
-	return nil
-}
-
-type strSliceUnmar0 struct {
-	Item1 string `xml:"Item1"`
-	Item2 string
-	Item4 UnmarStringSlice
-	Item6 []string `xml:"Item6>Item7"`
-}
-
-type strSliceUnmar1 struct {
-	Item1 string `xml:"Item1"`
-	Item2 string
-	Item4 []UnmarStringSlice
-	Item6 []string `xml:"Item6>Item7"`
-}
-
-type strSliceUnmar2 struct {
-	Item1 string `xml:"Item1"`
-	Item2 string
-	Item4 []UnmarStringSlice `xml:">Item5"`
-	Item6 []string           `xml:"Item6>Item7"`
-}
-
-type UnmarByteSlice []byte
-
-func (u *UnmarByteSlice) UnmarshalXML(b []byte) error {
-	*u = append([]byte("Unmarshaled:"), b...)
-	return nil
-}
-
-type bytesUnmar0 struct {
-	Item1 string `xml:"Item1"`
-	Item2 string
-	Item4 UnmarByteSlice
-	Item6 []string `xml:"Item6>Item7"`
-}
-
-type bytesUnmar1 struct {
-	Item1 string `xml:"Item1"`
-	Item2 string
-	Item4 UnmarByteSlice `xml:">Item5"`
-	Item6 []string       `xml:"Item6>Item7"`
-}
-
-type UnmarByteStruct struct {
-	A []byte
-}
-
-func (u *UnmarByteStruct) UnmarshalXML(b []byte) error {
-	u.A = []byte("Unmarshaled:")
-	u.A = append(u.A, b...)
-	return nil
-}
-
-type structUnmar0 struct {
-	Item1 string `xml:"Item1"`
-	Item2 string
-	Item4 UnmarByteStruct
-	Item6 []string `xml:"Item6>Item7"`
-}
-
-type UnmarAttrStruct struct {
-	Value string
-	Attr1 string
-	Attr2 string
-}
-
-func (u *UnmarAttrStruct) UnmarshalXML(b []byte) error {
-	dec := NewDecoder(bytes.NewReader(b))
+func (m *MyCharData) UnmarshalXML(d *Decoder, start StartElement) error {
 	for {
-		tok, err := dec.Token()
+		t, err := d.Token()
+		if err == io.EOF { // found end of element
+			break
+		}
 		if err != nil {
-			if err == io.EOF {
-				return nil
-			}
 			return err
 		}
-
-		switch tok := tok.(type) {
-		case StartElement:
-			for _, attr := range tok.Attr {
-				switch attr.Name.Local {
-				case "Attr1":
-					u.Attr1 = attr.Value
-				case "Attr2":
-					u.Attr2 = attr.Value
-				}
-			}
-		case CharData:
-			u.Value = string(tok)
+		if char, ok := t.(CharData); ok {
+			m.body += string(char)
 		}
 	}
+	return nil
 }
 
-type structAttrUnmar0 struct {
-	Item1 string `xml:"Item1"`
-	Item2 string
-	Item4 []string          `xml:">Item5"`
-	Item6 []UnmarAttrStruct `xml:"Item6>Item7"`
+var _ Unmarshaler = (*MyCharData)(nil)
+
+func (m *MyCharData) UnmarshalXMLAttr(attr Attr) error {
+	panic("must not call")
 }
 
-const unmarshalerTestData = `
-<Result>
-	<Item1>A</Item1>
-	<Item2>B</Item2>
-	<Item3>C</Item3>
-	<Item4 att="val1">
-			<Item5>D</Item5>
-	</Item4>
-	<Item4 att='val2'>
-			<Item5>E</Item5>
-	</Item4>
-	<Item6>
-			<Item7 Attr1="X">F</Item7>
-			<Item7 Attr2="Y">G</Item7>
-	</Item6>
-	<Item8>H</Item8>
-</Result>
-`
+type MyAttr struct {
+	attr string
+}
 
-var unmarshalerTests = []struct {
-	v, e interface{}
-}{
-	{
-		&strUnmar0{},
-		&strUnmar0{
-			Item1: "A", Item2: "B",
-			Item4: "Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>",
-			Item6: []string{"F", "G"},
-		},
-	},
-	{
-		&strUnmar1{},
-		&strUnmar1{
-			Item1: "A", Item2: "B",
-			Item4: []UnmarString{
-				"Unmarshaled:<Item4 att=\"val1\">\n\t\t\t<Item5>D</Item5>\n\t</Item4>",
-				"Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>",
-			},
-			Item6: []string{"F", "G"},
-		},
-	},
-	{
-		&strUnmar2{},
-		&strUnmar2{
-			Item1: "A", Item2: "B",
-			Item4: []UnmarString{
-				"Unmarshaled:<Item5>D</Item5>",
-				"Unmarshaled:<Item5>E</Item5>",
-			},
-			Item6: []string{"F", "G"},
-		},
-	},
-	{
-		&strSliceUnmar0{},
-		&strSliceUnmar0{
-			Item1: "A", Item2: "B",
-			Item4: UnmarStringSlice{
-				"Unmarshaled:<Item4 att=\"val1\">\n\t\t\t<Item5>D</Item5>\n\t</Item4>",
-				"Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>",
-			},
-			Item6: []string{"F", "G"},
-		},
-	},
-	{
-		&strSliceUnmar1{},
-		&strSliceUnmar1{
-			Item1: "A", Item2: "B",
-			Item4: []UnmarStringSlice{
-				UnmarStringSlice{"Unmarshaled:<Item4 att=\"val1\">\n\t\t\t<Item5>D</Item5>\n\t</Item4>"},
-				UnmarStringSlice{"Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>"},
-			},
-			Item6: []string{"F", "G"},
-		},
-	},
-	{
-		&strSliceUnmar2{},
-		&strSliceUnmar2{
-			Item1: "A", Item2: "B",
-			Item4: []UnmarStringSlice{
-				UnmarStringSlice{"Unmarshaled:<Item5>D</Item5>"},
-				UnmarStringSlice{"Unmarshaled:<Item5>E</Item5>"},
-			},
-			Item6: []string{"F", "G"},
-		},
-	},
-	{
-		&bytesUnmar0{},
-		&bytesUnmar0{
-			Item1: "A", Item2: "B",
-			Item4: UnmarByteSlice([]byte("Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>")),
-			Item6: []string{"F", "G"},
-		},
-	},
-	{
-		&bytesUnmar1{},
-		&bytesUnmar1{
-			Item1: "A", Item2: "B",
-			Item4: UnmarByteSlice([]byte("Unmarshaled:<Item5>E</Item5>")),
-			Item6: []string{"F", "G"},
-		},
-	},
-	{
-		&structUnmar0{},
-		&structUnmar0{
-			Item1: "A", Item2: "B",
-			Item4: UnmarByteStruct{
-				A: []byte("Unmarshaled:<Item4 att='val2'>\n\t\t\t<Item5>E</Item5>\n\t</Item4>"),
-			},
-			Item6: []string{"F", "G"},
-		},
-	},
-	{
-		&structAttrUnmar0{},
-		&structAttrUnmar0{
-			Item1: "A", Item2: "B",
-			Item4: []string{"D", "E"},
-			Item6: []UnmarAttrStruct{
-				{Value: "F", Attr1: "X"},
-				{Value: "G", Attr2: "Y"},
-			},
-		},
-	},
+func (m *MyAttr) UnmarshalXMLAttr(attr Attr) error {
+	m.attr = attr.Value
+	return nil
+}
+
+var _ UnmarshalerAttr = (*MyAttr)(nil)
+
+type MyStruct struct {
+	Data *MyCharData
+	Attr *MyAttr `xml:",attr"`
+
+	Data2 MyCharData
+	Attr2 MyAttr `xml:",attr"`
 }
 
 func TestUnmarshaler(t *testing.T) {
-	for _, tt := range unmarshalerTests {
-		if err := Unmarshal([]byte(unmarshalerTestData), tt.v); err != nil {
-			t.Fatalf("Unmarshal: %s", err)
-		}
-		if !reflect.DeepEqual(tt.v, tt.e) {
-			t.Fatalf("Unmarshal with %T failed:\nhave %#v,\nwant %#v", tt.v, tt.v, tt.e)
-		}
+	xml := `<?xml version="1.0" encoding="utf-8"?>
+		<MyStruct Attr="attr1" Attr2="attr2">
+		<Data>hello <!-- comment -->world</Data>
+		<Data2>howdy <!-- comment -->world</Data2>
+		</MyStruct>
+	`
+
+	var m MyStruct
+	if err := Unmarshal([]byte(xml), &m); err != nil {
+		t.Fatal(err)
+	}
+
+	if m.Data == nil || m.Attr == nil || m.Data.body != "hello world" || m.Attr.attr != "attr1" || m.Data2.body != "howdy world" || m.Attr2.attr != "attr2" {
+		t.Errorf("m=%#+v\n", m)
 	}
 }
