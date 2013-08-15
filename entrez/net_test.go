@@ -52,22 +52,37 @@ func (s *S) TestDoInfo(c *check.C) {
 	}
 	i, err := DoInfo("", tool, *net)
 	c.Check(err, check.Equals, nil)
-	c.Check(i, check.DeepEquals, &Info{
-		DbList: []string{
-			"pubmed", "protein", "nuccore", "nucleotide",
-			"nucgss", "nucest", "structure", "genome",
-			"assembly", "gcassembly", "genomeprj", "bioproject",
-			"biosample", "biosystems", "blastdbinfo", "books",
-			"cdd", "clinvar", "clone", "gap", "gapplus",
-			"dbvar", "epigenomics", "gene", "gds",
-			"geoprofiles", "homologene", "journals", "medgen",
-			"mesh", "ncbisearch", "nlmcatalog", "omia",
-			"omim", "pmc", "popset", "probe",
-			"proteinclusters", "pcassay", "pccompound", "pcsubstance",
-			"pubmedhealth", "seqannot", "snp", "sra",
-			"taxonomy", "toolkit", "toolkitall", "toolkitbook",
-			"unigene", "unists", "gencoll"},
-		DbInfo: nil, Err: ""})
+	var (
+		// These are the databases we expect to exist always.
+		// Others seem to come and go with frightening regularity.
+		// This is a reasonable sample, and not intended to be exhaustive.
+		dbListCore = map[string]struct{}{
+			"books":      struct{}{},
+			"genome":     struct{}{},
+			"homologene": struct{}{},
+			"nuccore":    struct{}{},
+			"nucest":     struct{}{},
+			"nucleotide": struct{}{},
+			"protein":    struct{}{},
+			"pubmed":     struct{}{},
+			"structure":  struct{}{},
+			"taxonomy":   struct{}{},
+			"unigene":    struct{}{},
+			"unists":     struct{}{},
+		}
+		dbListRetrieved = make(map[string]struct{})
+	)
+	for _, db := range i.DbList {
+		if _, ok := dbListCore[db]; ok {
+			dbListRetrieved[db] = struct{}{}
+		}
+	}
+
+	// We don't trust this value.
+	i.DbList = nil
+
+	c.Check(dbListRetrieved, check.DeepEquals, dbListCore)
+	c.Check(i, check.DeepEquals, &Info{DbInfo: nil, Err: ""})
 }
 
 func (s *S) TestDoSearch(c *check.C) {
