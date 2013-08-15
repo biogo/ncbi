@@ -126,7 +126,7 @@ func (s *S) TestFetch(c *check.C) {
 				"GENQVIKVSDFGMTRFVLDDQYTSSTGTKFPVKWASPEVFSFSRYSSKSDVWSFGVLMWEVFSEGKIPYE\n" +
 				"NRSNSEVVEDITTGFRLYKPRLASQHIYQIMNHCWKEKPEDRPPFSRLLSQLAEIAELGL\n" +
 				"\n" +
-				">gi|119703751|ref|NP_034713.2| tyrosine-protein kinase ITK/TSK [Mus musculus]\n" +
+				">gi|119703751|ref|NP_034713.2| tyrosine-protein kinase ITK/TSK isoform 2 [Mus musculus]\n" +
 				"MNNFILLEEQLIKKSQQKRRTSPSNFKVRFFVLTKASLAYFEDRHGKKRTLKGSIELSRIKCVEIVKSDI\n" +
 				"SIPCHYKYPFQVVHDNYLLYVFAPDCESRQRWVLTLKEETRNNNSLVSKYHPNFWMDGRWRCCSQLEKPA\n" +
 				"VGCAPYDPSKNASKKPLPPTPEDNRRSFQEPEETLVIALYDYQTNDPQELALRCDEEYYLLDSSEIHWWR\n" +
@@ -196,7 +196,7 @@ func (s *S) TestDoSummary(c *check.C) {
 				Id: 119703751,
 				Items: []Item{
 					{Value: "NP_034713", Name: "Caption", Type: "String"},
-					{Value: "tyrosine-protein kinase ITK/TSK [Mus musculus]", Name: "Title", Type: "String"},
+					{Value: "tyrosine-protein kinase ITK/TSK isoform 2 [Mus musculus]", Name: "Title", Type: "String"},
 					{Value: "gi|119703751|ref|NP_034713.2|[119703751]", Name: "Extra", Type: "String"},
 					{Value: "119703751", Name: "Gi", Type: "Integer"},
 					{Value: "2000/01/25", Name: "CreateDate", Type: "String"},
