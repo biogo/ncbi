@@ -59,8 +59,9 @@ type Util string
 
 // NewRequest returns an http.Request for the utility, ut using the given method. Parameters to be
 // sent to the utility program should be places in db, v, tool and email. NewRequest is subject to
-// a limit that prevents requests being sent more frequently than allowed by l. This is easy to
-// circumvent, this may result in IP blocking by the NCBI servers, so please do not do this.
+// a limit that prevents requests being sent more frequently than allowed by l. The limit is easy to
+// circumvent, though circumvention may result in IP blocking by the NCBI servers, so please do not
+// do this.
 func (ut Util) NewRequest(method, db string, v url.Values, tool, email string, l *Limiter) (*http.Request, error) {
 	if db != "" {
 		v["db"] = []string{db}
