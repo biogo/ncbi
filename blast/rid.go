@@ -15,7 +15,7 @@ import (
 )
 
 // Blast server usage policy requires that users not poll for any single RID more often than once
-// a minute. blast package Get requests honour this policy.
+// a minute. The blast package Get requests honour this policy.
 const RidPollLimit = 60 * time.Second
 
 // Rid implements RID recovery and waiting functions associated with Blast Put and Get requests.
