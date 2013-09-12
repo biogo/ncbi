@@ -178,8 +178,7 @@ func receiverType(val interface{}) string {
 	return "(" + t.String() + ")"
 }
 
-// unmarshalInterface unmarshals a single XML element into val,
-// which is known to implement Unmarshaler.
+// unmarshalInterface unmarshals a single XML element into val.
 // start is the opening tag of the element.
 func (p *Decoder) unmarshalInterface(val Unmarshaler, start *StartElement) error {
 	// Record that decoder must stop at end tag corresponding to start.
@@ -496,7 +495,7 @@ func copyValue(dst reflect.Value, src []byte) (err error) {
 	// Save accumulated data.
 	switch dst.Kind() {
 	case reflect.Invalid:
-		// Probably a commendst.
+		// Probably a comment.
 	default:
 		return errors.New("cannot happen: unknown type " + dst.Type().String())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:

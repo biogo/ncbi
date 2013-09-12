@@ -904,6 +904,10 @@ type AttrParent struct {
 	X string `xml:"X>Y,attr"`
 }
 
+type BadAttr struct {
+	Name []string `xml:"name,attr"`
+}
+
 var marshalErrorTests = []struct {
 	Value interface{}
 	Err   string
@@ -935,6 +939,10 @@ var marshalErrorTests = []struct {
 	{
 		Value: &AttrParent{},
 		Err:   `xml: X>Y chain not valid with attr flag`,
+	},
+	{
+		Value: BadAttr{[]string{"X", "Y"}},
+		Err:   `xml: unsupported type: []string`,
 	},
 }
 
@@ -1076,12 +1084,20 @@ func TestMarshalWriteIOErrors(t *testing.T) {
 	}
 }
 
-func TestEncodeTokenFlush(t *testing.T) {
+func TestMarshalFlush(t *testing.T) {
 	var buf bytes.Buffer
 	enc := NewEncoder(&buf)
-	enc.EncodeToken(StartElement{Name: Name{Local: "some-tag"}})
-	if g, w := buf.String(), "<some-tag>"; g != w {
-		t.Errorf("Encoder wrote %q, want %q", g, w)
+	if err := enc.EncodeToken(CharData("hello world")); err != nil {
+		t.Fatalf("enc.EncodeToken: %v", err)
+	}
+	if buf.Len() > 0 {
+		t.Fatalf("enc.EncodeToken caused actual write: %q", buf.Bytes())
+	}
+	if err := enc.Flush(); err != nil {
+		t.Fatalf("enc.Flush: %v", err)
+	}
+	if buf.String() != "hello world" {
+		t.Fatalf("after enc.Flush, buf.String() = %q, want %q", buf.String(), "hello world")
 	}
 }
 

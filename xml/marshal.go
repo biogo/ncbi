@@ -147,6 +147,8 @@ func (enc *Encoder) Indent(prefix, indent string) {
 //
 // See the documentation for Marshal for details about the conversion
 // of Go values to XML.
+//
+// Encode calls Flush before returning.
 func (enc *Encoder) Encode(v interface{}) error {
 	err := enc.p.marshalValue(reflect.ValueOf(v), nil, nil)
 	if err != nil {
@@ -160,6 +162,8 @@ func (enc *Encoder) Encode(v interface{}) error {
 //
 // See the documentation for Marshal for details about the conversion
 // of Go values to XML.
+//
+// EncodeElement calls Flush before returning.
 func (enc *Encoder) EncodeElement(v interface{}, start StartElement) error {
 	err := enc.p.marshalValue(reflect.ValueOf(v), nil, &start)
 	if err != nil {
@@ -176,6 +180,14 @@ var (
 
 // EncodeToken writes the given XML token to the stream.
 // It returns an error if StartElement and EndElement tokens are not properly matched.
+//
+// EncodeToken does not call Flush, because usually it is part of a larger operation
+// such as Encode or EncodeElement (or a custom Marshaler's MarshalXML invoked
+// during those), and those will call Flush when finished.
+//
+// Callers that create an Encoder and then invoke EncodeToken directly, without
+// using Encode or EncodeElement, need to call Flush when finished to ensure
+// that the XML is written to the underlying writer.
 func (enc *Encoder) EncodeToken(t Token) error {
 	p := &enc.p
 	switch t := t.(type) {
@@ -196,6 +208,7 @@ func (enc *Encoder) EncodeToken(t Token) error {
 		p.WriteString("<!--")
 		p.Write(t)
 		p.WriteString("-->")
+		return p.cachedWriteError()
 	case ProcInst:
 		if t.Target == "xml" || !isNameString(t.Target) {
 			return fmt.Errorf("xml: EncodeToken of ProcInst with invalid Target")
@@ -218,7 +231,13 @@ func (enc *Encoder) EncodeToken(t Token) error {
 		p.Write(t)
 		p.WriteString(">")
 	}
-	return p.Flush()
+	return p.cachedWriteError()
+}
+
+// Flush flushes any buffered XML to the underlying writer.
+// See the EncodeToken documentation for details about when it is necessary.
+func (enc *Encoder) Flush() error {
+	return enc.p.Flush()
 }
 
 type printer struct {
@@ -609,7 +628,10 @@ func (p *printer) marshalSimple(typ reflect.Type, val reflect.Value) (string, []
 	case reflect.Bool:
 		return strconv.FormatBool(val.Bool()), nil, nil
 	case reflect.Array:
-		// will be [...]byte
+		if typ.Elem().Kind() != reflect.Uint8 {
+			break
+		}
+		// [...]byte
 		var bytes []byte
 		if val.CanAddr() {
 			bytes = val.Slice(0, val.Len()).Bytes()
@@ -619,7 +641,10 @@ func (p *printer) marshalSimple(typ reflect.Type, val reflect.Value) (string, []
 		}
 		return "", bytes, nil
 	case reflect.Slice:
-		// will be []byte
+		if typ.Elem().Kind() != reflect.Uint8 {
+			break
+		}
+		// []byte
 		return "", val.Bytes(), nil
 	}
 	return "", nil, &UnsupportedTypeError{typ}
