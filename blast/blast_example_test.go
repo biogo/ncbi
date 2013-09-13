@@ -57,9 +57,9 @@ func Example(query string, retry int, pp *blast.PutParameters, gp *blast.GetPara
 		// We have hits, so get the BLAST output.
 		o, err = r.GetOutput(gp, tool, email)
 		if err == nil {
-			break
+			return o, err
 		}
 	}
 
-	return o, err
+	return nil, fmt.Errorf("%s exceeded retries", r)
 }
