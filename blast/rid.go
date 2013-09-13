@@ -84,6 +84,11 @@ func (r *Rid) TimeOfExecution() time.Duration {
 // Put request to be satisfied has elapsed. If the request has failed the channel
 // is returned closed.
 func (r *Rid) Ready() <-chan time.Time {
+	defer func() {
+		delay := make(chan time.Time)
+		close(delay)
+		r.delay = delay
+	}()
 	return r.delay
 }
 
