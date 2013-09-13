@@ -124,7 +124,6 @@ func (s *SearchInfo) unmarshal(r io.Reader) error {
 		if tt == html.StartTagToken {
 			attr := z.Token().Attr
 			if len(attr) > 0 && attr[0].Val == "WAITING" {
-				fmt.Println(attr)
 				for i := 0; i < 3; i++ {
 					z.Next()
 				}
