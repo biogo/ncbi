@@ -114,6 +114,32 @@ func (s *SearchInfo) unmarshal(r io.Reader) error {
 			}
 			return err
 		}
+
+		// The following block pulls out the following element and makes the delay equal to X seconds.
+		//
+		//  <p class="WAITING">This page will be automatically updated in <b>X</b> seconds</p>
+		//
+		// If the integer parse fails it means NCBI have changed the html returned by SearchInfo so we
+		// silently fall back to the policy wait time.
+		if tt == html.StartTagToken {
+			attr := z.Token().Attr
+			if len(attr) > 0 && attr[0].Val == "WAITING" {
+				fmt.Println(attr)
+				for i := 0; i < 3; i++ {
+					z.Next()
+				}
+				data := z.Token().Data
+				rt, err := strconv.ParseInt(data, 10, 64)
+				if err != nil {
+					continue
+				}
+				secs := time.Duration(rt) * time.Second
+				s.Rid.delay = time.After(secs)
+				s.Rid.rtoe = time.Now().Add(secs)
+				continue
+			}
+		}
+
 		if tt == html.CommentToken {
 			d := z.Token().Data
 			if strings.Contains(d, "QBlastInfoBegin") {
