@@ -26,6 +26,19 @@ type Rid struct {
 	limit *ncbi.Limiter
 }
 
+// NewRid returns a Rid with the given request ID string. The returned Rid has a
+// zero RTOE but is subject to the usage policy poll limiter. It is intended to
+// be used to retrieve results from queries submitted without a call to Put.
+func NewRid(rid string) *Rid {
+	delay := make(chan time.Time)
+	close(delay)
+	return &Rid{
+		rid:   rid,
+		delay: delay,
+		limit: ncbi.NewLimiter(RidPollLimit),
+	}
+}
+
 func (rid *Rid) unmarshal(r io.Reader) error {
 	z := html.NewTokenizer(r)
 	for {
