@@ -5,7 +5,7 @@
 package blast
 
 import (
-	"code.google.com/p/biogo.ncbi/xml"
+	"encoding/xml"
 	check "launchpad.net/gocheck"
 	"strings"
 )

@@ -5,7 +5,7 @@
 package spell
 
 import (
-	"code.google.com/p/biogo.ncbi/xml"
+	"encoding/xml"
 	"io"
 )
 

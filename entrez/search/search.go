@@ -5,7 +5,7 @@
 package search
 
 import (
-	"code.google.com/p/biogo.ncbi/xml"
+	"encoding/xml"
 	"errors"
 	"io"
 	"strconv"
