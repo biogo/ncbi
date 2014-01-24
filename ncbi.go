@@ -103,6 +103,9 @@ var GetMethodLimit = 2048
 // method to use is based on the length of the constructed URL the value of GetMethodLimit.
 func (ut Util) GetXML(v url.Values, tool, email string, l *Limiter, d interface{}) error {
 	u, err := ut.Prepare(v, tool, email)
+	if err != nil {
+		return err
+	}
 	var resp *http.Response
 	l.Wait()
 	if len(ut)+len(u.RawQuery) < GetMethodLimit {
@@ -125,6 +128,9 @@ func (ut Util) GetXML(v url.Values, tool, email string, l *Limiter, d interface{
 // request. It is the caller's responsibility to close this.
 func (ut Util) Get(v url.Values, tool, email string, l *Limiter) (io.ReadCloser, error) {
 	u, err := ut.Prepare(v, tool, email)
+	if err != nil {
+		return nil, err
+	}
 	var resp *http.Response
 	l.Wait()
 	if len(ut)+len(u.RawQuery) < GetMethodLimit {
