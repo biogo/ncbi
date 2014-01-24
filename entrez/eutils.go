@@ -29,10 +29,13 @@ package entrez
 
 import (
 	"code.google.com/p/biogo.ncbi"
+	"strconv"
 
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/url"
 	"reflect"
 	"strings"
@@ -123,6 +126,9 @@ const (
 
 	//  * Provides spelling suggestions for terms within a single text query in a given database.
 	SpellUri = ncbi.Util(Base + "espell.fcgi")
+
+	//  * Retrieves PubMed IDs (PMIDs) that correspond to a set of input citation queries.
+	CitMatchUri = ncbi.Util(Base + "ecitmatch.cgi")
 )
 
 type unmarshaler interface {
@@ -382,4 +388,54 @@ func DoSpell(db, query string, tool, email string) (*Spell, error) {
 		return nil, err
 	}
 	return &sp, nil
+}
+
+// CitQuery represents a single element of a CitMatch citation query.
+type CitQuery struct {
+	JournalTitle string
+	Year         string
+	Volume       string
+	FirstPage    string
+	AuthorName   string
+}
+
+// DoCitMatch returns a map[string]int associating keys provided in the query
+// to the citations requested in the query. If email is set, the response will
+// also be sent to that address.
+func DoCitMatch(query map[string]CitQuery, tool, email string) (map[string]int, error) {
+	v := url.Values{"db": []string{"pubmed"}, "retmode": []string{"xml"}}
+	if query != nil {
+		var buf bytes.Buffer
+		for key, cit := range query {
+			fmt.Fprintf(&buf, "%s|%s|%s|%s|%s|%s|\r",
+				cit.JournalTitle,
+				cit.Year,
+				cit.Volume,
+				cit.FirstPage,
+				cit.AuthorName,
+				key,
+			)
+		}
+		v["bdata"] = []string{buf.String()}
+	}
+	r, err := CitMatchUri.Get(v, tool, email, Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
+
+	res := make(map[string]int)
+	buf, err := ioutil.ReadAll(r)
+	for _, rec := range bytes.Split(buf, []byte{'\n'}) {
+		if len(rec) == 0 {
+			continue
+		}
+		f := bytes.Split(rec, []byte{'|'})
+		res[string(f[5])], err = strconv.Atoi(string(f[6]))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return res, nil
 }

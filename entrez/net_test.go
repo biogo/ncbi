@@ -348,3 +348,29 @@ func (s *S) TestDoSpell(c *check.C) {
 		Err: "",
 	})
 }
+
+func (s *S) TestDoCitMatch(c *check.C) {
+	if *net == "" {
+		c.Skip("Network tests not requested.")
+	}
+	for i, t := range []struct {
+		queries map[string]CitQuery
+		expect  map[string]int
+	}{
+		{
+			map[string]CitQuery{
+				"Art1": CitQuery{"proc natl acad sci u s a", "1991", "88", "3248", "mann bj"},
+				"Art2": CitQuery{"science", "1987", "235", "182", "palmenberg ac"},
+			},
+			map[string]int{
+				"Art1": 2014248,
+				"Art2": 3026048,
+			},
+		},
+	} {
+		// No email is included as this results in a document being sent from the server.
+		m, err := DoCitMatch(t.queries, tool, "")
+		c.Assert(err, check.Equals, nil, check.Commentf("Test %d", i))
+		c.Check(m, check.DeepEquals, t.expect, check.Commentf("Test %d", i))
+	}
+}
