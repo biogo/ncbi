@@ -28,8 +28,7 @@
 package entrez
 
 import (
-	"code.google.com/p/biogo.ncbi"
-	"strconv"
+	"code.google.com/p/biogo.ncbi/ncbi"
 
 	"bytes"
 	"errors"
@@ -38,6 +37,7 @@ import (
 	"io/ioutil"
 	"net/url"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )

@@ -5,8 +5,9 @@
 package blast
 
 import (
-	"code.google.com/p/biogo.ncbi"
+	"code.google.com/p/biogo.ncbi/ncbi"
 	"code.google.com/p/go.net/html"
+
 	"fmt"
 	"io"
 	"strconv"
