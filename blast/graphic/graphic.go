@@ -188,7 +188,7 @@ func NewSummary(o blast.Output) Summary {
 }
 
 // Render returns a vg.Canvas that has had the receiver's summary information
-// rendered to it. The function cf must return a vg.Canvas that is x by h in size.
+// rendered to it. The function cf must return a vg.Canvas that is w by h in size.
 func (s Summary) Render(cf func(w, h vg.Length) vg.Canvas) vg.Canvas {
 	w := leftMargin + bodyWidth + rightMargin
 	h := header + footer
