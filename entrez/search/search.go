@@ -166,7 +166,7 @@ type Op struct {
 func (o *Op) Consume(s []Node) (Node, []Node) {
 	var n Node
 	switch o.Operation {
-	case "AND", "OR":
+	case "AND", "OR", "NOT":
 		// Handle binary operators.
 		if len(s) < 2 {
 			return nil, s
@@ -186,7 +186,7 @@ func (o *Op) Consume(s []Node) (Node, []Node) {
 		}
 		o.Operands[0] = n
 		return o, s
-	case "NOT", "RANGE", "GROUP": // It's still not entirely clear that RANGE is unary, but this seems to be the case.
+	case "RANGE", "GROUP": // It's still not entirely clear that RANGE is unary, but this seems to be the case.
 		// Handle unary operators.
 		if len(s) < 1 {
 			return nil, s
