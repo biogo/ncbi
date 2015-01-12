@@ -8,7 +8,7 @@ import (
 	. "code.google.com/p/biogo.ncbi/entrez/spell"
 
 	"encoding/xml"
-	check "launchpad.net/gocheck"
+	"gopkg.in/check.v1"
 	"strings"
 )
 

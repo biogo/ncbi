@@ -10,8 +10,8 @@ import (
 	. "code.google.com/p/biogo.ncbi/entrez/summary"
 
 	"flag"
+	"gopkg.in/check.v1"
 	"io/ioutil"
-	check "launchpad.net/gocheck"
 	"testing"
 	"time"
 )

@@ -5,7 +5,7 @@
 package ncbi
 
 import (
-	check "launchpad.net/gocheck"
+	"gopkg.in/check.v1"
 	"testing"
 	"time"
 )
