@@ -11,8 +11,8 @@ import (
 	"code.google.com/p/plotinum/vg/vgsvg"
 
 	"bytes"
-	"io"
 	"gopkg.in/check.v1"
+	"io"
 	"testing"
 )
 
@@ -277,31 +277,31 @@ var testOutputs = []struct {
 			"<text x=\"837.5\" y=\"-302.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12pt\">% Identity</text>\n" +
 			"<path d=\"M612.5,313.75L625,313.75L625,301.25L612.5,301.25Z\" style=\"fill:#808080\" />\n" +
-			"<text x=\"612.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"612.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">20</text>\n" +
 			"<path d=\"M637.5,313.75L650,313.75L650,301.25L637.5,301.25Z\" style=\"fill:#FF0000\" />\n" +
-			"<text x=\"637.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"637.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">30</text>\n" +
 			"<path d=\"M662.5,313.75L675,313.75L675,301.25L662.5,301.25Z\" style=\"fill:#FFC400\" />\n" +
-			"<text x=\"662.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"662.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">40</text>\n" +
 			"<path d=\"M687.5,313.75L700,313.75L700,301.25L687.5,301.25Z\" style=\"fill:#FFFF00\" />\n" +
-			"<text x=\"687.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"687.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">50</text>\n" +
 			"<path d=\"M712.5,313.75L725,313.75L725,301.25L712.5,301.25Z\" style=\"fill:#00FF00\" />\n" +
-			"<text x=\"712.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"712.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">60</text>\n" +
 			"<path d=\"M737.5,313.75L750,313.75L750,301.25L737.5,301.25Z\" style=\"fill:#00FFFF\" />\n" +
-			"<text x=\"737.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"737.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">70</text>\n" +
 			"<path d=\"M762.5,313.75L775,313.75L775,301.25L762.5,301.25Z\" style=\"fill:#0000FF\" />\n" +
-			"<text x=\"762.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"762.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">80</text>\n" +
 			"<path d=\"M787.5,313.75L800,313.75L800,301.25L787.5,301.25Z\" style=\"fill:#C400FF\" />\n" +
-			"<text x=\"787.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"787.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">90</text>\n" +
 			"<path d=\"M812.5,313.75L825,313.75L825,301.25L812.5,301.25Z\" />\n" +
-			"<text x=\"812.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"812.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">100</text>\n" +
 			"<text x=\"12.5\" y=\"-227.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12pt\">gi|388525227|gb|CP00</text>\n" +
@@ -1216,31 +1216,31 @@ var testOutputs = []struct {
 			"<text x=\"837.5\" y=\"-302.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12pt\">% Identity</text>\n" +
 			"<path d=\"M612.5,313.75L625,313.75L625,301.25L612.5,301.25Z\" style=\"fill:#808080\" />\n" +
-			"<text x=\"612.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"612.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">20</text>\n" +
 			"<path d=\"M637.5,313.75L650,313.75L650,301.25L637.5,301.25Z\" style=\"fill:#FF0000\" />\n" +
-			"<text x=\"637.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"637.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">30</text>\n" +
 			"<path d=\"M662.5,313.75L675,313.75L675,301.25L662.5,301.25Z\" style=\"fill:#FFC400\" />\n" +
-			"<text x=\"662.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"662.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">40</text>\n" +
 			"<path d=\"M687.5,313.75L700,313.75L700,301.25L687.5,301.25Z\" style=\"fill:#FFFF00\" />\n" +
-			"<text x=\"687.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"687.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">50</text>\n" +
 			"<path d=\"M712.5,313.75L725,313.75L725,301.25L712.5,301.25Z\" style=\"fill:#00FF00\" />\n" +
-			"<text x=\"712.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"712.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">60</text>\n" +
 			"<path d=\"M737.5,313.75L750,313.75L750,301.25L737.5,301.25Z\" style=\"fill:#00FFFF\" />\n" +
-			"<text x=\"737.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"737.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">70</text>\n" +
 			"<path d=\"M762.5,313.75L775,313.75L775,301.25L762.5,301.25Z\" style=\"fill:#0000FF\" />\n" +
-			"<text x=\"762.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"762.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">80</text>\n" +
 			"<path d=\"M787.5,313.75L800,313.75L800,301.25L787.5,301.25Z\" style=\"fill:#C400FF\" />\n" +
-			"<text x=\"787.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"787.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">90</text>\n" +
 			"<path d=\"M812.5,313.75L825,313.75L825,301.25L812.5,301.25Z\" />\n" +
-			"<text x=\"812.5\" y=\"-290\" transform=\"scale(1, -1)\"\n" +
+			"<text x=\"812.5\" y=\"-292.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt\">100</text>\n" +
 			"<text x=\"12.5\" y=\"-227.5\" transform=\"scale(1, -1)\"\n" +
 			"\tstyle=\"font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12pt\">gi|388525227|gb|CP00</text>\n" +
