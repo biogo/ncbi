@@ -5,8 +5,9 @@
 package blast
 
 import (
-	"golang.org/x/net/html"
 	"io"
+
+	"golang.org/x/net/html"
 )
 
 type Info string

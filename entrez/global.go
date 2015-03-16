@@ -5,7 +5,7 @@
 package entrez
 
 import (
-	"code.google.com/p/biogo.ncbi/entrez/global"
+	"github.com/biogo/ncbi/entrez/global"
 )
 
 // <!--

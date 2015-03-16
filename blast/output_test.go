@@ -6,8 +6,9 @@ package blast
 
 import (
 	"encoding/xml"
-	"gopkg.in/check.v1"
 	"strings"
+
+	"gopkg.in/check.v1"
 )
 
 func (s *S) TestParseOutput(c *check.C) {

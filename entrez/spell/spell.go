@@ -9,7 +9,7 @@ import (
 	"io"
 )
 
-// "code.google.com/p/biogo.entrez/xml"
+// "github.com/biogo/entrez/xml"
 
 // <!--
 // This is the Current DTD for Entrez eSpell

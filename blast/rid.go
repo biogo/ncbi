@@ -5,15 +5,15 @@
 package blast
 
 import (
-	"code.google.com/p/biogo.ncbi/ncbi"
-
-	"golang.org/x/net/html"
-
 	"fmt"
 	"io"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/biogo/ncbi/ncbi"
+
+	"golang.org/x/net/html"
 )
 
 // Blast server usage policy requires that users not poll for any single RID more often than once

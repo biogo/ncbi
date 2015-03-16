@@ -5,7 +5,7 @@
 package entrez
 
 import (
-	. "code.google.com/p/biogo.ncbi/entrez/spell"
+	. "github.com/biogo/ncbi/entrez/spell"
 
 	"encoding/xml"
 	"gopkg.in/check.v1"

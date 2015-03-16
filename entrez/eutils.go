@@ -28,7 +28,7 @@
 package entrez
 
 import (
-	"code.google.com/p/biogo.ncbi/ncbi"
+	"github.com/biogo/ncbi/ncbi"
 
 	"bytes"
 	"errors"

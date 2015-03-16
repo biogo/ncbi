@@ -6,9 +6,10 @@ package blast
 
 import (
 	"flag"
-	"gopkg.in/check.v1"
 	"testing"
 	"time"
+
+	"gopkg.in/check.v1"
 )
 
 const (

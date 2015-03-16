@@ -5,9 +5,10 @@
 package blast_test
 
 import (
-	"code.google.com/p/biogo.ncbi/blast"
 	"errors"
 	"fmt"
+
+	"github.com/biogo/ncbi/blast"
 )
 
 const (

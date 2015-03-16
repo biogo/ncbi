@@ -5,9 +5,10 @@
 package blast
 
 import (
-	"gopkg.in/check.v1"
 	"strings"
 	"time"
+
+	"gopkg.in/check.v1"
 )
 
 func (s *S) TestParseRid(c *check.C) {

@@ -5,7 +5,7 @@
 package entrez
 
 import (
-	. "code.google.com/p/biogo.ncbi/entrez/search"
+	. "github.com/biogo/ncbi/entrez/search"
 
 	"encoding/xml"
 	"gopkg.in/check.v1"

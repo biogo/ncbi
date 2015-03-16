@@ -5,15 +5,17 @@
 package graphic_test
 
 import (
-	"code.google.com/p/biogo.ncbi/blast"
-	"code.google.com/p/biogo.ncbi/blast/graphic"
+	"bytes"
+	"io"
+	"testing"
+
+	"github.com/biogo/ncbi/blast"
+	"github.com/biogo/ncbi/blast/graphic"
+
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/vgsvg"
 
-	"bytes"
 	"gopkg.in/check.v1"
-	"io"
-	"testing"
 )
 
 // Tests

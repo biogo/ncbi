@@ -5,9 +5,9 @@
 package entrez
 
 import (
-	"code.google.com/p/biogo.ncbi/entrez/link"
-	. "code.google.com/p/biogo.ncbi/entrez/spell"
-	. "code.google.com/p/biogo.ncbi/entrez/summary"
+	"github.com/biogo/ncbi/entrez/link"
+	. "github.com/biogo/ncbi/entrez/spell"
+	. "github.com/biogo/ncbi/entrez/summary"
 
 	"flag"
 	"gopkg.in/check.v1"

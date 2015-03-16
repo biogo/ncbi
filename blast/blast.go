@@ -24,8 +24,6 @@
 package blast
 
 import (
-	"code.google.com/p/biogo.ncbi/ncbi"
-
 	"errors"
 	"fmt"
 	"io"
@@ -33,6 +31,8 @@ import (
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/biogo/ncbi/ncbi"
 )
 
 var (

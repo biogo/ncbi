@@ -6,12 +6,13 @@
 package graphic
 
 import (
-	"code.google.com/p/biogo.ncbi/blast"
-	"code.google.com/p/plotinum/vg"
-
 	"fmt"
 	"image/color"
 	"math"
+
+	"github.com/biogo/ncbi/blast"
+
+	"code.google.com/p/plotinum/vg"
 )
 
 const maxInt = int(^uint(0) >> 1)
