@@ -5,15 +5,16 @@
 package entrez
 
 import (
+	"flag"
+	"io/ioutil"
+	"testing"
+	"time"
+
 	"github.com/biogo/ncbi/entrez/link"
 	. "github.com/biogo/ncbi/entrez/spell"
 	. "github.com/biogo/ncbi/entrez/summary"
 
-	"flag"
 	"gopkg.in/check.v1"
-	"io/ioutil"
-	"testing"
-	"time"
 )
 
 const tool = "biogo.ncbi/entrez-testsuite"

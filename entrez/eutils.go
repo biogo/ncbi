@@ -1,4 +1,4 @@
-// Copyright ©2013 The bíogo.ncbi Authors. All rights reserved.
+// Copyright ©2013 The bíogo Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -28,8 +28,6 @@
 package entrez
 
 import (
-	"github.com/biogo/ncbi/ncbi"
-
 	"bytes"
 	"errors"
 	"fmt"
@@ -40,6 +38,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/biogo/ncbi/ncbi"
 )
 
 // The E-utilities default to "pubmed". Some functions mark which db was used because E-utilities

@@ -5,11 +5,12 @@
 package entrez
 
 import (
+	"encoding/xml"
+	"strings"
+
 	"github.com/biogo/ncbi/entrez/info"
 
-	"encoding/xml"
 	"gopkg.in/check.v1"
-	"strings"
 )
 
 func (s *S) TestParseInfo(c *check.C) {
