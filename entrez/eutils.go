@@ -33,6 +33,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -252,7 +253,8 @@ func DoPost(db, tool, email string, h *History, id ...int) (*Post, error) {
 }
 
 // Fetch returns an io.ReadCloser that reads from the stream returned by an EFetch of the
-// the given id list or history. It is the responsibility of the caller to close this.
+// the given id list or history. It is the responsibility of the caller to close this if it
+// is not nil. A non-nil error is returned for any http status code other than 200.
 func Fetch(db string, p *Parameters, tool, email string, h *History, id ...int) (io.ReadCloser, error) {
 	if len(id) == 0 && h == nil {
 		return nil, ErrNoIdProvided
@@ -272,11 +274,14 @@ func Fetch(db string, p *Parameters, tool, email string, h *History, id ...int) 
 	} else if len(id) == 0 {
 		return nil, ErrNoIdProvided
 	}
-	resp, err := FetchUri.Get(v, tool, email, Limit)
+	resp, err := FetchUri.GetResponse(v, tool, email, Limit)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	if resp.StatusCode != http.StatusOK {
+		err = errors.New(resp.Status)
+	}
+	return resp.Body, err
 }
 
 // DoSummary returns a Summary filled with the response from an ESummary query on the specified
