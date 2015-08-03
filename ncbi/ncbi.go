@@ -98,23 +98,29 @@ func (ut Util) Prepare(v url.Values, tool, email string) (*url.URL, error) {
 // the high level API functions using the GET method.
 var GetMethodLimit = 2048
 
+// GetResponse performs a GET or POST method call to the URI in ut, passing the parameters in v,
+// tool and email. The decision on which method to use is based on the length of the
+// constructed URL the value of GetMethodLimit. An http.Response is returned for a successful
+// request. It is the caller's responsibility to close the response body.
+func (ut Util) GetResponse(v url.Values, tool, email string, l *Limiter) (*http.Response, error) {
+	u, err := ut.Prepare(v, tool, email)
+	if err != nil {
+		return nil, err
+	}
+	l.Wait()
+	if len(ut)+len(u.RawQuery) < GetMethodLimit {
+		return http.Get(u.String())
+	}
+	buf := strings.NewReader(u.RawQuery)
+	u.RawQuery = ""
+	return http.Post(u.String(), "", buf)
+}
+
 // GetXML performs a GET or POST method call to the URI in ut, passing the parameters in v,
 // tool and email. The returned stream is unmarshaled into d. The decision on which
 // method to use is based on the length of the constructed URL the value of GetMethodLimit.
 func (ut Util) GetXML(v url.Values, tool, email string, l *Limiter, d interface{}) error {
-	u, err := ut.Prepare(v, tool, email)
-	if err != nil {
-		return err
-	}
-	var resp *http.Response
-	l.Wait()
-	if len(ut)+len(u.RawQuery) < GetMethodLimit {
-		resp, err = http.Get(u.String())
-	} else {
-		buf := strings.NewReader(u.RawQuery)
-		u.RawQuery = ""
-		resp, err = http.Post(u.String(), "", buf)
-	}
+	resp, err := ut.GetResponse(v, tool, email, l)
 	if err != nil {
 		return err
 	}
@@ -127,19 +133,7 @@ func (ut Util) GetXML(v url.Values, tool, email string, l *Limiter, d interface{
 // constructed URL the value of GetMethodLimit. An io.ReadCloser is returned for a successful
 // request. It is the caller's responsibility to close this.
 func (ut Util) Get(v url.Values, tool, email string, l *Limiter) (io.ReadCloser, error) {
-	u, err := ut.Prepare(v, tool, email)
-	if err != nil {
-		return nil, err
-	}
-	var resp *http.Response
-	l.Wait()
-	if len(ut)+len(u.RawQuery) < GetMethodLimit {
-		resp, err = http.Get(u.String())
-	} else {
-		buf := strings.NewReader(u.RawQuery)
-		u.RawQuery = ""
-		resp, err = http.Post(u.String(), "", buf)
-	}
+	resp, err := ut.GetResponse(v, tool, email, l)
 	if err != nil {
 		return nil, err
 	}
