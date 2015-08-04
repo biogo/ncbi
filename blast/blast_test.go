@@ -85,9 +85,9 @@ func (s *S) TestBlast(c *check.C) {
 						Hits: []Hit{
 							{
 								N:         1,
-								Id:        "gi|322|emb|X14032.1|",
-								Def:       "Bovine mRNA for EDGF II (acidic eye-derived growth factor II)",
-								Accession: "X14032",
+								Id:        "gi|163047|gb|M35608.1|BOVFGFAA",
+								Def:       "Bovine acidic eye-derived fibroblast growth factor (EDGF II) mRNA, complete cds >gi|322|emb|X14032.1| Bovine mRNA for EDGF II (acidic eye-derived growth factor II)",
+								Accession: "M35608",
 								Len:       668,
 								Hsps: []Hsp{
 									{

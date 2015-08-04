@@ -69,7 +69,6 @@ func (s *S) TestDoInfo(c *check.C) {
 			"structure":  struct{}{},
 			"taxonomy":   struct{}{},
 			"unigene":    struct{}{},
-			"unists":     struct{}{},
 		}
 		dbListRetrieved = make(map[string]struct{})
 	)
