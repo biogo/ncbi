@@ -151,7 +151,7 @@ func fillParams(p *Parameters, v url.Values) {
 	t := pv.Type()
 	for i := 0; i < n; i++ {
 		tf := t.Field(i)
-		if tf.PkgPath != "" {
+		if tf.PkgPath != "" && !tf.Anonymous {
 			continue
 		}
 		tag := tf.Tag.Get("param")
