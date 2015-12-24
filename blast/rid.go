@@ -5,6 +5,7 @@
 package blast
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -41,12 +42,28 @@ func NewRid(rid string) *Rid {
 	}
 }
 
+var (
+	messageIDBytes = []byte("Message ID")
+	errorBytes     = []byte("Error:")
+)
+
+type ErrBadRequest string
+
+func (e ErrBadRequest) Error() string { return string(e) }
+
 func (rid *Rid) unmarshal(r io.Reader) error {
 	z := html.NewTokenizer(r)
 	for {
 		tt := z.Next()
 		if tt == html.ErrorToken {
 			return z.Err()
+		}
+		if tt == html.TextToken {
+			text := z.Text()
+			if bytes.HasPrefix(text, messageIDBytes) && bytes.Contains(text, errorBytes) {
+				rid.setElapsedDelay()
+				return ErrBadRequest(text)
+			}
 		}
 		if tt != html.CommentToken {
 			continue
@@ -75,9 +92,7 @@ func (rid *Rid) unmarshal(r io.Reader) error {
 			}
 		}
 		if rid.rid == "" || rid.delay == nil {
-			delay := make(chan time.Time)
-			close(delay)
-			rid.delay = delay
+			rid.setElapsedDelay()
 			return ErrMissingRid
 		}
 		rid.limit = ncbi.NewLimiter(RidPollLimit)
@@ -95,6 +110,13 @@ func (r *Rid) TimeOfExecution() time.Duration {
 		return r.rtoe.Sub(now)
 	}
 	return 0
+}
+
+// setElapsedDelay sets r's delay to have already elapsed.
+func (r *Rid) setElapsedDelay() {
+	delay := make(chan time.Time)
+	close(delay)
+	r.delay = delay
 }
 
 // Ready returns a time.Time chan that will send when the estimated time for the
