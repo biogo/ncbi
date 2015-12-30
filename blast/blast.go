@@ -184,52 +184,53 @@ func fillParams(cmd string, p interface{}, v url.Values) {
 			continue
 		}
 		tag := tf.Tag.Get("param")
-		if tag != "" {
-			in := pv.Field(i).Interface()
-			switch cv := in.(type) {
-			case int:
-				if cv != 0 {
-					v[tag] = []string{fmt.Sprint(cv)}
-				}
-			case float64:
-				if cv != 0 {
-					v[tag] = []string{fmt.Sprint(cv)}
-				}
-			case *float64:
-				if cv != nil {
-					v[tag] = []string{fmt.Sprint(*cv)}
-				}
-			case string:
-				if cv != "" {
-					v[tag] = []string{cv}
-				}
-			case bool:
-				if cv {
-					v[tag] = []string{"yes"}
-				}
-			case [2]int:
-				if cv != [2]int{} {
-					v[tag] = []string{fmt.Sprintf("%d %d", cv[0], cv[1])}
-				}
-			case []int:
-				if cv != nil {
-					s := make([]string, len(cv))
-					for i, c := range cv {
-						s[i] = fmt.Sprint(c)
-					}
-					v[tag] = []string{strings.Join(s, ",")}
-				}
-			case *bool:
-				if cv != nil {
-					if *cv {
-						v[tag] = []string{"yes"}
-					} else {
-						v[tag] = []string{"no"}
-					}
-				}
-			default:
-				panic("cannot reach")
+		if tag == "" {
+			continue
+		}
+		in := pv.Field(i).Interface()
+		switch cv := in.(type) {
+		case int:
+			if cv != 0 {
+				v[tag] = []string{fmt.Sprint(cv)}
 			}
+		case float64:
+			if cv != 0 {
+				v[tag] = []string{fmt.Sprint(cv)}
+			}
+		case *float64:
+			if cv != nil {
+				v[tag] = []string{fmt.Sprint(*cv)}
+			}
+		case string:
+			if cv != "" {
+				v[tag] = []string{cv}
+			}
+		case bool:
+			if cv {
+				v[tag] = []string{"yes"}
+			}
+		case [2]int:
+			if cv != [2]int{} {
+				v[tag] = []string{fmt.Sprintf("%d %d", cv[0], cv[1])}
+			}
+		case []int:
+			if cv != nil {
+				s := make([]string, len(cv))
+				for i, c := range cv {
+					s[i] = fmt.Sprint(c)
+				}
+				v[tag] = []string{strings.Join(s, ",")}
+			}
+		case *bool:
+			if cv != nil {
+				if *cv {
+					v[tag] = []string{"yes"}
+				} else {
+					v[tag] = []string{"no"}
+				}
+			}
+		default:
+			panic("cannot reach")
 		}
 	}
 }

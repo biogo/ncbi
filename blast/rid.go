@@ -5,6 +5,7 @@
 package blast
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -41,6 +42,15 @@ func NewRid(rid string) *Rid {
 	}
 }
 
+var (
+	messageIDBytes = []byte("Message ID")
+	errorBytes     = []byte("Error:")
+)
+
+type ErrBadRequest string
+
+func (e ErrBadRequest) Error() string { return string(e) }
+
 func (rid *Rid) unmarshal(r io.Reader) error {
 	z := html.NewTokenizer(r)
 	for {
@@ -48,38 +58,45 @@ func (rid *Rid) unmarshal(r io.Reader) error {
 		if tt == html.ErrorToken {
 			return z.Err()
 		}
-		if tt == html.CommentToken {
-			d := z.Token().Data
-			if strings.Contains(d, "QBlastInfoBegin") {
-				for _, l := range strings.Split(d, "\n") {
-					l = strings.TrimSpace(l)
-					kv := strings.Split(l, " = ")
-					if len(kv) != 2 {
-						continue
-					}
-					switch kv[0] {
-					case "RID":
-						rid.rid = kv[1]
-					case "RTOE":
-						rt, err := strconv.ParseInt(kv[1], 10, 64)
-						if err != nil {
-							return err
-						}
-						secs := time.Duration(rt) * time.Second
-						rid.delay = time.After(secs)
-						rid.rtoe = time.Now().Add(secs)
-					}
-				}
-				if rid.rid == "" || rid.delay == nil {
-					delay := make(chan time.Time)
-					close(delay)
-					rid.delay = delay
-					return ErrMissingRid
-				}
-				rid.limit = ncbi.NewLimiter(RidPollLimit)
-				return nil
+		if tt == html.TextToken {
+			text := z.Text()
+			if bytes.HasPrefix(text, messageIDBytes) && bytes.Contains(text, errorBytes) {
+				rid.setElapsedDelay()
+				return ErrBadRequest(text)
 			}
 		}
+		if tt != html.CommentToken {
+			continue
+		}
+		d := z.Token().Data
+		if !strings.Contains(d, "QBlastInfoBegin") {
+			continue
+		}
+		for _, l := range strings.Split(d, "\n") {
+			l = strings.TrimSpace(l)
+			kv := strings.Split(l, " = ")
+			if len(kv) != 2 {
+				continue
+			}
+			switch kv[0] {
+			case "RID":
+				rid.rid = kv[1]
+			case "RTOE":
+				rt, err := strconv.ParseInt(kv[1], 10, 64)
+				if err != nil {
+					return err
+				}
+				secs := time.Duration(rt) * time.Second
+				rid.delay = time.After(secs)
+				rid.rtoe = time.Now().Add(secs)
+			}
+		}
+		if rid.rid == "" || rid.delay == nil {
+			rid.setElapsedDelay()
+			return ErrMissingRid
+		}
+		rid.limit = ncbi.NewLimiter(RidPollLimit)
+		return nil
 	}
 }
 
@@ -93,6 +110,13 @@ func (r *Rid) TimeOfExecution() time.Duration {
 		return r.rtoe.Sub(now)
 	}
 	return 0
+}
+
+// setElapsedDelay sets r's delay to have already elapsed.
+func (r *Rid) setElapsedDelay() {
+	delay := make(chan time.Time)
+	close(delay)
+	r.delay = delay
 }
 
 // Ready returns a time.Time chan that will send when the estimated time for the
