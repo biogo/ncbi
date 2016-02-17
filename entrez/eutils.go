@@ -40,7 +40,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/biogo/ncbi/ncbi"
+	"github.com/biogo/ncbi"
 )
 
 // The E-utilities default to "pubmed". Some functions mark which db was used because E-utilities

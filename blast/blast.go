@@ -32,7 +32,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/biogo/ncbi/ncbi"
+	"github.com/biogo/ncbi"
 )
 
 var (
