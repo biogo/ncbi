@@ -28,11 +28,7 @@ import (
 	"time"
 )
 
-var client http.Client
-
-func init() {
-	client.Timeout = 10 * time.Second
-}
+var client = http.Client{Timeout: 10 * time.Second}
 
 // SetTimeout sets the HTTP client timeout duration. The default timeout is 10 seconds.
 func SetTimeout(d time.Duration) {
