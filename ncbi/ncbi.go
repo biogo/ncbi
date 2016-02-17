@@ -28,6 +28,17 @@ import (
 	"time"
 )
 
+var client http.Client
+
+func init() {
+	client.Timeout = 10 * time.Second
+}
+
+// SetTimeout sets the HTTP client timeout duration. The default timeout is 10 seconds.
+func SetTimeout(d time.Duration) {
+	client.Timeout = d
+}
+
 // Limiter implements a thread-safe event frequency limit.
 type Limiter struct {
 	m     sync.Mutex
@@ -109,11 +120,11 @@ func (ut Util) GetResponse(v url.Values, tool, email string, l *Limiter) (*http.
 	}
 	l.Wait()
 	if len(ut)+len(u.RawQuery) < GetMethodLimit {
-		return http.Get(u.String())
+		return client.Get(u.String())
 	}
 	buf := strings.NewReader(u.RawQuery)
 	u.RawQuery = ""
-	return http.Post(u.String(), "", buf)
+	return client.Post(u.String(), "", buf)
 }
 
 // GetXML performs a GET or POST method call to the URI in ut, passing the parameters in v,
