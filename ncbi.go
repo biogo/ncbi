@@ -91,6 +91,8 @@ func (ut Util) Prepare(v url.Values, tool, email string) (*url.URL, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Force https scheme. See http://www.ncbi.nlm.nih.gov/news/06-10-2016-ncbi-https/
+	u.Scheme = "https"
 	if tool != "" {
 		v["tool"] = []string{tool}
 	}
