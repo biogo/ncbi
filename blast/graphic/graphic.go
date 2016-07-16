@@ -223,47 +223,47 @@ func (s Summary) invert(y vg.Length) vg.Length { return s.h - y }
 // renderHeader renders the header to c.
 func (s Summary) renderHeader(c vg.Canvas) {
 	var p vg.Path
-	p.Move(0, 0)
-	p.Line(s.w, 0)
-	p.Line(s.w, s.h)
-	p.Line(0, s.h)
+	p.Move(vg.Point{0, 0})
+	p.Line(vg.Point{s.w, 0})
+	p.Line(vg.Point{s.w, s.h})
+	p.Line(vg.Point{0, s.h})
 	p.Close()
 	c.SetColor(white)
 	c.Fill(p)
 
 	c.SetColor(black)
-	c.FillString(mediumFont, gutter, s.invert(header-smallSize), s.query[:min(len(s.query), maxNameLen)])
+	c.FillString(mediumFont, vg.Point{gutter, s.invert(header - smallSize)}, s.query[:min(len(s.query), maxNameLen)])
 
 	p = p[:0]
-	p.Move(leftMargin, s.invert(header))
-	p.Line(leftMargin+bodyWidth, s.invert(header))
+	p.Move(vg.Point{leftMargin, s.invert(header)})
+	p.Line(vg.Point{leftMargin + bodyWidth, s.invert(header)})
 	c.SetLineWidth(1)
 	c.Stroke(p)
 
-	c.FillString(smallFont, leftMargin, s.invert(header-smallSize), fmt.Sprint(s.min))
+	c.FillString(smallFont, vg.Point{leftMargin, s.invert(header - smallSize)}, fmt.Sprint(s.min))
 	queryMax := fmt.Sprint(fmt.Sprint(s.max))
 	offQueryMax := smallFont.Width(queryMax)
-	c.FillString(smallFont, leftMargin+bodyWidth-offQueryMax, s.invert(header-smallSize), queryMax)
+	c.FillString(smallFont, vg.Point{leftMargin + bodyWidth - offQueryMax, s.invert(header - smallSize)}, queryMax)
 }
 
 // renderLegend renders the legend to c.
 func (s Summary) renderLegend(c vg.Canvas) {
 	c.SetColor(black)
-	c.FillString(smallFont, leftMargin+bodyWidth-80, s.invert(smallSize+2), "% Identity")
+	c.FillString(smallFont, vg.Point{leftMargin + bodyWidth - 80, s.invert(smallSize + 2)}, "% Identity")
 	var p vg.Path
 	for i := 20; i <= 100; i += 10 {
 		x := leftMargin + bodyWidth/2 + vg.Length(i)*2
 
-		p.Move(x, s.invert(gutter))
-		p.Line(x+10, s.invert(gutter))
-		p.Line(x+10, s.invert(gutter+10))
-		p.Line(x, s.invert(gutter+10))
+		p.Move(vg.Point{x, s.invert(gutter)})
+		p.Line(vg.Point{x + 10, s.invert(gutter)})
+		p.Line(vg.Point{x + 10, s.invert(gutter + 10)})
+		p.Line(vg.Point{x, s.invert(gutter + 10)})
 		p.Close()
 		c.SetColor(pallete.color(float64(i) / 100))
 		c.Fill(p)
 		p = p[:0]
 		c.SetColor(black)
-		c.FillString(tinyFont, x, s.invert(tinySize+gutter+10), fmt.Sprint(i))
+		c.FillString(tinyFont, vg.Point{x, s.invert(tinySize + gutter + 10)}, fmt.Sprint(i))
 	}
 }
 
@@ -284,7 +284,7 @@ func (s Summary) renderAlignments(c vg.Canvas) {
 		v += hspGap
 		if s.Aligns {
 			c.SetColor(black)
-			c.FillString(smallFont, 2*gutter, s.invert(header+v+2*tinySize), id[:min(len(id), maxNameLen)])
+			c.FillString(smallFont, vg.Point{2 * gutter, s.invert(header + v + 2*tinySize)}, id[:min(len(id), maxNameLen)])
 		}
 
 		c.SetLineWidth(lineWidth)
@@ -298,21 +298,21 @@ func (s Summary) renderAlignments(c vg.Canvas) {
 			}
 
 			if s.Aligns {
-				p.Move(x1, s.invert(y-smallSize/1.5))
-				p.Line(x2, s.invert(y-smallSize/1.5))
+				p.Move(vg.Point{x1, s.invert(y - smallSize/1.5)})
+				p.Line(vg.Point{x2, s.invert(y - smallSize/1.5)})
 				c.SetColor(pallete.color(hsp.identity))
 				c.Stroke(p)
 				p = p[:0]
 
 				c.SetColor(black)
-				c.FillString(tinyFont, x1, s.invert(y-2*tinySize), fmt.Sprint(hsp.queryFrom))
+				c.FillString(tinyFont, vg.Point{x1, s.invert(y - 2*tinySize)}, fmt.Sprint(hsp.queryFrom))
 				queryTo := fmt.Sprint(hsp.queryTo)
 				offQueryTo := tinyFont.Width(queryTo)
-				c.FillString(tinyFont, x2-offQueryTo, s.invert(y-2*tinySize), queryTo)
-				c.FillString(tinyFont, x1, s.invert(y), fmt.Sprint(hsp.hitFrom))
+				c.FillString(tinyFont, vg.Point{x2 - offQueryTo, s.invert(y - 2*tinySize)}, queryTo)
+				c.FillString(tinyFont, vg.Point{x1, s.invert(y)}, fmt.Sprint(hsp.hitFrom))
 				hitTo := fmt.Sprint(hsp.hitTo, strand(hsp.hitTo-hsp.hitFrom))
 				offHitTo := tinyFont.Width(hitTo)
-				c.FillString(tinyFont, x2-offHitTo, s.invert(y), hitTo)
+				c.FillString(tinyFont, vg.Point{x2 - offHitTo, s.invert(y)}, hitTo)
 			}
 		}
 	}
@@ -339,15 +339,15 @@ func (s Summary) renderAlignments(c vg.Canvas) {
 
 		const offset = 3
 
-		c.FillString(tinyFont, leftMargin+bodyWidth+offset, s.invert(header+tinySize), fmt.Sprintf("%d/line", dScale))
+		c.FillString(tinyFont, vg.Point{leftMargin + bodyWidth + offset, s.invert(header + tinySize)}, fmt.Sprintf("%d/line", dScale))
 		for i := min; i <= max; i++ {
 			d, ok := depth[i]
 			if !ok {
 				continue
 			}
 			l := vg.Length(d / dScale)
-			p.Move(vg.Length(i), s.invert(header+offset))
-			p.Line(vg.Length(i), s.invert(header+offset+l))
+			p.Move(vg.Point{vg.Length(i), s.invert(header + offset)})
+			p.Line(vg.Point{vg.Length(i), s.invert(header + offset + l)})
 			c.Stroke(p)
 			p = p[:0]
 		}
