@@ -101,7 +101,12 @@ func (rid *Rid) unmarshal(r io.Reader) error {
 }
 
 // String returns the string representation of the Rid.
-func (r *Rid) String() string { return r.rid }
+func (r *Rid) String() string {
+	if r == nil {
+		return "<nil>"
+	}
+	return r.rid
+}
 
 // TimeOfExecution returns the expected time until the request can be satisfied.
 func (r *Rid) TimeOfExecution() time.Duration {
@@ -139,7 +144,7 @@ type SearchInfo struct {
 }
 
 func (s *SearchInfo) String() string {
-	return fmt.Sprintf("%s Status:%s Hits:%v", s.Rid, s.Status, s.HaveHits)
+	return fmt.Sprintf("RID:%s Status:%s Hits:%v", s.Rid, s.Status, s.HaveHits)
 }
 
 func (s *SearchInfo) unmarshal(r io.Reader) error {
