@@ -127,10 +127,15 @@ func (s *S) TestBlast(c *check.C) {
 			var s *SearchInfo
 			s, err = r.SearchInfo(tool, *net)
 			c.Assert(err, check.Equals, nil)
-			c.Check(s.Status, check.Equals, "READY")
 			if !s.HaveHits {
+				c.Check(s.Status, check.Equals, "WAITING")
+				if k == retries-1 {
+					c.Logf("NCBI server timed out: %v", s)
+					return
+				}
 				continue
 			}
+			c.Check(s.Status, check.Equals, "READY")
 			c.Check(s.Rid.String(), check.Equals, r.String())
 			o, err = r.GetOutput(t.getParams, tool, *net)
 			if err == nil {
