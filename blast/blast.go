@@ -163,7 +163,7 @@ type WebParameters struct {
 }
 
 // BlastUri is the base URL for the NCBI BLAST URL API.
-const BlastUri = ncbi.Util("http://www.ncbi.nlm.nih.gov/blast/Blast.cgi")
+var BlastUri = ncbi.Util("http://www.ncbi.nlm.nih.gov/blast/Blast.cgi")
 
 // fillParams adds elements to v based on the "param" tag of p if the value is not the
 // zero value for that type.
