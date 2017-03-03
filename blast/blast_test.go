@@ -63,7 +63,7 @@ func (s *S) TestBlast(c *check.C) {
 				Program:   "blastn",
 				Reference: "Stephen F. Altschul, Thomas L. Madden, Alejandro A. Sch&auml;ffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), \"Gapped BLAST and PSI-BLAST: a new generation of protein database search programs\", Nucleic Acids Res. 25:3389-3402.",
 				Database:  "nr",
-				QueryId:   "gi|322|emb|X14032.1|",
+				QueryId:   "X14032.1",
 				Parameters: Parameters{
 					MatrixName:  nil,
 					Expect:      10,

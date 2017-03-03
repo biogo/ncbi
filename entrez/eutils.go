@@ -92,26 +92,26 @@ const (
 	//  * Provides a list of the names of all valid Entrez databases.
 	//  * Provides statistics for a single database, including lists of indexing fields and available
 	//    link names.
-	InfoUri = ncbi.Util(Base + "einfo.fcgi")
+	InfoURL = ncbi.Util(Base + "einfo.fcgi")
 
 	//  * Provides a list of UIDs matching a text query.
 	//  * Posts the results of a search on the History server.
 	//  * Downloads all UIDs from a dataset stored on the History server.
 	//  * Combines or limits UID datasets stored on the History server.
 	//  * Sorts sets of UIDs.
-	SearchUri = ncbi.Util(Base + "esearch.fcgi")
+	SearchURL = ncbi.Util(Base + "esearch.fcgi")
 
 	//  * Uploads a list of UIDs to the Entrez History server.
 	//  * Appends a list of UIDs to an existing set of UID lists attached to a Web Environment.
-	PostUri = ncbi.Util(Base + "epost.fcgi")
+	PostURL = ncbi.Util(Base + "epost.fcgi")
 
 	//  * Returns document summaries (DocSums) for a list of input UIDs.
 	//  * Returns DocSums for a set of UIDs stored on the Entrez History server.
-	SummaryUri = ncbi.Util(Base + "esummary.fcgi")
+	SummaryURL = ncbi.Util(Base + "esummary.fcgi")
 
 	//  * Returns formatted data records for a list of input UIDs.
 	//  * Returns formatted data records for a set of UIDs stored on the Entrez History server.
-	FetchUri = ncbi.Util(Base + "efetch.fcgi")
+	FetchURL = ncbi.Util(Base + "efetch.fcgi")
 
 	//  * Returns UIDs linked to an input set of UIDs in either the same or a different Entrez database.
 	//  * Returns UIDs linked to other UIDs in the same Entrez database that match an Entrez query.
@@ -120,16 +120,16 @@ const (
 	//  * Lists LinkOut URLs and attributes for a set of UIDs.
 	//  * Lists hyperlinks to primary LinkOut providers for a set of UIDs.
 	//  * Creates hyperlinks to the primary LinkOut provider for a single UID.
-	LinkUri = ncbi.Util(Base + "elink.fcgi")
+	LinkURL = ncbi.Util(Base + "elink.fcgi")
 
 	//  * Provides the number of records retrieved in all Entrez databases by a single text query.
-	GlobalUri = ncbi.Util(Base + "egquery.fcgi")
+	GlobalURL = ncbi.Util(Base + "egquery.fcgi")
 
 	//  * Provides spelling suggestions for terms within a single text query in a given database.
-	SpellUri = ncbi.Util(Base + "espell.fcgi")
+	SpellURL = ncbi.Util(Base + "espell.fcgi")
 
 	//  * Retrieves PubMed IDs (PMIDs) that correspond to a set of input citation queries.
-	CitMatchUri = ncbi.Util(Base + "ecitmatch.cgi")
+	CitMatchURL = ncbi.Util(Base + "ecitmatch.cgi")
 )
 
 type unmarshaler interface {
@@ -181,7 +181,7 @@ func DoInfo(db, tool, email string) (*Info, error) {
 		v["db"] = []string{db}
 	}
 	i := Info{}
-	err := get(InfoUri, v, tool, email, &i)
+	err := get(InfoURL, v, tool, email, &i)
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +217,7 @@ func DoSearch(db, query string, p *Parameters, h *History, tool, email string) (
 			}
 		}
 	}
-	err := get(SearchUri, v, tool, email, &s)
+	err := get(SearchURL, v, tool, email, &s)
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +245,7 @@ func DoPost(db, tool, email string, h *History, id ...int) (*Post, error) {
 	} else if h != nil && h.QueryKey == 0 {
 		p.History = h
 	}
-	err := get(PostUri, v, tool, email, &p)
+	err := get(PostURL, v, tool, email, &p)
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +274,7 @@ func Fetch(db string, p *Parameters, tool, email string, h *History, id ...int) 
 	} else if len(id) == 0 {
 		return nil, ErrNoIdProvided
 	}
-	resp, err := FetchUri.GetResponse(v, tool, email, Limit)
+	resp, err := FetchURL.GetResponse(v, tool, email, Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -309,7 +309,7 @@ func DoSummary(db string, p *Parameters, tool, email string, h *History, id ...i
 		return nil, ErrNoIdProvided
 	}
 	s := Summary{Database: db}
-	err := get(SummaryUri, v, tool, email, &s)
+	err := get(SummaryURL, v, tool, email, &s)
 	if err != nil {
 		return nil, err
 	}
@@ -357,7 +357,7 @@ func DoLink(fromDb, toDb, cmd, query string, p *Parameters, tool, email string, 
 		return nil, ErrNoIdProvided
 	}
 	l := Link{}
-	err := get(LinkUri, v, tool, email, &l)
+	err := get(LinkURL, v, tool, email, &l)
 	if err != nil {
 		return nil, err
 	}
@@ -371,7 +371,7 @@ func DoGlobal(query, tool, email string) (*Global, error) {
 	}
 	v := url.Values{"term": []string{query}}
 	g := Global{}
-	err := get(GlobalUri, v, tool, email, &g)
+	err := get(GlobalURL, v, tool, email, &g)
 	if err != nil {
 		return nil, err
 	}
@@ -388,7 +388,7 @@ func DoSpell(db, query string, tool, email string) (*Spell, error) {
 		v["term"] = []string{query}
 	}
 	sp := Spell{}
-	err := get(SpellUri, v, tool, email, &sp)
+	err := get(SpellURL, v, tool, email, &sp)
 	if err != nil {
 		return nil, err
 	}
@@ -423,7 +423,7 @@ func DoCitMatch(query map[string]CitQuery, tool, email string) (map[string]int, 
 		}
 		v["bdata"] = []string{buf.String()}
 	}
-	r, err := CitMatchUri.Get(v, tool, email, Limit)
+	r, err := CitMatchURL.Get(v, tool, email, Limit)
 	if err != nil {
 		return nil, err
 	}

@@ -119,7 +119,7 @@ func (s *S) TestFetch(c *check.C) {
 		{
 			"protein", "fasta", "text", []int{15718680, 157427902, 119703751},
 			"" +
-				">gi|15718680|ref|NP_005537.3| tyrosine-protein kinase ITK/TSK [Homo sapiens]\n" +
+				">NP_005537.3 tyrosine-protein kinase ITK/TSK [Homo sapiens]\n" +
 				"MNNFILLEEQLIKKSQQKRRTSPSNFKVRFFVLTKASLAYFEDRHGKKRTLKGSIELSRIKCVEIVKSDI\n" +
 				"SIPCHYKYPFQVVHDNYLLYVFAPDRESRQRWVLALKEETRNNNSLVPKYHPNFWMDGKWRCCSQLEKLA\n" +
 				"TGCAQYDPTKNASKKPLPPTPEDNRRPLWEPEETVVIALYDYQTNDPQELALRRNEEYCLLDSSEIHWWR\n" +
@@ -130,7 +130,7 @@ func (s *S) TestFetch(c *check.C) {
 				"GENQVIKVSDFGMTRFVLDDQYTSSTGTKFPVKWASPEVFSFSRYSSKSDVWSFGVLMWEVFSEGKIPYE\n" +
 				"NRSNSEVVEDISTGFRLYKPRLASTHVYQIMNHCWKERPEDRPAFSRLLRQLAEIAESGL\n" +
 				"\n" +
-				">gi|157427902|ref|NP_001098858.1| tyrosine-protein kinase ITK/TSK [Bos taurus]\n" +
+				">NP_001098858.1 tyrosine-protein kinase ITK/TSK [Bos taurus]\n" +
 				"MNNFILLEEQLIKKSQQKRRTSPSNFKVRFFVLTKTSLAYFEDRHGKKRTLKGSIELSRIKCVEIVKSDI\n" +
 				"IIPCHYKYPFQVVHDNYLLYVFAPDRESRQRWVLALKEETRNNNSLVPKYHPNFWLDGRWRCCAQMEKLA\n" +
 				"VGCAQYDPTKNASKKPLPPTPEDNRRSLRELEETVVIALYDYQTNDPQELMLQRNEEYYLLDSSEIHWWR\n" +
@@ -141,7 +141,7 @@ func (s *S) TestFetch(c *check.C) {
 				"GENQVIKVSDFGMTRFVLDDQYTSSTGTKFPVKWASPEVFSFSRYSSKSDVWSFGVLMWEVFSEGKIPYE\n" +
 				"NRSNSEVVEDITTGFRLYKPRLASQHIYQIMNHCWKEKPEDRPPFSRLLSQLAEIAELGL\n" +
 				"\n" +
-				">gi|119703751|ref|NP_034713.2| tyrosine-protein kinase ITK/TSK isoform 2 [Mus musculus]\n" +
+				">NP_034713.2 tyrosine-protein kinase ITK/TSK isoform 2 [Mus musculus]\n" +
 				"MNNFILLEEQLIKKSQQKRRTSPSNFKVRFFVLTKASLAYFEDRHGKKRTLKGSIELSRIKCVEIVKSDI\n" +
 				"SIPCHYKYPFQVVHDNYLLYVFAPDCESRQRWVLTLKEETRNNNSLVSKYHPNFWMDGRWRCCSQLEKPA\n" +
 				"VGCAPYDPSKNASKKPLPPTPEDNRRSFQEPEETLVIALYDYQTNDPQELALRCDEEYYLLDSSEIHWWR\n" +
@@ -188,6 +188,7 @@ func (s *S) TestDoSummary(c *check.C) {
 					{Value: "live", Name: "Status", Type: "String"},
 					{Value: "", Name: "ReplacedBy", Type: "String"},
 					{Value: "  ", Name: "Comment", Type: "String"},
+					{Value: "NP_005537.3", Name: "AccessionVersion", Type: "String"},
 				},
 			},
 			Document{
@@ -205,6 +206,7 @@ func (s *S) TestDoSummary(c *check.C) {
 					{Value: "live", Name: "Status", Type: "String"},
 					{Value: "", Name: "ReplacedBy", Type: "String"},
 					{Value: "  ", Name: "Comment", Type: "String"},
+					{Value: "NP_001098858.1", Name: "AccessionVersion", Type: "String"},
 				},
 			},
 			Document{
@@ -222,6 +224,7 @@ func (s *S) TestDoSummary(c *check.C) {
 					{Value: "live", Name: "Status", Type: "String"},
 					{Value: "", Name: "ReplacedBy", Type: "String"},
 					{Value: "  ", Name: "Comment", Type: "String"},
+					{Value: "NP_034713.2", Name: "AccessionVersion", Type: "String"},
 				},
 			},
 		},
@@ -232,7 +235,11 @@ func (s *S) TestDoSummary(c *check.C) {
 			if it.Name == "UpdateDate" {
 				continue
 			}
-			c.Check(it, check.Equals, expect.Documents[i].Items[j])
+			if j < len(expect.Documents[i].Items) {
+				c.Check(it, check.Equals, expect.Documents[i].Items[j])
+			} else {
+				c.Logf("no expectation for %d/%d %#v\n", i, j, it)
+			}
 		}
 	}
 }

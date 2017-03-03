@@ -162,8 +162,8 @@ type WebParameters struct {
 	WordSize                   int      `param:"WORD_SIZE"`
 }
 
-// BlastUri is the base URL for the NCBI BLAST URL API.
-var BlastUri = ncbi.Util("http://www.ncbi.nlm.nih.gov/blast/Blast.cgi")
+// URL is the base URL for the NCBI BLAST URL API.
+var URL = ncbi.Util("http://www.ncbi.nlm.nih.gov/blast/Blast.cgi")
 
 // fillParams adds elements to v based on the "param" tag of p if the value is not the
 // zero value for that type.
@@ -243,7 +243,7 @@ func RequestWebReadCloser(page string, p *WebParameters, tool, email string) (io
 	if page != "" {
 		v["PAGE"] = []string{page}
 	}
-	resp, err := BlastUri.Get(v, tool, email, Limit)
+	resp, err := URL.Get(v, tool, email, Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +259,7 @@ func Put(query string, p *PutParameters, tool, email string) (*Rid, error) {
 	}
 	fillParams("Put", p, v)
 	rid := Rid{}
-	resp, err := BlastUri.Get(v, tool, email, Limit)
+	resp, err := URL.Get(v, tool, email, Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -282,7 +282,7 @@ func (r *Rid) SearchInfo(tool, email string) (*SearchInfo, error) {
 	v[cmdParam] = []string{"Get"}
 	v["FORMAT_OBJECT"] = []string{"SearchInfo"}
 	<-r.Ready()
-	resp, err := BlastUri.Get(v, tool, email, Limit)
+	resp, err := URL.Get(v, tool, email, Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -308,7 +308,7 @@ func (r *Rid) GetOutput(p *GetParameters, tool, email string) (*Output, error) {
 	v["FORMAT_TYPE"] = []string{"XML"}
 	o := Output{}
 	r.limit.Wait()
-	err := BlastUri.GetXML(v, tool, email, Limit, &o)
+	err := URL.GetXML(v, tool, email, Limit, &o)
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +326,7 @@ func (r *Rid) GetReadCloser(p *GetParameters, tool, email string) (io.ReadCloser
 	}
 	fillParams("Get", p, v)
 	r.limit.Wait()
-	resp, err := BlastUri.Get(v, tool, email, Limit)
+	resp, err := URL.Get(v, tool, email, Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -342,7 +342,7 @@ func (r *Rid) Delete(tool, email string) error {
 		return ErrNoRidProvided
 	}
 	v[cmdParam] = []string{"Delete"}
-	resp, err := BlastUri.Get(v, tool, email, Limit)
+	resp, err := URL.Get(v, tool, email, Limit)
 	if err != nil {
 		return err
 	}
@@ -357,7 +357,7 @@ func RequestInfo(target string, tool, email string) (*Info, error) {
 	}
 	v[cmdParam] = []string{"Info"}
 	var i Info
-	resp, err := BlastUri.Get(v, tool, email, Limit)
+	resp, err := URL.Get(v, tool, email, Limit)
 	if err != nil {
 		return nil, err
 	}
