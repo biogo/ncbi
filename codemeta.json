@@ -1,0 +1,30 @@
+{
+  "@context": "https://raw.githubusercontent.com/mbjones/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+    {
+      "@id": "http://orcid.org/0000-0001-8295-2301",
+      "@type": "Person",
+      "email": "dan.kortschak@adelaide.edu.au",
+      "name": "R Daniel Kortschak",
+      "affiliation": "School of Biological Sciences, The University of Adelaide"
+    },
+    {
+      "@id": "http://orcid.org/0000-0003-2404-5636",
+      "@type": "Person",
+      "email": "david.adelson@adelaide.edu.au",
+      "name": "David L Adelson",
+      "affiliation": "School of Biological Sciences, The University of Adelaide"
+    }
+  ],
+  "identifier": "",
+  "codeRepository": "https://github.com/biogo/ncbi",
+  "datePublished": "2017-03-03",
+  "dateModified": "2017-03-03",
+  "dateCreated": "2017-03-03",
+  "description": "interfaces to NCBI services for the Go language",
+  "keywords": "bioinformatics, NCBI, EUtilities, BLAST, golang",
+  "license": "BSD-3 like",
+  "title": "bíogo/ncbi",
+  "version": "v1.0.0"
+}
