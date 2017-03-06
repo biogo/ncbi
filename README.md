@@ -2,7 +2,7 @@
 
 #NCBI
 
-[![Build Status](https://travis-ci.org/biogo/ncbi.svg?branch=master)](https://travis-ci.org/biogo/ncbi)
+[![Build Status](https://travis-ci.org/biogo/ncbi.svg?branch=master)](https://travis-ci.org/biogo/ncbi) [![GoDoc](https://godoc.org/github.com/biogo/ncbi?status.svg)](https://godoc.org/github.com/biogo/ncbi)
 
 ##Installation
 
