@@ -6,6 +6,8 @@
 
 ## Installation
 
+The NCBI package requires a functioning [Go compiler installation](https://golang.org/doc/install).
+
         $ go get github.com/biogo/ncbi/...
 
 ## Overview
