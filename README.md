@@ -12,9 +12,9 @@
 
 ncbi provides API interfaces to NCBI services.
 
-* Entrez Utility Programs
+* [Entrez Utility Programs](https://www.ncbi.nlm.nih.gov/books/NBK25501/)
 
-* BLAST
+* [BLAST](https://ncbi.github.io/blast-cloud/)
 
 ## Citing ##
 
