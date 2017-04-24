@@ -62,7 +62,7 @@ func main() {
 		flag.Usage()
 		os.Exit(0)
 	}
-	if *email == "" || *query == "" {
+	if *email == "" || *clQuery == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -136,6 +136,8 @@ func main() {
 ```
 
 ### BLAST
+
+The following example provides a simple function used to perform a BLAST search from within a larger program.
 
 ```
 const (
