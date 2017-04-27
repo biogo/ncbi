@@ -23,6 +23,7 @@ ncbi provides API interfaces to NCBI services.
 ### Entrez
 
 This is a simple illustration of using the Entrez Utility Programs to retrieve a large set of sequences to a file.
+The complete code is [here](paper/examples/fetch/fetch.go).
 
 ```
 package main
@@ -138,20 +139,18 @@ func main() {
 ### BLAST
 
 The following example provides a simple function used to perform a BLAST search from within a larger program.
+A complete example is available [here](paper/examples/blast/blast.go).
 
 ```
-const (
-	// tool and email are required by the BLAST server.
-	tool  = "blast-example"
-	email = "foo@bar.org"
-)
+// tool is required by the BLAST server.
+const tool  = "blast.example"
 
 // BLAST submits a query to the BLAST server, waits for the server's estimated time of
 // execution and retrieves the search status. If the search is ready the results are then
 // retrieved and returned. If errors are returned during data retrieval from the server,
 // retrieval is retried with up to retry attempts; all server requests honour the request
 // frequency policy specified in the BLAST usage guidelines.
-func BLAST(query string, retry int, pp *blast.PutParameters, gp *blast.GetParameters) (*blast.Output, error) {
+func BLAST(query string, retry int, pp *blast.PutParameters, gp *blast.GetParameters, email string) (*blast.Output, error) {
 	// Put the query request to the BLAST server.
 	r, err := blast.Put(query, pp, tool, email)
 	if err != nil {
