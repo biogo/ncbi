@@ -25,7 +25,7 @@ ncbi provides API interfaces to NCBI services.
 This is a simple illustration of using the Entrez Utility Programs to retrieve a large set of sequences to a file.
 The complete code is [here](paper/examples/fetch/fetch.go).
 
-```
+```go
 package main
 
 import (
@@ -141,7 +141,7 @@ func main() {
 The following example provides a simple function used to perform a BLAST search from within a larger program.
 A complete example is available [here](paper/examples/blast/blast.go).
 
-```
+```go
 // tool is required by the BLAST server.
 const tool  = "blast.example"
 
