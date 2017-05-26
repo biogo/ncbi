@@ -15,6 +15,7 @@ affiliations:
  - name: School of Biological Sciences, The University of Adelaide
    index: 1
 date: 3 March 2017
+bibliography: paper.bib
 ---
 
 # Summary
@@ -25,7 +26,7 @@ The BioPerl suite [@BioPerl] provides access to the BLAST API via Bio::Tools::Ru
 Similarly, Biopython [@Biopython] provides access via the NCBIWWW function in the Bio.Blast module and functions in Bio.Entrez for EUtilities.
 Packages within bíogo/ncbi provide Go application programmer interfaces to the NCBI BLAST and EUtilities services.
 The design of bíogo/ncbi is light weight, allowing the user to make use of the Go language's control structures and data types, rather than imposing a library-specific access approach.
-In addition to allowing remote BLAST searches, BioPerl and Biopython provide mechanisms to parse XML output from local BLAST search via BioPerl's Bio::SearchIO and Biopythons Bio.Blast NCBIXML 
+In addition to allowing remote BLAST searches, BioPerl and Biopython provide mechanisms to parse XML output from local BLAST search via BioPerl's Bio::SearchIO and Biopythons Bio.Blast NCBIXML.
 Because of the modular design of bíogo/ncbi, XML encoded output from local BLAST searches or remote downloads can be parsed using the Go standard library's XML package.
 
 # References
