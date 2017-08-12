@@ -18,6 +18,10 @@ ncbi provides API interfaces to NCBI services.
 
 * [BLAST](https://ncbi.github.io/blast-cloud/)
 
+## Citing ##
+
+If you use bíogo/ncbi, please cite Kortschak and Adelson "bíogo/ncbi: interfaces to NCBI services for the Go language", doi:[10.21105/joss.00234](http://dx.doi.org/10.21105/joss.00234), and Kortschak and Adelson "bíogo: a simple high-performance bioinformatics toolkit for the Go language", doi:[10.1101/005033](http://biorxiv.org/content/early/2014/05/12/005033).
+
 ## Example usage
 
 ### Entrez
@@ -207,10 +211,6 @@ If you find any bugs, feel free to file an issue on the github issue tracker.
 Pull requests are welcome, though if they involve changes to API or addition of features, please first open a discussion at the biogo-dev Google Group.
 
 https://groups.google.com/forum/#!forum/biogo-dev
-
-## Citing ##
-
-If you use bíogo, please cite Kortschak and Adelson "bíogo: a simple high-performance bioinformatics toolkit for the Go language", doi:[10.1101/005033](http://biorxiv.org/content/early/2014/05/12/005033).
 
 ## Library Structure and Coding Style
 
