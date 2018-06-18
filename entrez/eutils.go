@@ -76,6 +76,8 @@ type Parameters struct {
 	RelDate    string `param:"reldate"`
 	MinDate    string `param:"mindate"`
 	MaxDate    string `param:"maxdate"`
+	Field      string `param:"field"`
+	APIKey     string `param:"api_key"`
 }
 
 // History stores an Entrez Web Environment and query key. The zero values of QueryKey and WebEnv
