@@ -38,7 +38,7 @@
 <path d="M787.5,313.75L800,313.75L800,301.25L787.5,301.25Z" style="fill:#C400FF" />
 <text x="787.5" y="-292.5" transform="scale(1, -1)"
 	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt">90</text>
-<path d="M812.5,313.75L825,313.75L825,301.25L812.5,301.25Z" />
+<path d="M812.5,313.75L825,313.75L825,301.25L812.5,301.25Z"  />
 <text x="812.5" y="-292.5" transform="scale(1, -1)"
 	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7pt">100</text>
 <text x="12.5" y="-227.5" transform="scale(1, -1)"
