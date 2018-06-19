@@ -12,7 +12,7 @@ import (
 
 	"github.com/biogo/ncbi/blast"
 
-	"github.com/gonum/plot/vg"
+	"gonum.org/v1/plot/vg"
 )
 
 const maxInt = int(^uint(0) >> 1)

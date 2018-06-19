@@ -15,8 +15,8 @@ import (
 	"github.com/biogo/ncbi/blast"
 	"github.com/biogo/ncbi/blast/graphic"
 
-	"github.com/gonum/plot/vg"
-	"github.com/gonum/plot/vg/vgsvg"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/vgsvg"
 
 	"gopkg.in/check.v1"
 )
