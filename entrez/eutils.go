@@ -78,6 +78,7 @@ type Parameters struct {
 	MaxDate    string `param:"maxdate"`
 	Field      string `param:"field"`
 	APIKey     string `param:"api_key"`
+	Sort       string `param:"sort"`
 }
 
 // History stores an Entrez Web Environment and query key. The zero values of QueryKey and WebEnv
