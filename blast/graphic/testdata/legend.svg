@@ -6,11 +6,11 @@
 <g transform="scale(1, -1) translate(0, -60)">
 <path d="M0,0L800,0L800,60L0,60Z" style="fill:#FFFFFF" />
 <text x="5" y="-32" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:bold;font-style:normal;font-size:13">33421</text>
+	style="font-family:Helvetica;font-weight:bold;font-style:normal;font-size:13px">33421</text>
 <path d="M150,20L750,20" style="fill:none;stroke:#000000" />
 <text x="150" y="-32" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12">1</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12px">1</text>
 <text x="736.65" y="-32" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12">29</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12px">29</text>
 </g>
 </svg>

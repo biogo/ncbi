@@ -6,104 +6,104 @@
 <g transform="scale(1, -1) translate(0, -256)">
 <path d="M0,0L800,0L800,256L0,256Z" style="fill:#FFFFFF" />
 <text x="5" y="-228" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:bold;font-style:normal;font-size:13">33421</text>
+	style="font-family:Helvetica;font-weight:bold;font-style:normal;font-size:13px">33421</text>
 <path d="M150,216L750,216" style="fill:none;stroke:#000000" />
 <text x="150" y="-228" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12">1</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12px">1</text>
 <text x="736.65" y="-228" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12">29</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12px">29</text>
 <text x="670" y="-242" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12">% Identity</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12px">% Identity</text>
 <path d="M490,251L500,251L500,241L490,241Z" style="fill:#808080" />
 <text x="490" y="-234" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">20</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">20</text>
 <path d="M510,251L520,251L520,241L510,241Z" style="fill:#FF0000" />
 <text x="510" y="-234" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">30</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">30</text>
 <path d="M530,251L540,251L540,241L530,241Z" style="fill:#FFC400" />
 <text x="530" y="-234" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">40</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">40</text>
 <path d="M550,251L560,251L560,241L550,241Z" style="fill:#FFFF00" />
 <text x="550" y="-234" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">50</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">50</text>
 <path d="M570,251L580,251L580,241L570,241Z" style="fill:#00FF00" />
 <text x="570" y="-234" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">60</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">60</text>
 <path d="M590,251L600,251L600,241L590,241Z" style="fill:#00FFFF" />
 <text x="590" y="-234" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">70</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">70</text>
 <path d="M610,251L620,251L620,241L610,241Z" style="fill:#0000FF" />
 <text x="610" y="-234" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">80</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">80</text>
 <path d="M630,251L640,251L640,241L630,241Z" style="fill:#C400FF" />
 <text x="630" y="-234" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">90</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">90</text>
 <path d="M650,251L660,251L660,241L650,241Z"  />
 <text x="650" y="-234" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">100</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">100</text>
 <text x="10" y="-182" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12">gi|388525227|gb|CP00</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12px">gi|388525227|gb|CP00</text>
 <path d="M278.57,188L750,188" style="fill:none;stroke:#C400FF;stroke-width:3" />
 <text x="278.57" y="-194" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">7</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">7</text>
 <text x="742.21" y="-194" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">29</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">29</text>
 <text x="278.57" y="-180" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">1187458</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">1187458</text>
 <text x="718.99" y="-180" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">1187436 -</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">1187436 -</text>
 <text x="10" y="-146" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12">gi|354799811|gb|JN96</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12px">gi|354799811|gb|JN96</text>
 <path d="M150,152L514.29,152" style="fill:none;stroke:#000000;stroke-width:3" />
 <text x="150" y="-158" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">1</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">1</text>
 <text x="506.5" y="-158" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">18</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">18</text>
 <text x="150" y="-144" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">26580</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">26580</text>
 <text x="488.79" y="-144" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">26597 +</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">26597 +</text>
 <text x="10" y="-110" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12">gi|356871506|emb|FO0</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12px">gi|356871506|emb|FO0</text>
 <path d="M407.14,116L728.57,116" style="fill:none;stroke:#000000;stroke-width:3" />
 <text x="407.14" y="-122" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">13</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">13</text>
 <text x="720.79" y="-122" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">28</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">28</text>
 <text x="407.14" y="-108" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">61730</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">61730</text>
 <text x="703.07" y="-108" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">61745 +</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">61745 +</text>
 <text x="10" y="-74" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12">gi|353230524|emb|HE6</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12px">gi|353230524|emb|HE6</text>
 <path d="M150,80L471.43,80" style="fill:none;stroke:#000000;stroke-width:3" />
 <text x="150" y="-86" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">1</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">1</text>
 <text x="463.64" y="-86" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">16</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">16</text>
 <text x="150" y="-72" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">28173004</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">28173004</text>
 <text x="434.25" y="-72" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">28173019 +</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">28173019 +</text>
 <path d="M192.86,64L514.29,64" style="fill:none;stroke:#000000;stroke-width:3" />
 <text x="192.86" y="-70" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">3</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">3</text>
 <text x="506.5" y="-70" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">18</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">18</text>
 <text x="192.86" y="-56" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">28996063</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">28996063</text>
 <text x="478.87" y="-56" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">28996048 -</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">28996048 -</text>
 <text x="10" y="-22" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12">gi|341821300|emb|HE5</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:12px">gi|341821300|emb|HE5</text>
 <path d="M428.57,28L750,28" style="fill:none;stroke:#000000;stroke-width:3" />
 <text x="428.57" y="-34" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">14</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">14</text>
 <text x="742.21" y="-34" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">29</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">29</text>
 <text x="428.57" y="-20" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">1741778</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">1741778</text>
 <text x="716.72" y="-20" transform="scale(1, -1)"
-	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7">1741793 +</text>
+	style="font-family:Helvetica;font-weight:normal;font-style:normal;font-size:7px">1741793 +</text>
 </g>
 </svg>
