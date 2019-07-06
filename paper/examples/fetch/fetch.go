@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// fetch is a command line entrez protein database query program.
+// fetch is a command line entrez database query program.
 package main
 
 import (
@@ -17,12 +17,12 @@ import (
 )
 
 const (
-	db   = "protein"
 	tool = "entrez.example"
 )
 
 var (
 	clQuery = flag.String("query", "", "query specifies the search query for record retrieval (required).")
+	db      = flag.String("db", "protein", "db specifies the database to search")
 	rettype = flag.String("rettype", "fasta", "rettype specifies the format of the returned data.")
 	retmax  = flag.Int("retmax", 500, "retmax specifies the number of records to be retrieved per request.")
 	out     = flag.String("out", "", "out specifies destination of the returned data (default to stdout).")
@@ -58,7 +58,7 @@ func main() {
 	}
 
 	h := entrez.History{}
-	s, err := entrez.DoSearch(db, *clQuery, nil, &h, tool, *email)
+	s, err := entrez.DoSearch(*db, *clQuery, nil, &h, tool, *email)
 	if err != nil {
 		log.Printf("error: %v\n", err)
 		os.Exit(1)
@@ -79,7 +79,7 @@ func main() {
 				r   io.ReadCloser
 				_bn int64
 			)
-			r, err = entrez.Fetch(db, p, tool, *email, &h)
+			r, err = entrez.Fetch(*db, p, tool, *email, &h)
 			if err != nil {
 				if r != nil {
 					r.Close()
